@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Domain Intelligence Schema - Documentation</title>
+    <meta name="description" content="Terraform for Agentic AI Systems - Official documentation for DIS v1.6.0">
+    <link rel="canonical" href="https://schemas.domainintelligenceschema.org/docs/">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -21,46 +23,62 @@
             padding: 3rem 2rem;
             border-radius: 8px;
             margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .subtitle { font-size: 1.2rem; opacity: 0.9; }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .subtitle { font-size: 1.2rem; opacity: 0.95; line-height: 1.8; }
         .version-badge {
             display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 0.25rem 0.75rem;
+            background: rgba(255,255,255,0.25);
+            padding: 0.4rem 1rem;
             border-radius: 20px;
             font-size: 0.9rem;
             margin-top: 1rem;
+            font-weight: 600;
         }
         main {
             background: white;
-            padding: 2rem;
+            padding: 2.5rem;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
         h2 {
             color: #667eea;
-            margin: 2rem 0 1rem 0;
-            padding-bottom: 0.5rem;
+            margin: 2.5rem 0 1.5rem 0;
+            padding-bottom: 0.75rem;
             border-bottom: 2px solid #e1e4e8;
+            font-weight: 600;
+        }
+        .intro {
+            line-height: 1.8;
+            margin-bottom: 2.5rem;
+            color: #444;
+        }
+        .intro p {
+            margin-bottom: 1.25rem;
+        }
+        .intro strong {
+            color: #667eea;
+            font-weight: 600;
         }
         .schema-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.25rem;
             margin-top: 1.5rem;
         }
         .schema-card {
             border: 1px solid #e1e4e8;
-            border-radius: 6px;
-            padding: 1rem;
-            transition: all 0.2s;
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: all 0.2s ease;
             background: white;
+            cursor: pointer;
         }
         .schema-card:hover {
             border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
         }
         .schema-card a {
             text-decoration: none;
@@ -69,22 +87,60 @@
         }
         .schema-card h3 {
             color: #667eea;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             margin-bottom: 0.5rem;
+            font-weight: 600;
         }
         .schema-card .description {
             font-size: 0.9rem;
             color: #586069;
+            line-height: 1.5;
         }
-        .category {
-            margin-bottom: 3rem;
+        .resources {
+            background: #f6f8fa;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-top: 3rem;
+        }
+        .resources ul {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            gap: 1rem;
+        }
+        .resources li {
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            transition: all 0.2s;
+        }
+        .resources li:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transform: translateX(4px);
+        }
+        .resources a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .resources a:hover {
+            color: #764ba2;
+        }
+        .resources a::before {
+            content: "→";
+            margin-right: 0.75rem;
+            font-weight: bold;
         }
         footer {
             text-align: center;
-            margin-top: 3rem;
+            margin-top: 4rem;
             padding-top: 2rem;
             border-top: 1px solid #e1e4e8;
             color: #586069;
+            font-size: 0.9rem;
         }
         footer a {
             color: #667eea;
@@ -93,23 +149,32 @@
         footer a:hover {
             text-decoration: underline;
         }
+        code {
+            background: #f6f8fa;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            font-size: 0.9em;
+            color: #667eea;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Domain Intelligence Schema</h1>
-        <div class="subtitle">Terraform for Agentic AI Systems</div>
+        <div class="subtitle">Terraform for Agentic AI Systems<br>A declarative framework for modeling and deploying enterprise AI agents</div>
         <div class="version-badge">v1.6.0 Documentation</div>
     </header>
 
     <main>
         <section class="intro">
             <h2>About DIS</h2>
-            <p>The Domain Intelligence Schema (DIS) is a declarative framework for modeling and deploying agentic AI systems in enterprise environments. Think of it as the BNF for business units — a formal grammar (not taxonomy) for composing valid domain models.</p>
-            <p>DIS captures domain structure (entities, roles, applications), behavioral rules (AgenticTriplets), execution bindings (functions, endpoints), and governance (RBAC, privacy, telemetry) in a vendor-neutral format that compiles to any runtime platform.</p>
+            <p>The Domain Intelligence Schema (DIS) is a declarative framework for modeling and deploying agentic AI systems in enterprise environments. Think of it as the <strong>BNF for business units</strong> — a formal grammar (not taxonomy) for composing valid domain models.</p>
+            <p>DIS captures domain structure (entities, roles, applications), behavioral rules (AgenticTriplets), execution bindings (functions, endpoints), and governance (RBAC, privacy, telemetry) in a <strong>vendor-neutral format</strong> that compiles to any runtime platform including LangGraph, CrewAI, AWS Bedrock Agents, and Microsoft AutoGen.</p>
+            <p>The framework enforces exactly 7 atomic modes of interaction (CREATE, READ, UPDATE, DELETE, INITIATE, RESPOND, NOTIFY) that drive proper entity discovery and prevent scope creep while maintaining expressiveness.</p>
         </section>
 
-        <section class="category">
+        <section>
             <h2>Schema Documentation</h2>
             <div class="schema-grid">
                 <div class="schema-card">
@@ -258,14 +323,15 @@
             <ul>
                 <li><a href="https://github.com/nwalker85/domainintelligenceschema">GitHub Repository</a></li>
                 <li><a href="https://schemas.domainintelligenceschema.org/dis/1.6.0/">JSON Schema CDN</a></li>
-                <li><a href="../README.md">Getting Started Guide</a></li>
+                <li><a href="https://schemas.domainintelligenceschema.org/dis/1.6.0/index.json">Schema Index (JSON)</a></li>
             </ul>
         </section>
     </main>
 
     <footer>
-        <p>Domain Intelligence Schema v1.6.0 | <a href="https://github.com/nwalker85/domainintelligenceschema/blob/main/LICENSE">Apache License 2.0</a></p>
-        <p>Schemas: <code>https://schemas.domainintelligenceschema.org/dis/1.6.0/</code></p>
+        <p><strong>Domain Intelligence Schema v1.6.0</strong> | <a href="https://github.com/nwalker85/domainintelligenceschema/blob/main/LICENSE">Apache License 2.0</a></p>
+        <p>Hosted on Google Cloud Platform | Managed by Quant</p>
+        <p><code>https://schemas.domainintelligenceschema.org/</code></p>
     </footer>
 </body>
 </html>
