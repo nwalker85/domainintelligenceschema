@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/KnowledgeDocument.schema.json",
+  "title": "KnowledgeDocument (v1.6)",
+  "description": "v1.6: A document used for knowledge/RAG/context. This version migrates enums to CommonEnums.schema.json.",
+  "type": "object",
+  "properties": {
+    "documentId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Title. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief summary. (Mandatory)"
+    },
+    "documentType": {
+      "description": "The classification of the knowledge document.",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/documentType"
+    },
+    "sourceURI": {
+      "type": "string",
+      "format": "uri"
+    },
+    "mimeType": {
+      "type": "string"
+    },
+    "contentHash": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "publicationDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lastModifiedDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "language": {
+      "type": "string"
+    },
+    "sourceApplicationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "documentId",
+      "const": "documentId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "documentId",
+    "name",
+    "description"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

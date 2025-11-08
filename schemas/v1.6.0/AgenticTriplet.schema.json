@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/AgenticTriplet.schema.json",
+  "title": "AgenticTriplet (v1.6)",
+  "description": "v1.6: Atomic unit of business behavior: acting entity in acting role takes a stance using a mode of interaction toward a target entity. This version migrates enums to CommonEnums.schema.json.",
+  "type": "object",
+  "properties": {
+    "tripletId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description and expected outcome. (Mandatory)"
+    },
+    "actingEntityId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Entity performing the action. (Mandatory)"
+    },
+    "actingRoleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Role in which the acting entity operates. (Mandatory)"
+    },
+    "stance": {
+      "description": "Whether the actor is ACTing or REACTing. (Mandatory)",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/stance"
+    },
+    "modeOfInteraction": {
+      "description": "One of the 7 protocol modes. (Mandatory)",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
+    },
+    "targetEntityId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Target entity of the interaction. (Mandatory)"
+    },
+    "associatedFunctionIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "description": "Function IDs linked to this triplet.",
+      "default": []
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "tripletId",
+      "const": "tripletId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "tripletId",
+    "name",
+    "description",
+    "actingEntityId",
+    "actingRoleId",
+    "stance",
+    "modeOfInteraction",
+    "targetEntityId"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

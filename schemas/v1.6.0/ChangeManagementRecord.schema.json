@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ChangeManagementRecord.schema.json",
+  "title": "ChangeManagementRecord (v1.6)",
+  "description": "v1.6: A new, separate construct that tracks the approval workflow and audit history for changes to a DIS Dossier.",
+  "type": "object",
+  "properties": {
+    "recordId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this change record. (Mandatory)"
+    },
+    "dossierId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "FK to the DISDossier being changed. (Mandatory)"
+    },
+    "fromVersion": {
+      "type": "string",
+      "description": "The dossier version before this change (e.g., '1.2.0')."
+    },
+    "toVersion": {
+      "type": "string",
+      "description": "The new dossier version being proposed (e.g., '1.3.0')."
+    },
+    "status": {
+      "description": "The current status of this change record.",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/changeManagementStatus"
+    },
+    "submittedBy": {
+      "type": "string",
+      "description": "Identifier (e.g., email, UUID) of the user who submitted the change."
+    },
+    "submittedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approvers": {
+      "type": "array",
+      "description": "List of identifiers for users who approved this change.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approvedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Description of the change, reason, or rejection notes (e.g., in Markdown)."
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "recordId",
+      "const": "recordId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string",
+            "default": "dossierId"
+          },
+          "referencesEntity": {
+            "type": "string",
+            "default": "DISDossier"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": [
+        {
+          "keyName": "dossierId",
+          "referencesEntity": "DISDossier",
+          "description": "Links this record to its corresponding DIS Dossier."
+        }
+      ]
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "recordId",
+    "dossierId",
+    "fromVersion",
+    "toVersion",
+    "status",
+    "submittedBy"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

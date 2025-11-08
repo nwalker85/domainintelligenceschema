@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Modes.schema.json",
+  "title": "Modes (v1.6)",
+  "description": "v1.6: Operational states/contexts/personas that an Entity can adopt. This version is unchanged from v1.5, aside from its URI.",
+  "type": "object",
+  "properties": {
+    "modeId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description. (Mandatory)"
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "modeId",
+      "const": "modeId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "modeId",
+    "name",
+    "description"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Role.schema.json",
+  "title": "Role (v1.6)",
+  "description": "v1.6: Defines a capacity/function that can be embodied by actors. Adds optional 'roleType' and 'agentArchetype' fields, with enums abstracted to CommonEnums.schema.json.",
+  "type": "object",
+  "properties": {
+    "roleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed purpose. (Mandatory)"
+    },
+    "roleType": {
+      "description": "Classification of the role (optional).",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/roleType"
+    },
+    "agentArchetype": {
+      "description": "Behavioral pattern if the role is for an AI agent (optional).",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/agentArchetype"
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "roleId",
+      "const": "roleId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "assignedEntityIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "roleId",
+    "name",
+    "description"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

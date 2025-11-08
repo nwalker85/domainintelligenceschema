@@ -1,0 +1,161 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/MarketplaceEntry.schema.json",
+  "title": "MarketplaceEntry (v1.6)",
+  "description": "v1.6: A new, separate construct that provides metadata for publishing a DIS Dossier to a marketplace or exchange.",
+  "type": "object",
+  "properties": {
+    "entryId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this marketplace entry. (Mandatory)"
+    },
+    "dossierId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "FK to the DISDossier this entry represents. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "The display name of the marketplace entry (e.g., 'L1 ITSD Support Dossier'). (Mandatory)"
+    },
+    "summary": {
+      "type": "string",
+      "description": "A short, one-line summary for the entry."
+    },
+    "description": {
+      "type": "string",
+      "description": "Full description of the dossier's capabilities, what's included, etc. (e.g., in Markdown)."
+    },
+    "version": {
+      "type": "string",
+      "description": "The semantic version of this marketplace entry (e.g., '1.0.0')."
+    },
+    "publisherName": {
+      "type": "string"
+    },
+    "categories": {
+      "type": "array",
+      "description": "A list of categories for searchability.",
+      "items": {
+        "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/marketplaceCategory"
+      }
+    },
+    "pricingModel": {
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/marketplacePricingModel"
+    },
+    "documentationUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "iconUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "entryId",
+      "const": "entryId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string",
+            "default": "dossierId"
+          },
+          "referencesEntity": {
+            "type": "string",
+            "default": "DISDossier"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": [
+        {
+          "keyName": "dossierId",
+          "referencesEntity": "DISDossier",
+          "description": "Links this marketplace entry to its corresponding DIS Dossier."
+        }
+      ]
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "entryId",
+    "dossierId",
+    "name",
+    "version"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

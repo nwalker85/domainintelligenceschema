@@ -1,0 +1,289 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/DISDossier.schema.json",
+  "title": "DISDossier (v1.6)",
+  "description": "v1.6: Standardized JSON package for a complete, domain-specific DIS model. This version removes AmeliaBotInstance, adds new metadata to the header, and migrates enums to CommonEnums.schema.json.",
+  "type": "object",
+  "properties": {
+    "header": {
+      "type": "object",
+      "description": "Metadata about the dossier.",
+      "properties": {
+        "dossierId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "domainName": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "description": "The semantic version of this specific dossier (e.g., '1.3.4')."
+        },
+        "author": {
+          "type": "string"
+        },
+        "disSpecificationRef": {
+          "type": "string",
+          "const": "1.6.0",
+          "default": "1.6.0",
+          "description": "Locked to DIS spec version 1.6.0."
+        },
+        "description": {
+          "type": "string"
+        },
+        "lastModified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deploymentEnvironment": {
+          "type": "string",
+          "description": "Environment name (e.g., 'Staging', 'Prod'). Migrated from v1.5 AmeliaBotInstance."
+        },
+        "dossierType": {
+          "description": "Type of DIS Dossier (optional).",
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dossierType"
+        },
+        "dossierStatus": {
+          "description": "Lifecycle status of a DIS Dossier (optional).",
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dossierStatus"
+        },
+        "relatedDossierId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Optional FK to a related dossier (e.g., a 'design' dossier references its 'discovery' dossier)."
+        },
+        "comparisonId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Optional FK to a DossierComparison construct."
+        },
+        "privacyManifestId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Optional FK to a PrivacyManifest construct."
+        },
+        "valueEngineeringProfileId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Optional FK to a ValueEngineeringProfile construct."
+        },
+        "telemetryConfigurationId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Optional FK to a TelemetryConfiguration construct."
+        }
+      },
+      "required": [
+        "dossierId",
+        "domainName",
+        "version",
+        "disSpecificationRef"
+      ],
+      "additionalProperties": false
+    },
+    "schemaReferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "name",
+          "url"
+        ]
+      },
+      "default": []
+    },
+    "referencedConstructs": {
+      "type": "object",
+      "description": "Lists of globally defined, reused constructs (by ID).",
+      "properties": {
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        },
+        "modes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        },
+        "modesOfInteraction": {
+          "type": "array",
+          "description": "The 7 canonical modes of interaction.",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
+          },
+          "default": []
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        },
+        "applications": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        },
+        "endpoints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        },
+        "knowledgeDocuments": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        },
+        "tagDefinitions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        },
+        "functionCatalogEntries": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": true
+    },
+    "dossierSpecificDefinitions": {
+      "type": "object",
+      "description": "Full JSON definitions for constructs owned by this dossier. All $refs updated to 1.6.0.",
+      "properties": {
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Entity.schema.json"
+          },
+          "default": []
+        },
+        "modes": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Modes.schema.json"
+          },
+          "default": []
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Role.schema.json"
+          },
+          "default": []
+        },
+        "applications": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Application.schema.json"
+          },
+          "default": []
+        },
+        "endpoints": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Endpoint.schema.json"
+          },
+          "default": []
+        },
+        "knowledgeDocuments": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/KnowledgeDocument.schema.json"
+          },
+          "default": []
+        },
+        "tagDefinitions": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TagDefinition.schema.json"
+          },
+          "default": []
+        },
+        "agenticTriplets": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/AgenticTriplet.schema.json"
+          },
+          "default": []
+        },
+        "functionCatalogEntries": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/FunctionCatalogEntry.schema.json"
+          },
+          "default": []
+        },
+        "entityModeMatrixEntries": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/EntityModeMatrix.schema.json"
+          },
+          "default": []
+        },
+        "relationshipMatrixEntries": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/RelationshipMatrix.schema.json"
+          },
+          "default": []
+        },
+        "accessGateMatrixEntries": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/AccessGateMatrix.schema.json"
+          },
+          "default": []
+        },
+        "tripletFunctionMatrixEntries": {
+          "type": "array",
+          "items": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json"
+          },
+          "default": []
+        }
+      },
+      "required": [],
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "header",
+    "dossierSpecificDefinitions"
+  ],
+  "additionalProperties": false
+}

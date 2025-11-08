@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Domain Intelligence Schema v1.6.0</title>
+  <meta name="description" content="Official JSON Schema definitions for the Domain Intelligence System - A grammar for modeling and deploying agentic AI systems in enterprise environments.">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --secondary: #64748b;
+      --success: #10b981;
+      --bg: #ffffff;
+      --bg-alt: #f8fafc;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --code-bg: #f1f5f9;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    
+    header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 2rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .version-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    
+    .header-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
+    
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-alt);
+    }
+    
+    main {
+      padding: 3rem 0;
+    }
+    
+    .hero {
+      text-align: center;
+      padding: 3rem 0;
+      margin-bottom: 3rem;
+    }
+    
+    .hero h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 800px;
+      margin: 0 auto 2rem;
+    }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    
+    .stat-card {
+      background: var(--bg-alt);
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+    }
+    
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    section {
+      margin-bottom: 4rem;
+    }
+    
+    h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    
+    h4 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--text);
+    }
+    
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+    
+    .code-block {
+      background: var(--code-bg);
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    
+    code {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    
+    .inline-code {
+      background: var(--code-bg);
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      font-size: 0.875em;
+      color: var(--primary-dark);
+    }
+    
+    .schema-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .schema-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    
+    .schema-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    .schema-name {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .schema-name::before {
+      content: '{ }';
+      color: var(--primary);
+      font-weight: 700;
+    }
+    
+    .schema-size {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    .category {
+      margin-bottom: 3rem;
+    }
+    
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+    
+    .category-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    
+    .feature-card {
+      background: var(--bg-alt);
+      padding: 2rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+    }
+    
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .feature-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+    
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 1.5rem 0;
+      border-left: 4px solid;
+    }
+    
+    .alert-info {
+      background: #dbeafe;
+      border-color: var(--primary);
+      color: #1e3a8a;
+    }
+    
+    footer {
+      background: var(--bg-alt);
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+      margin-top: 4rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+    
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .hero h2 {
+        font-size: 2rem;
+      }
+      
+      .hero p {
+        font-size: 1rem;
+      }
+      
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <h1>
+          Domain Intelligence Schema
+          <span class="version-badge">v1.6.0</span>
+        </h1>
+        <div class="header-links">
+          <a href="https://schemas.domainintelligenceschema.org/dis/1.6.0/index.json" class="btn btn-primary">📄 Index JSON</a>
+          <a href="https://github.com/yourusername/dis" class="btn btn-secondary" target="_blank">📚 Documentation</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <section class="hero">
+        <h2>The Grammar for Agentic AI Systems</h2>
+        <p>
+          DIS v1.6 provides authoritative JSON Schema definitions for modeling and deploying 
+          enterprise agentic AI systems. Think of it as "Terraform for AI agents" — a declarative 
+          specification that captures domain structure, behavioral rules, and governance requirements.
+        </p>
+        
+        <div class="stats">
+          <div class="stat-card">
+            <span class="stat-number" id="schemaCount">23</span>
+            <span class="stat-label">Schema Constructs</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">7</span>
+            <span class="stat-label">Canonical Modes</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">6</span>
+            <span class="stat-label">New in v1.6</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">100%</span>
+            <span class="stat-label">Vendor Agnostic</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>Quick Start</h3>
+        <p>Reference DIS schemas directly in your JSON files for instant IDE autocomplete and validation:</p>
+        
+        <div class="code-block">
+          <code>{
+  "$schema": "https://schemas.domainintelligenceschema.org/dis/1.6.0/DISDossier.schema.json",
+  "dossierId": "your-dossier-id",
+  "name": "Customer Service Domain",
+  "disSpecificationRef": "1.6.0"
+}</code>
+        </div>
+
+        <h4>Validation with AJV</h4>
+        <div class="code-block">
+          <code>ajv validate \
+  -s https://schemas.domainintelligenceschema.org/dis/1.6.0/DISDossier.schema.json \
+  -d my-dossier.json</code>
+        </div>
+
+        <h4>TypeScript Type Generation</h4>
+        <div class="code-block">
+          <code>json-schema-to-typescript \
+  https://schemas.domainintelligenceschema.org/dis/1.6.0/Entity.schema.json \
+  > types/Entity.ts</code>
+        </div>
+      </section>
+
+      <section>
+        <h3>Key Features</h3>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-title">Grammar, Not Taxonomy</div>
+            <p>DIS defines compositional rules for combining primitives into valid structures, not just a list of categories.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔓</div>
+            <div class="feature-title">Zero Vendor Lock-in</div>
+            <p>v1.6 removes all proprietary references. Compile to LangGraph, CrewAI, Amelia, or any platform.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📐</div>
+            <div class="feature-title">7 Canonical Modes</div>
+            <p>CREATE, READ, UPDATE, DELETE, INITIATE, RESPOND, NOTIFY — the atomic verbs that force proper entity discovery.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-title">Enterprise Governance</div>
+            <p>Built-in change management, privacy manifests, telemetry, and value engineering for production deployments.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <div class="feature-title">JMESPath Expressions</div>
+            <p>Standardized query and transformation language for all data operations and validations.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">ROI-Driven Design</div>
+            <p>ValueEngineeringProfile captures cost models and business benefits for measurable outcomes.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>Schema Catalog</h3>
+        <div class="alert alert-info">
+          <strong>Live Data:</strong> Schema list loaded directly from the public index. Click any schema to view its full definition.
+        </div>
+        <div id="schemaContent" class="loading">Loading schemas...</div>
+      </section>
+
+      <section>
+        <h3>Architecture Overview</h3>
+        <p>
+          DIS v1.6 is organized into six logical categories that build upon each other:
+        </p>
+        <ol style="margin-left: 1.5rem; color: var(--text-muted);">
+          <li><strong>Foundation</strong> — Root structures and centralized vocabularies</li>
+          <li><strong>Identity & Structure</strong> — Entities, roles, applications, and endpoints</li>
+          <li><strong>Behavioral Grammar</strong> — AgenticTriplets (Entity-Mode-Role) and mode definitions</li>
+          <li><strong>Matrices</strong> — Execution bindings, RBAC rules, capabilities, and relationships</li>
+          <li><strong>Supporting Constructs</strong> — Reusable functions, knowledge docs, tags, and validation rules</li>
+          <li><strong>Business Value & Governance</strong> — Change management, privacy, telemetry, marketplace, and ROI tracking</li>
+        </ol>
+      </section>
+
+      <section>
+        <h3>What's New in v1.6</h3>
+        <ul style="margin-left: 1.5rem; color: var(--text-muted); line-height: 2;">
+          <li><strong>CommonEnums:</strong> Centralized DRY-compliant enum definitions (31 enums)</li>
+          <li><strong>Vendor Neutrality:</strong> Removed all proprietary references (e.g., AmeliaBotInstance)</li>
+          <li><strong>JMESPath Standard:</strong> Unified expression language for queries and transformations</li>
+          <li><strong>6 New Governance Constructs:</strong> Enterprise-ready change management, privacy, telemetry, marketplace, comparison, and value engineering</li>
+          <li><strong>Enhanced Documentation:</strong> Every construct includes comprehensive descriptions and examples</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Domain Intelligence Schema v1.6.0 | Released Q1 2026</p>
+      <p>
+        <a href="https://schemas.domainintelligenceschema.org/dis/1.6.0/index.json">Index</a> • 
+        <a href="https://domainintelligenceschema.org">Website</a> • 
+        <a href="https://github.com/yourusername/dis">GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // Fetch and display schemas from index
+    fetch('https://schemas.domainintelligenceschema.org/dis/1.6.0/index.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('schemaCount').textContent = data.files.length;
+        
+        // Categorize schemas
+        const categories = {
+          'Foundation': ['CommonEnums', 'DISDossier'],
+          'Identity & Structure': ['Entity', 'Role', 'Application', 'Endpoint', 'Modes'],
+          'Behavioral Grammar': ['AgenticTriplet', 'ModeOfInteractionRegistryEntry'],
+          'Matrices': ['AccessGateMatrix', 'EntityModeMatrix', 'RelationshipMatrix', 'TripletFunctionMatrixEntry'],
+          'Supporting Constructs': ['FunctionCatalogEntry', 'KnowledgeDocument', 'TagDefinition', 'ValidationRule'],
+          'Business Value & Governance': ['ValueEngineeringProfile', 'DossierComparison', 'PrivacyManifest', 'TelemetryConfiguration', 'MarketplaceEntry', 'ChangeManagementRecord']
+        };
+        
+        let html = '';
+        
+        Object.entries(categories).forEach(([category, schemaNames]) => {
+          const categorySchemas = data.files.filter(f => 
+            schemaNames.some(name => f.name.startsWith(name))
+          );
+          
+          html += `
+            <div class="category">
+              <div class="category-header">
+                <h4>${category}</h4>
+                <span class="category-badge">${categorySchemas.length}</span>
+              </div>
+              <div class="schema-grid">
+          `;
+          
+          categorySchemas.forEach(schema => {
+            const sizeKB = (schema.size / 1024).toFixed(1);
+            html += `
+              <div class="schema-card" onclick="window.open('${schema.url}', '_blank')">
+                <div class="schema-name">${schema.name.replace('.schema.json', '')}</div>
+                <div class="schema-size">${sizeKB} KB</div>
+              </div>
+            `;
+          });
+          
+          html += `
+              </div>
+            </div>
+          `;
+        });
+        
+        document.getElementById('schemaContent').innerHTML = html;
+      })
+      .catch(error => {
+        document.getElementById('schemaContent').innerHTML = 
+          '<div class="alert alert-info">Unable to load schema index. Please check your connection.</div>';
+        console.error('Error loading schemas:', error);
+      });
+  </script>
+</body>
+</html>

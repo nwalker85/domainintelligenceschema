@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/AccessGateMatrix.schema.json",
+  "title": "AccessGateMatrix (v1.6)",
+  "description": "v1.6: Defines a single rule within the Access Gate Matrix. This version is unchanged from v1.5, aside from its URI and the addition of 'contentMediaType' to the 'gateCondition' field.",
+  "type": "object",
+  "properties": {
+    "gateId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this access gate rule. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this gate rule. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional: Detailed description of the rule's purpose and context."
+    },
+    "roleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the Role attempting the interaction. (Mandatory)"
+    },
+    "targetEntityId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the target Entity. (Mandatory)"
+    },
+    "gateCondition": {
+      "type": "string",
+      "description": "Boolean expression that MUST evaluate to true to allow the interaction. Per v1.6 spec, this MUST be a valid JMESPath expression.",
+      "contentMediaType": "application/jmespath"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional: Additional justification or details."
+    },
+    "primaryKey": {
+      "type": "string",
+      "description": "Primary key field name.",
+      "default": "gateId",
+      "const": "gateId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "description": "Definitional foreign keys.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "description": "Additional characteristics about the rule.",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "description": "Applied tag categories and their selected values.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "gateId",
+    "name",
+    "roleId",
+    "targetEntityId",
+    "gateCondition"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

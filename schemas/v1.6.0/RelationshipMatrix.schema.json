@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/RelationshipMatrix.schema.json",
+  "title": "RelationshipMatrix (v1.6)",
+  "description": "v1.6: Defines a specific relationship instance between two DIS constructs. This version is unchanged from v1.5, aside from its URI.",
+  "type": "object",
+  "properties": {
+    "relationshipId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "actor": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Source construct ID. (Mandatory)"
+    },
+    "related_actor": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Target construct ID. (Mandatory)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Nature/purpose of this relationship. (Mandatory)"
+    },
+    "values": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "relationshipId",
+      "const": "relationshipId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "relationshipId",
+    "actor",
+    "related_actor",
+    "notes"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

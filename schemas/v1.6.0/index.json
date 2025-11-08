@@ -1,0 +1,238 @@
+{
+  "version": "1.6.0",
+  "published": "2025-11-08T05:05:59Z",
+  "baseUrl": "https://schemas.domainintelligenceschema.org/dis/1.6.0",
+  "schemaCount": 23,
+  "files": [
+    {
+      "name": "AccessGateMatrix.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/AccessGateMatrix.schema.json",
+      "size": 3691,
+      "updated": "Sat, 08 Nov 2025 05:05:38 GMT",
+      "hash": {
+        "md5": "24e0a59b6fb5586ee0011f856ac84aa3",
+        "crc32c": "8def005f"
+      }
+    },
+    {
+      "name": "AgenticTriplet.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/AgenticTriplet.schema.json",
+      "size": 3881,
+      "updated": "Sat, 08 Nov 2025 05:05:39 GMT",
+      "hash": {
+        "md5": "eb521e843241bad7e8fddd92b3bd09a4",
+        "crc32c": "d59f8d27"
+      }
+    },
+    {
+      "name": "Application.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Application.schema.json",
+      "size": 3306,
+      "updated": "Sat, 08 Nov 2025 05:05:41 GMT",
+      "hash": {
+        "md5": "23b3325bbae29c779a33bd42d3fe65e9",
+        "crc32c": "7aa510c3"
+      }
+    },
+    {
+      "name": "ChangeManagementRecord.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ChangeManagementRecord.schema.json",
+      "size": 3967,
+      "updated": "Sat, 08 Nov 2025 05:05:41 GMT",
+      "hash": {
+        "md5": "44da32d6641d3f7a77edfc6e8fdb7250",
+        "crc32c": "0ff99e83"
+      }
+    },
+    {
+      "name": "CommonEnums.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json",
+      "size": 7270,
+      "updated": "Sat, 08 Nov 2025 05:05:42 GMT",
+      "hash": {
+        "md5": "3d918d4aacdb9231872a4395057aeb13",
+        "crc32c": "f3813373"
+      }
+    },
+    {
+      "name": "DISDossier.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/DISDossier.schema.json",
+      "size": 8621,
+      "updated": "Sat, 08 Nov 2025 05:05:43 GMT",
+      "hash": {
+        "md5": "c76f334b8894af584c132d46351c9194",
+        "crc32c": "786483d6"
+      }
+    },
+    {
+      "name": "DossierComparison.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/DossierComparison.schema.json",
+      "size": 5480,
+      "updated": "Sat, 08 Nov 2025 05:05:44 GMT",
+      "hash": {
+        "md5": "2a80e7707f8e11861cf9fa20e6d4f1a0",
+        "crc32c": "91c5233d"
+      }
+    },
+    {
+      "name": "Endpoint.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Endpoint.schema.json",
+      "size": 3710,
+      "updated": "Sat, 08 Nov 2025 05:05:44 GMT",
+      "hash": {
+        "md5": "5f072305513713dffc832afa20b369be",
+        "crc32c": "2ebf442c"
+      }
+    },
+    {
+      "name": "Entity.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Entity.schema.json",
+      "size": 3770,
+      "updated": "Sat, 08 Nov 2025 05:05:45 GMT",
+      "hash": {
+        "md5": "267bb447ea6b48db3395b95338978aa8",
+        "crc32c": "2d2d1522"
+      }
+    },
+    {
+      "name": "EntityModeMatrix.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/EntityModeMatrix.schema.json",
+      "size": 4331,
+      "updated": "Sat, 08 Nov 2025 05:05:46 GMT",
+      "hash": {
+        "md5": "1557a9dea1c77a28f40fd23cb25613c5",
+        "crc32c": "c45a8d93"
+      }
+    },
+    {
+      "name": "FunctionCatalogEntry.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/FunctionCatalogEntry.schema.json",
+      "size": 4193,
+      "updated": "Sat, 08 Nov 2025 05:05:47 GMT",
+      "hash": {
+        "md5": "746eef12d089389257007ced7617a41d",
+        "crc32c": "1f4834dc"
+      }
+    },
+    {
+      "name": "KnowledgeDocument.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/KnowledgeDocument.schema.json",
+      "size": 3297,
+      "updated": "Sat, 08 Nov 2025 05:05:48 GMT",
+      "hash": {
+        "md5": "74aa2cdeace572aed3ee2d4bbee071b0",
+        "crc32c": "00983de2"
+      }
+    },
+    {
+      "name": "MarketplaceEntry.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/MarketplaceEntry.schema.json",
+      "size": 4023,
+      "updated": "Sat, 08 Nov 2025 05:05:49 GMT",
+      "hash": {
+        "md5": "6039521f7336d83fadfe5c14b327db5d",
+        "crc32c": "47e689e7"
+      }
+    },
+    {
+      "name": "ModeOfInteractionRegistryEntry.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ModeOfInteractionRegistryEntry.schema.json",
+      "size": 890,
+      "updated": "Sat, 08 Nov 2025 05:05:50 GMT",
+      "hash": {
+        "md5": "65ca6a67fa75fb979bd7b82df2ac1787",
+        "crc32c": "89e4b3f8"
+      }
+    },
+    {
+      "name": "Modes.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Modes.schema.json",
+      "size": 2551,
+      "updated": "Sat, 08 Nov 2025 05:05:50 GMT",
+      "hash": {
+        "md5": "1c8e9bb60fdb0f6396263a87484fd924",
+        "crc32c": "d1393915"
+      }
+    },
+    {
+      "name": "PrivacyManifest.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/PrivacyManifest.schema.json",
+      "size": 4589,
+      "updated": "Sat, 08 Nov 2025 05:05:51 GMT",
+      "hash": {
+        "md5": "18fb448d7a7fde0bfd9c3f71176896b3",
+        "crc32c": "52bf7912"
+      }
+    },
+    {
+      "name": "RelationshipMatrix.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/RelationshipMatrix.schema.json",
+      "size": 2931,
+      "updated": "Sat, 08 Nov 2025 05:05:53 GMT",
+      "hash": {
+        "md5": "9311120b2ec5d7959f782590b49a2896",
+        "crc32c": "3f9280d1"
+      }
+    },
+    {
+      "name": "Role.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Role.schema.json",
+      "size": 3186,
+      "updated": "Sat, 08 Nov 2025 05:05:54 GMT",
+      "hash": {
+        "md5": "9b86cb84ec691dc96e3b3f2b05f02e41",
+        "crc32c": "f1a38395"
+      }
+    },
+    {
+      "name": "TagDefinition.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TagDefinition.schema.json",
+      "size": 2546,
+      "updated": "Sat, 08 Nov 2025 05:05:55 GMT",
+      "hash": {
+        "md5": "f833ea070ef38483dc9ed58d10725fcb",
+        "crc32c": "8bd6f22b"
+      }
+    },
+    {
+      "name": "TelemetryConfiguration.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TelemetryConfiguration.schema.json",
+      "size": 5150,
+      "updated": "Sat, 08 Nov 2025 05:05:56 GMT",
+      "hash": {
+        "md5": "cc4d5034db47a2d3a392b5e974d7900e",
+        "crc32c": "72015d31"
+      }
+    },
+    {
+      "name": "TripletFunctionMatrixEntry.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json",
+      "size": 6379,
+      "updated": "Sat, 08 Nov 2025 05:05:57 GMT",
+      "hash": {
+        "md5": "984ba647092e2d3cae22daef6e7b561d",
+        "crc32c": "c9bbdaa9"
+      }
+    },
+    {
+      "name": "ValidationRule.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ValidationRule.schema.json",
+      "size": 3397,
+      "updated": "Sat, 08 Nov 2025 05:05:58 GMT",
+      "hash": {
+        "md5": "a26a6b023ad9dfa662fb0f3c2417cf26",
+        "crc32c": "d0e83cbd"
+      }
+    },
+    {
+      "name": "ValueEngineeringProfile.schema.json",
+      "url": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ValueEngineeringProfile.schema.json",
+      "size": 5089,
+      "updated": "Sat, 08 Nov 2025 05:05:59 GMT",
+      "hash": {
+        "md5": "194ba6bc08dcab664403c210ee3b0ea4",
+        "crc32c": "81456bbe"
+      }
+    }
+  ]
+}

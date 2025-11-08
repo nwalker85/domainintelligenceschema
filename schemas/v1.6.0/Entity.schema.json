@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Entity.schema.json",
+  "title": "Entity (v1.6)",
+  "description": "v1.6: A deployable AI agent or core data object in the domain. This version removes vendor lock-in (AmeliaBotInstance) and adds 'entityType' to formally classify agents. Enums are abstracted to CommonEnums.schema.json.",
+  "type": "object",
+  "properties": {
+    "entityId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Purpose/capabilities. (Mandatory)"
+    },
+    "entityType": {
+      "description": "Classification of the entity (optional). 'agent' type replaces the v1.5 'proxiedAmeliaBotInstanceId'.",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/entityType"
+    },
+    "privacyClassification": {
+      "description": "Default privacy classification for this entity's data (optional).",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/privacyClassification"
+    },
+    "alternateNames": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "primaryKey": {
+      "type": "string",
+      "description": "Primary key name for the entity type."
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string",
+            "description": "Foreign key field name."
+          },
+          "referencesEntity": {
+            "type": "string",
+            "description": "Referenced Entity name or ID."
+          },
+          "description": {
+            "type": "string",
+            "description": "Relationship description."
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "description": "Core data attributes.",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "assignedRoleIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Applied TagDefinition ID."
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Selected allowedValues."
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "entityId",
+    "name",
+    "description"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

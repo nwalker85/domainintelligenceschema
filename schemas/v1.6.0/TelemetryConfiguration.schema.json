@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TelemetryConfiguration.schema.json",
+  "title": "TelemetryConfiguration (v1.6)",
+  "description": "v1.6: A new, separate construct that provides design-time instrumentation specs for observability. This defines WHAT to observe, not HOW (which is a runtime/compiler concern).",
+  "type": "object",
+  "properties": {
+    "configurationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this telemetry configuration. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this configuration (e.g., 'Production Observability Profile'). (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of what this configuration instruments. (Mandatory)"
+    },
+    "metrics": {
+      "type": "array",
+      "description": "A list of declarative metrics to capture.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metricId": {
+            "type": "string",
+            "description": "A unique identifier for this metric (e.g., 'triplet_execution_count')."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the metric."
+          },
+          "description": {
+            "type": "string"
+          },
+          "metricType": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/telemetryMetricType"
+          },
+          "unit": {
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/metricUnit"
+          },
+          "sourceExpression": {
+            "type": "string",
+            "description": "The JMESPath expression to extract the metric value from the execution context, e.g., 'execution.latencyMs'.",
+            "contentMediaType": "application/jmespath"
+          }
+        },
+        "required": [
+          "metricId",
+          "name",
+          "metricType"
+        ]
+      }
+    },
+    "logs": {
+      "type": "object",
+      "description": "Configuration for structured logging.",
+      "properties": {
+        "logLevel": {
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/telemetryLogLevel",
+          "default": "INFO"
+        },
+        "includeContext": {
+          "type": "boolean",
+          "description": "Whether to include the full execution context in logs (can be verbose).",
+          "default": false
+        }
+      }
+    },
+    "traces": {
+      "type": "object",
+      "description": "Configuration for distributed tracing (e.g., OpenTelemetry).",
+      "properties": {
+        "enablePropagation": {
+          "type": "boolean",
+          "description": "Whether to propagate trace context (e.g., W3C traceparent headers).",
+          "default": true
+        },
+        "samplingRate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "The percentage of traces to sample (1.0 = 100%).",
+          "default": 1.0
+        }
+      }
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "configurationId",
+      "const": "configurationId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "configurationId",
+    "name",
+    "description"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

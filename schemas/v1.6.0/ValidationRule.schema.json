@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ValidationRule.schema.json",
+  "title": "ValidationRule (v1.6)",
+  "description": "v1.6: A new, separate construct that defines a single, reusable validation rule. This keeps core constructs like Entity simple, per the v1.6 spec.",
+  "type": "object",
+  "properties": {
+    "ruleId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this validation rule. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this rule. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of what this rule enforces. (Mandatory)"
+    },
+    "condition": {
+      "type": "string",
+      "description": "The JMESPath expression that MUST evaluate to true for the rule to pass. The expression is evaluated against the construct being validated.",
+      "contentMediaType": "application/jmespath"
+    },
+    "errorMessage": {
+      "type": "string",
+      "description": "The message to return if the validation condition evaluates to false."
+    },
+    "severity": {
+      "description": "The severity of the failure (e.g., 'error' stops compilation, 'warning' does not).",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/validationSeverity",
+      "default": "error"
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "ruleId",
+      "const": "ruleId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "ruleId",
+    "name",
+    "description",
+    "condition",
+    "errorMessage"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

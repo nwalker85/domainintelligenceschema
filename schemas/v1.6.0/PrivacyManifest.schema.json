@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/PrivacyManifest.schema.json",
+  "title": "PrivacyManifest (v1.6)",
+  "description": "v1.6: A new, separate construct that defines data privacy, handling, and purpose-of-use policies (e.g., for GDPR compliance).",
+  "type": "object",
+  "properties": {
+    "manifestId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this privacy manifest. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this manifest (e.g., 'GDPR Compliance Rules - EU'). (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of what this manifest enforces. (Mandatory)"
+    },
+    "dataPrivacyRules": {
+      "type": "array",
+      "description": "A list of field-level privacy and handling rules.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entityId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "FK to the Entity this rule applies to."
+          },
+          "attributeName": {
+            "type": "string",
+            "description": "The specific attribute/field this rule targets (e.g., 'email', 'socialSecurityNumber')."
+          },
+          "dataCategory": {
+            "description": "The classification of this data.",
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dataCategory"
+          },
+          "processingPurposes": {
+            "type": "array",
+            "description": "A list of allowed purposes for processing this data.",
+            "items": {
+              "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/processingPurpose"
+            }
+          },
+          "storagePolicy": {
+            "description": "The required storage policy for this data.",
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/storagePolicy"
+          },
+          "retentionDays": {
+            "type": "integer",
+            "description": "The maximum number of days this data may be retained."
+          },
+          "notes": {
+            "type": "string",
+            "description": "e.g., 'GDPR Article 9', 'CCPA Section 1798.100'"
+          }
+        },
+        "required": [
+          "ruleId",
+          "entityId",
+          "attributeName",
+          "dataCategory"
+        ]
+      }
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "manifestId",
+      "const": "manifestId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "manifestId",
+    "name",
+    "description"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

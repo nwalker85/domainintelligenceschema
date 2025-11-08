@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Endpoint.schema.json",
+  "title": "Endpoint (v1.6)",
+  "description": "v1.6: An interface/connection point (API, queue, DB, etc.). This version migrates enums to CommonEnums.schema.json.",
+  "type": "object",
+  "properties": {
+    "endpointId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Purpose/context. (Mandatory)"
+    },
+    "endpointType": {
+      "description": "The classification of the endpoint.",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/endpointType"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "protocol": {
+      "type": "string"
+    },
+    "httpMethod": {
+      "description": "The HTTP method for this endpoint, if applicable.",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/httpMethod"
+    },
+    "dataFormat": {
+      "description": "The data format used by this endpoint.",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dataFormat"
+    },
+    "version": {
+      "type": "string"
+    },
+    "status": {
+      "description": "The operational status of the endpoint.",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/endpointStatus"
+    },
+    "applicationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Owning application ID."
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "endpointId",
+      "const": "endpointId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "endpointId",
+    "name",
+    "description",
+    "endpointType"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

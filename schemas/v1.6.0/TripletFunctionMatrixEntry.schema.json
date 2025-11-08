@@ -1,0 +1,245 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json",
+  "title": "TripletFunctionMatrixEntry (v1.6)",
+  "description": "v1.6: Context-aware link between an AgenticTriplet and a FunctionCatalogEntry with execution binding. This version migrates enums to CommonEnums.schema.json.",
+  "type": "object",
+  "properties": {
+    "matrixEntryId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "tripletId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Triplet ID. (Mandatory)"
+    },
+    "functionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Function ID. (Mandatory)"
+    },
+    "contextDescription": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer",
+      "default": 0
+    },
+    "executionBinding": {
+      "type": "object",
+      "description": "Concrete execution mechanism. (Mandatory)",
+      "oneOf": [
+        {
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/apiExecutionBinding"
+        },
+        {
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/scriptExecutionBinding"
+        },
+        {
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/workflowExecutionBinding"
+        },
+        {
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/internalCodeExecutionBinding"
+        }
+      ]
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "matrixEntryId",
+      "const": "matrixEntryId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "matrixEntryId",
+    "tripletId",
+    "functionId",
+    "executionBinding"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    },
+    "apiExecutionBinding": {
+      "title": "ApiExecutionBinding",
+      "type": "object",
+      "properties": {
+        "executionType": {
+          "const": "API_CALL",
+          "description": "Indicates execution via an API call."
+        },
+        "endpointId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Endpoint reference."
+        },
+        "requestMappingNotes": {
+          "type": "string"
+        },
+        "responseMappingNotes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "executionType",
+        "endpointId"
+      ],
+      "additionalProperties": false
+    },
+    "scriptExecutionBinding": {
+      "title": "ScriptExecutionBinding",
+      "type": "object",
+      "properties": {
+        "executionType": {
+          "const": "SCRIPT",
+          "description": "Indicates execution via a script."
+        },
+        "scriptLanguage": {
+          "description": "The language of the script.",
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/scriptLanguage"
+        },
+        "scriptReference": {
+          "type": "string",
+          "description": "Script identifier/path."
+        },
+        "runtimeEnvironment": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "executionType",
+        "scriptReference"
+      ],
+      "additionalProperties": false
+    },
+    "workflowExecutionBinding": {
+      "title": "WorkflowExecutionBinding",
+      "type": "object",
+      "properties": {
+        "executionType": {
+          "const": "WORKFLOW",
+          "description": "Indicates execution via workflow engine."
+        },
+        "workflowSystemId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Workflow system Application ID."
+        },
+        "workflowName": {
+          "type": "string",
+          "description": "Workflow identifier."
+        },
+        "workflowVersion": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "executionType",
+        "workflowSystemId",
+        "workflowName"
+      ],
+      "additionalProperties": false
+    },
+    "internalCodeExecutionBinding": {
+      "title": "InternalCodeExecutionBinding",
+      "type": "object",
+      "properties": {
+        "executionType": {
+          "const": "INTERNAL_CODE",
+          "description": "Internal platform method call."
+        },
+        "methodReference": {
+          "type": "string",
+          "description": "Internal method identifier."
+        }
+      },
+      "required": [
+        "executionType",
+        "methodReference"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

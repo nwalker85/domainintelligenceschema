@@ -1,0 +1,317 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json",
+  "title": "CommonEnums (v1.6)",
+  "description": "v1.6: A new, centralized manifest of all controlled vocabularies (enums) used throughout the DIS 1.6 specification. This adheres to the DRY principle and the v1.6 Enum Extraction Plan.",
+  "type": "object",
+  "properties": {},
+  "definitions": {
+    "applicationType": {
+      "type": "string",
+      "description": "The classification of an Application construct.",
+      "enum": [
+        "WebApp",
+        "MobileApp",
+        "DesktopApp",
+        "Microservice",
+        "API",
+        "Database",
+        "LegacySystem",
+        "SaaSPlatform",
+        "EnterpriseServiceBus",
+        "Other"
+      ]
+    },
+    "endpointType": {
+      "type": "string",
+      "description": "The classification of an Endpoint construct.",
+      "enum": [
+        "REST_API",
+        "SOAP_API",
+        "GraphQL_API",
+        "gRPC_API",
+        "WebService_URL",
+        "MessageQueue_Producer",
+        "MessageQueue_Consumer",
+        "Database_Connection",
+        "File_Transfer_Location",
+        "Internal_Function_Call",
+        "Other"
+      ]
+    },
+    "httpMethod": {
+      "type": "string",
+      "description": "An HTTP method.",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "PATCH",
+        "OPTIONS",
+        "HEAD"
+      ]
+    },
+    "dataFormat": {
+      "type": "string",
+      "description": "A common data format.",
+      "enum": [
+        "JSON",
+        "XML",
+        "Protobuf",
+        "Avro",
+        "CSV",
+        "YAML",
+        "Text",
+        "Binary"
+      ]
+    },
+    "endpointStatus": {
+      "type": "string",
+      "description": "The operational status of an Endpoint.",
+      "enum": [
+        "Active",
+        "Deprecated",
+        "Experimental",
+        "Offline",
+        "Restricted"
+      ]
+    },
+    "documentType": {
+      "type": "string",
+      "description": "The classification of a KnowledgeDocument.",
+      "enum": [
+        "FAQ",
+        "Manual",
+        "Policy",
+        "Article",
+        "Guide",
+        "WebsiteContent",
+        "ProductSheet",
+        "TechnicalSpecification",
+        "Tutorial",
+        "CaseStudy",
+        "Other"
+      ]
+    },
+    "stance": {
+      "type": "string",
+      "description": "The stance of an AgenticTriplet.",
+      "enum": [
+        "ACT",
+        "REACT"
+      ]
+    },
+    "modeOfInteraction": {
+      "type": "string",
+      "description": "The 7 canonical modes of interaction.",
+      "enum": [
+        "CREATE",
+        "READ",
+        "UPDATE",
+        "DELETE",
+        "INITIATE",
+        "RESPOND",
+        "NOTIFY"
+      ]
+    },
+    "scriptLanguage": {
+      "type": "string",
+      "description": "A language for a script execution binding.",
+      "enum": [
+        "python",
+        "javascript",
+        "shell",
+        "powershell",
+        "other"
+      ]
+    },
+    "entityType": {
+      "type": "string",
+      "description": "The classification of an Entity construct.",
+      "enum": [
+        "data",
+        "agent"
+      ]
+    },
+    "privacyClassification": {
+      "type": "string",
+      "description": "A data privacy classification level.",
+      "enum": [
+        "PUBLIC",
+        "INTERNAL",
+        "CONFIDENTIAL",
+        "RESTRICTED",
+        "PII",
+        "PHI"
+      ]
+    },
+    "roleType": {
+      "type": "string",
+      "description": "The classification of a Role construct.",
+      "enum": [
+        "human",
+        "agent",
+        "system"
+      ]
+    },
+    "agentArchetype": {
+      "type": "string",
+      "description": "A behavioral pattern for an AI agent Role.",
+      "enum": [
+        "worker",
+        "supervisor",
+        "specialist",
+        "orchestrator"
+      ]
+    },
+    "dossierType": {
+      "type": "string",
+      "description": "The classification of a DISDossier.",
+      "enum": [
+        "DISCOVERY",
+        "DESIGN",
+        "DEPLOYMENT",
+        "MARKETPLACE_ITEM",
+        "TEMPLATE"
+      ]
+    },
+    "dossierStatus": {
+      "type": "string",
+      "description": "The lifecycle status of a DISDossier.",
+      "enum": [
+        "DRAFT",
+        "IN_REVIEW",
+        "APPROVED",
+        "PUBLISHED",
+        "DEPRECATED"
+      ]
+    },
+    "validationSeverity": {
+      "type": "string",
+      "description": "The severity level of a ValidationRule failure.",
+      "enum": [
+        "error",
+        "warning",
+        "info"
+      ]
+    },
+    "metricUnit": {
+      "type": "string",
+      "description": "The unit of measurement for a metric.",
+      "enum": [
+        "SECONDS",
+        "MINUTES",
+        "HOURS",
+        "PERCENTAGE",
+        "COUNT",
+        "CURRENCY",
+        "OTHER"
+      ]
+    },
+    "currency": {
+      "type": "string",
+      "description": "An ISO 4217 currency code.",
+      "enum": [
+        "USD",
+        "EUR",
+        "GBP",
+        "JPY",
+        "CAD",
+        "AUD"
+      ]
+    },
+    "dataCategory": {
+      "type": "string",
+      "description": "The privacy classification of a data attribute (e.g., for GDPR).",
+      "enum": [
+        "PII",
+        "PHI",
+        "PCI",
+        "FINANCIAL",
+        "AUTHENTICATION",
+        "USAGE_ANALYTICS",
+        "OTHER"
+      ]
+    },
+    "processingPurpose": {
+      "type": "string",
+      "description": "The declared purpose for processing data (e.g., for GDPR).",
+      "enum": [
+        "OPERATIONS",
+        "ANALYTICS",
+        "MARKETING",
+        "SECURITY",
+        "LEGAL_COMPLIANCE"
+      ]
+    },
+    "storagePolicy": {
+      "type": "string",
+      "description": "The required storage policy for sensitive data.",
+      "enum": [
+        "PLAINTEXT",
+        "ENCRYPTED_AT_REST",
+        "ANONYMIZED",
+        "PSEUDONYMIZED",
+        "MASKED",
+        "DELETE_AFTER_PROCESSING"
+      ]
+    },
+    "telemetryLogLevel": {
+      "type": "string",
+      "description": "The logging verbosity level for telemetry.",
+      "enum": [
+        "NONE",
+        "ERROR",
+        "INFO",
+        "DEBUG",
+        "TRACE"
+      ]
+    },
+    "telemetryMetricType": {
+      "type": "string",
+      "description": "The type of metric to be captured.",
+      "enum": [
+        "COUNTER",
+        "GAUGE",
+        "HISTOGRAM"
+      ]
+    },
+    "marketplaceCategory": {
+      "type": "string",
+      "description": "The category for a DIS Marketplace entry.",
+      "enum": [
+        "FINANCE",
+        "HEALTHCARE",
+        "TELECOMMUNICATIONS",
+        "RETAIL",
+        "IT_SERVICE_MANAGEMENT",
+        "HUMAN_RESOURCES",
+        "CUSTOMER_SUPPORT",
+        "UTILITIES"
+      ]
+    },
+    "marketplacePricingModel": {
+      "type": "string",
+      "description": "The pricing model for a DIS Marketplace entry.",
+      "enum": [
+        "FREE",
+        "ONE_TIME_PURCHASE",
+        "SUBSCRIPTION_PER_SEAT",
+        "SUBSCRIPTION_PER_EXECUTION"
+      ]
+    },
+    "changeManagementStatus": {
+      "type": "string",
+      "description": "The status of a change management record.",
+      "enum": [
+        "PENDING_REVIEW",
+        "APPROVED",
+        "REJECTED",
+        "IMPLEMENTED",
+        "CANCELLED"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

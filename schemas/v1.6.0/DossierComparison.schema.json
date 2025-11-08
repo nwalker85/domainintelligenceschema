@@ -1,0 +1,211 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/DossierComparison.schema.json",
+  "title": "DossierComparison (v1.6)",
+  "description": "v1.6: A new, separate construct that provides a delta analysis (diff) between a 'Discovery (AS-IS)' dossier and a 'Design (TO-BE)' dossier. This captures the business case for a transformation.",
+  "type": "object",
+  "properties": {
+    "comparisonId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this comparison report. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this comparison (e.g., 'ITSD L1 Automation Initiative'). (Mandatory)"
+    },
+    "discoveryDossierId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "FK to the 'Discovery (AS-IS)' DISDossier. (Mandatory)"
+    },
+    "designDossierId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "FK to the 'Design (TO-BE)' DISDossier. (Mandatory)"
+    },
+    "summary": {
+      "type": "object",
+      "description": "A high-level summary of the changes between the two dossiers.",
+      "properties": {
+        "newEntities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "removedEntities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "newTriplets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "removedTriplets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "changedFunctions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "automatedProcesses": {
+          "type": "array",
+          "description": "List of human processes (from AS-IS) that are now automated (in TO-BE).",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "valueProposition": {
+      "type": "object",
+      "description": "The calculated ROI and value justification for this change.",
+      "properties": {
+        "baselineProfileId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "FK to the ValueEngineeringProfile that represents the 'AS-IS' cost."
+        },
+        "projectedProfileId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "FK to the ValueEngineeringProfile that represents the 'TO-BE' projected cost."
+        },
+        "projectedAnnualSavings": {
+          "type": "number"
+        },
+        "projectedRoiPercentage": {
+          "type": "number"
+        },
+        "projectedPaybackMonths": {
+          "type": "number"
+        },
+        "projectedRoiFormula": {
+          "type": "string",
+          "description": "The JMESPath expression used to calculate the ROI, e.g., '(baseline.totalCost - projected.totalCost) / projected.implementationCost'",
+          "contentMediaType": "application/jmespath"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Qualitative summary of the value proposition."
+        }
+      },
+      "required": [
+        "baselineProfileId",
+        "projectedProfileId"
+      ]
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "comparisonId",
+      "const": "comparisonId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "comparisonId",
+    "name",
+    "discoveryDossierId",
+    "designDossierId"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

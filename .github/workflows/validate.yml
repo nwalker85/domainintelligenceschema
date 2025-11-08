@@ -1,0 +1,25 @@
+name: Validate Schemas
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Validate JSON Schemas
+      run: |
+        for schema in schemas/v1.6.0/*.schema.json; do
+          jq empty "$schema" || exit 1
+        done
+    - name: Check Schema Count
+      run: |
+        COUNT=$(ls -1 schemas/v1.6.0/*.schema.json | wc -l)
+        if [ "$COUNT" -ne 23 ]; then
+          echo "Expected 23 schemas, found $COUNT"
+          exit 1
+        fi

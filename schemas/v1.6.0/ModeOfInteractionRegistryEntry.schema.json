@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ModeOfInteractionRegistryEntry.schema.json",
+  "title": "ModeOfInteractionRegistryEntry (v1.6)",
+  "description": "v1.6: Entry in the global Modes of Interaction registry. This version migrates the 'modeName' enum to CommonEnums.schema.json.",
+  "type": "object",
+  "properties": {
+    "modeName": {
+      "description": "Fixed name. (Mandatory). Must be one of the 7 canonical modes.",
+      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this mode represents. (Mandatory)"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "modeName",
+    "description"
+  ],
+  "additionalProperties": false
+}

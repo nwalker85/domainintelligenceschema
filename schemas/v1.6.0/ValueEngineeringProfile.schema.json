@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ValueEngineeringProfile.schema.json",
+  "title": "ValueEngineeringProfile (v1.6)",
+  "description": "v1.6: A new, separate construct that defines operational metrics and cost models for ROI calculation. This is the 'AS-IS' baseline for a 'TO-BE' design.",
+  "type": "object",
+  "properties": {
+    "profileId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this value engineering profile. (Mandatory)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this profile (e.g., 'L1 Support Baseline - Q4 2025'). (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of what this profile represents. (Mandatory)"
+    },
+    "metrics": {
+      "type": "array",
+      "description": "A list of baseline metrics for this domain or process.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "metricId": {
+            "type": "string",
+            "description": "A unique identifier for this metric (e.g., 'avg_handle_time')."
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name (e.g., 'Average Handle Time')."
+          },
+          "value": {
+            "type": "number",
+            "description": "The baselined value of this metric."
+          },
+          "unit": {
+            "description": "The unit of measurement for this metric.",
+            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/metricUnit"
+          },
+          "calculationFormula": {
+            "type": "string",
+            "description": "The JMESPath expression used to calculate this metric, e.g., 'avg(interactions[].handleTime)'.",
+            "contentMediaType": "application/jmespath"
+          },
+          "sourceDescription": {
+            "type": "string",
+            "description": "Where this data comes from (e.g., 'Snowflake, support_dashboard, query:XYZ')."
+          }
+        },
+        "required": [
+          "metricId",
+          "name",
+          "value",
+          "unit"
+        ]
+      }
+    },
+    "costModel": {
+      "type": "object",
+      "description": "Financial model for calculating labor and operational costs.",
+      "properties": {
+        "avgLaborRatePerHour": {
+          "type": "number"
+        },
+        "currency": {
+          "description": "The currency for this cost model.",
+          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/currency"
+        },
+        "avgInfrastructureCostPerInteraction": {
+          "type": "number"
+        },
+        "costCalculationFormula": {
+          "type": "string",
+          "description": "The JMESPath expression for the total cost, e.g., '(avgHandleTimeSeconds / 3600) * avgLaborRatePerHour + avgInfrastructureCostPerInteraction'",
+          "contentMediaType": "application/jmespath"
+        }
+      },
+      "required": [
+        "avgLaborRatePerHour",
+        "currency"
+      ]
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "profileId",
+      "const": "profileId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "profileId",
+    "name",
+    "description"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}

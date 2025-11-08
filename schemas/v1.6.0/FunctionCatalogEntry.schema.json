@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/FunctionCatalogEntry.schema.json",
+  "title": "FunctionCatalogEntry (v1.6)",
+  "description": "v1.6: Semantic interface for a reusable operation (business verb). This version is unchanged from v1.5, aside from its URI.",
+  "type": "object",
+  "properties": {
+    "functionId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier. (Mandatory)"
+    },
+    "functionName": {
+      "type": "string",
+      "description": "Human-readable function name. (Mandatory)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Conceptual purpose and semantics. (Mandatory)"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Parameter name."
+          },
+          "type": {
+            "type": "string",
+            "description": "Data type."
+          },
+          "description": {
+            "type": "string",
+            "description": "Parameter description."
+          },
+          "isRequired": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether required."
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "description"
+        ]
+      },
+      "default": []
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Parameter name."
+          },
+          "type": {
+            "type": "string",
+            "description": "Data type."
+          },
+          "description": {
+            "type": "string",
+            "description": "Parameter description."
+          },
+          "isRequired": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether required."
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "description"
+        ]
+      },
+      "default": []
+    },
+    "systemOfRecord": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "primaryKey": {
+      "type": "string",
+      "default": "functionId",
+      "const": "functionId"
+    },
+    "foreignKeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "keyName": {
+            "type": "string"
+          },
+          "referencesEntity": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyName",
+          "referencesEntity"
+        ]
+      },
+      "default": []
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/attributeItem"
+      },
+      "default": []
+    },
+    "appliedTags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tagDefinitionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "selectedValues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "tagDefinitionId",
+          "selectedValues"
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "functionId",
+    "functionName",
+    "description"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "attributeItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type",
+        "description",
+        "value"
+      ]
+    }
+  }
+}
