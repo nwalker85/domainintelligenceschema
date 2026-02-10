@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Intelligence Schema - Terraform for Agentic AI Systems</title>
+    <meta name="description" content="A declarative framework for modeling and deploying enterprise AI agents. 23 core constructs, 7 canonical modes, zero vendor lock-in.">
+    <link rel="canonical" href="https://domainintelligenceschema.org/">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            background: #f6f8fa;
+        }
+
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 5rem 2rem 4rem;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .hero .tagline {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            margin-bottom: 1.5rem;
+        }
+        .version-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+        .cta-primary {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            font-size: 1.15rem;
+            font-weight: 600;
+            padding: 0.9rem 2.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .cta-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .cta-row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .cta-secondary {
+            display: inline-block;
+            border: 2px solid rgba(255,255,255,0.8);
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.7rem 1.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .cta-secondary:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: white;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Section */
+        section {
+            padding: 4rem 0;
+        }
+        section h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        /* About */
+        .about p {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            color: #444;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Features grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(102,126,234,0.15);
+        }
+        .feature-card h3 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        .feature-card p {
+            color: #586069;
+            font-size: 0.95rem;
+        }
+
+        /* Quick Start */
+        .quickstart {
+            background: white;
+        }
+        .quickstart .container > p {
+            text-align: center;
+            color: #586069;
+            margin-bottom: 2rem;
+        }
+        .code-tabs {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .code-block {
+            background: #1e1e2e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .code-block .label {
+            background: rgba(102,126,234,0.15);
+            color: #667eea;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .code-block pre {
+            padding: 1rem 1.25rem;
+            overflow-x: auto;
+            color: #cdd6f4;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .code-block .key { color: #89b4fa; }
+        .code-block .str { color: #a6e3a1; }
+        .code-block .cmt { color: #6c7086; }
+
+        /* Categories */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .category-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .category-card h3 {
+            color: #24292e;
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+        }
+        .category-card .count {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        .category-card p {
+            color: #586069;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid #e1e4e8;
+            color: #586069;
+            font-size: 0.9rem;
+        }
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .features-grid, .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero .tagline { font-size: 1.1rem; }
+            .features-grid, .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            .cta-row {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero -->
+    <div class="hero">
+        <h1>Domain Intelligence Schema</h1>
+        <div class="tagline">Terraform for Agentic AI Systems</div>
+        <div class="version-badge">v1.6.0</div>
+        <div>
+            <a href="https://calendly.com/PLACEHOLDER" class="cta-primary">Schedule a Meeting</a>
+        </div>
+        <div class="cta-row">
+            <a href="https://schemas.domainintelligenceschema.org/docs/" class="cta-secondary">View Documentation</a>
+            <a href="https://github.com/nwalker85/domainintelligenceschema" class="cta-secondary">GitHub Repository</a>
+        </div>
+    </div>
+
+    <!-- What is DIS? -->
+    <section class="about">
+        <div class="container">
+            <h2>What is DIS?</h2>
+            <p>
+                The Domain Intelligence Schema is a declarative framework for modeling and deploying agentic AI systems in enterprise environments. Think of it as the BNF for business units &mdash; a formal grammar for composing valid domain models. DIS captures domain structure, behavioral rules, execution bindings, and governance in a vendor-neutral format that compiles to any runtime platform including LangGraph, CrewAI, AWS Bedrock Agents, and Microsoft AutoGen.
+            </p>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section>
+        <div class="container">
+            <h2>Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>23 Core Constructs</h3>
+                    <p>A complete vocabulary for modeling entities, roles, behaviors, execution bindings, and governance in agentic AI systems.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>7 Canonical Modes</h3>
+                    <p>Atomic verbs &mdash; CREATE, READ, UPDATE, DELETE, INITIATE, RESPOND, NOTIFY &mdash; that force proper entity discovery and prevent scope creep.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Zero Vendor Lock-in</h3>
+                    <p>Compile to LangGraph, CrewAI, AWS Bedrock Agents, Microsoft AutoGen, or any custom platform. No proprietary references.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="quickstart">
+        <div class="container">
+            <h2>Quick Start</h2>
+            <p>Reference schemas directly in your IDE, validate with AJV, or generate types for your language.</p>
+            <div class="code-tabs">
+                <div class="code-block">
+                    <div class="label">IDE &mdash; $schema reference</div>
+                    <pre>{
+  <span class="key">"$schema"</span>: <span class="str">"https://schemas.domainintelligenceschema.org/dis/1.6.0/DISDossier.schema.json"</span>,
+  <span class="key">"dossierId"</span>: <span class="str">"customer-service-v1"</span>,
+  <span class="key">"name"</span>: <span class="str">"Customer Service Domain"</span>,
+  <span class="key">"disSpecificationRef"</span>: <span class="str">"1.6.0"</span>
+}</pre>
+                </div>
+                <div class="code-block">
+                    <div class="label">Validation &mdash; AJV</div>
+                    <pre><span class="cmt"># Validate a dossier against the CDN-hosted schema</span>
+ajv validate \
+  -s https://schemas.domainintelligenceschema.org/dis/1.6.0/DISDossier.schema.json \
+  -d my-dossier.json</pre>
+                </div>
+                <div class="code-block">
+                    <div class="label">Type Generation &mdash; TypeScript</div>
+                    <pre>json-schema-to-typescript \
+  https://schemas.domainintelligenceschema.org/dis/1.6.0/Entity.schema.json \
+  > types/Entity.ts</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schema Categories -->
+    <section>
+        <div class="container">
+            <h2>Schema Categories</h2>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <h3>Foundation</h3>
+                    <div class="count">2 schemas</div>
+                    <p>CommonEnums (31 controlled vocabularies) and DISDossier (root container and manifest).</p>
+                </div>
+                <div class="category-card">
+                    <h3>Identity &amp; Structure</h3>
+                    <div class="count">5 schemas</div>
+                    <p>Entity, Role, Application, Endpoint, and Modes &mdash; the core nouns and interfaces of your domain.</p>
+                </div>
+                <div class="category-card">
+                    <h3>Behavioral Grammar</h3>
+                    <div class="count">2 schemas</div>
+                    <p>AgenticTriplet (Entity + Mode + Role) and ModeOfInteractionRegistryEntry for behavioral composition.</p>
+                </div>
+                <div class="category-card">
+                    <h3>Matrices</h3>
+                    <div class="count">4 schemas</div>
+                    <p>AccessGateMatrix, EntityModeMatrix, RelationshipMatrix, and TripletFunctionMatrixEntry for cross-cutting rules.</p>
+                </div>
+                <div class="category-card">
+                    <h3>Supporting Constructs</h3>
+                    <div class="count">4 schemas</div>
+                    <p>FunctionCatalogEntry, KnowledgeDocument, TagDefinition, and ValidationRule for execution and metadata.</p>
+                </div>
+                <div class="category-card">
+                    <h3>Governance</h3>
+                    <div class="count">6 schemas</div>
+                    <p>ValueEngineering, DossierComparison, PrivacyManifest, Telemetry, Marketplace, and ChangeManagement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p><strong>Domain Intelligence Schema v1.6.0</strong></p>
+        <p><a href="https://github.com/nwalker85/domainintelligenceschema/blob/main/LICENSE">Apache License 2.0</a> | <a href="https://github.com/nwalker85/domainintelligenceschema">GitHub</a> | <a href="https://schemas.domainintelligenceschema.org/docs/">Documentation</a></p>
+        <p>Hosted on GitHub Pages | Schemas served from Google Cloud Platform</p>
+    </footer>
+
+</body>
+</html>
