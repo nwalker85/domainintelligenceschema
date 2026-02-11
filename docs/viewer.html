@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loading... - DIS Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
-            color: #24292e;
+            color: #E6EAF2;
             max-width: 900px;
             margin: 0 auto;
             padding: 2rem;
-            background: #f6f8fa;
+            background: #030305;
         }
         nav {
             display: flex;
@@ -21,60 +24,62 @@
             align-items: center;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #e1e4e8;
+            border-bottom: 1px solid rgba(26, 29, 36, 0.5);
         }
         nav a {
-            color: #667eea;
+            color: #7FB3FF;
             text-decoration: none;
             font-weight: 500;
             font-size: 0.9rem;
         }
-        nav a:hover { text-decoration: underline; }
+        nav a:hover { color: #B6BDCB; text-decoration: underline; }
         .content {
-            background: white;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
             padding: 2.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(12px);
         }
         .content h1 {
-            color: #667eea;
+            color: #E6EAF2;
             font-size: 2rem;
             margin-bottom: 1rem;
             padding-bottom: 0.75rem;
-            border-bottom: 2px solid #e1e4e8;
+            border-bottom: 2px solid rgba(26, 29, 36, 0.5);
         }
         .content h2 {
-            color: #667eea;
+            color: #B6BDCB;
             font-size: 1.4rem;
             margin: 2rem 0 1rem 0;
             padding-bottom: 0.5rem;
-            border-bottom: 1px solid #e1e4e8;
+            border-bottom: 1px solid rgba(26, 29, 36, 0.5);
         }
         .content h3 {
-            color: #24292e;
+            color: #E6EAF2;
             font-size: 1.15rem;
             margin: 1.5rem 0 0.75rem 0;
         }
-        .content p { margin-bottom: 1rem; color: #444; }
+        .content p { margin-bottom: 1rem; color: #B6BDCB; }
         .content ul, .content ol {
             margin-bottom: 1rem;
             padding-left: 1.5rem;
-            color: #444;
+            color: #B6BDCB;
         }
         .content li { margin-bottom: 0.4rem; }
-        .content strong { color: #24292e; }
+        .content strong { color: #E6EAF2; }
         .content code {
-            background: #f6f8fa;
+            background: rgba(6, 8, 16, 0.5);
             padding: 0.15rem 0.4rem;
-            border-radius: 3px;
+            border-radius: 6px;
             font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
             font-size: 0.88em;
-            color: #667eea;
+            color: #7FB3FF;
         }
         .content pre {
-            background: #1e1e2e;
-            color: #cdd6f4;
-            border-radius: 8px;
+            background: rgba(6, 8, 16, 0.8);
+            color: #B6BDCB;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
             padding: 1.25rem;
             overflow-x: auto;
             margin-bottom: 1.5rem;
@@ -88,7 +93,7 @@
             padding: 0;
             font-size: inherit;
         }
-        .content a { color: #667eea; }
+        .content a { color: #7FB3FF; }
         .content a:hover { text-decoration: underline; }
         .content table {
             width: 100%;
@@ -96,29 +101,30 @@
             margin-bottom: 1.5rem;
         }
         .content th, .content td {
-            border: 1px solid #e1e4e8;
+            border: 1px solid rgba(26, 29, 36, 0.5);
             padding: 0.6rem 1rem;
             text-align: left;
         }
         .content th {
-            background: #f6f8fa;
+            background: #0E1018;
             font-weight: 600;
+            color: #6B7280;
         }
         .error {
             text-align: center;
             padding: 4rem 2rem;
-            color: #586069;
+            color: #6B7280;
         }
-        .error h2 { color: #cb2431; border: none; }
+        .error h2 { color: #FF8A8A; border: none; }
         footer {
             text-align: center;
             margin-top: 3rem;
             padding-top: 1.5rem;
-            border-top: 1px solid #e1e4e8;
-            color: #586069;
+            border-top: 1px solid rgba(26, 29, 36, 0.5);
+            color: #6B7280;
             font-size: 0.85rem;
         }
-        footer a { color: #667eea; text-decoration: none; }
+        footer a { color: #7FB3FF; text-decoration: none; }
     </style>
 </head>
 <body>

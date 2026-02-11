@@ -6,59 +6,65 @@
     <title>Domain Intelligence Schema - Documentation</title>
     <meta name="description" content="Terraform for Agentic AI Systems - Official documentation for DIS v1.6.0">
     <link rel="canonical" href="https://schemas.domainintelligenceschema.org/docs/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
-            color: #24292e;
+            color: #E6EAF2;
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
-            background: #f6f8fa;
+            background: #030305;
         }
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.08) 0%, rgba(47, 214, 255, 0.04) 45%, rgba(168, 140, 250, 0.06) 100%), #030305;
+            color: #E6EAF2;
             padding: 3rem 2rem;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.06);
         }
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; }
-        .subtitle { font-size: 1.2rem; opacity: 0.95; line-height: 1.8; }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; color: #E6EAF2; }
+        .subtitle { font-size: 1.2rem; opacity: 0.95; line-height: 1.8; color: #B6BDCB; }
         .version-badge {
             display: inline-block;
-            background: rgba(255,255,255,0.25);
+            background: #0E1018;
+            border: 1px solid rgba(30, 103, 255, 0.3);
             padding: 0.4rem 1rem;
-            border-radius: 20px;
+            border-radius: 999px;
             font-size: 0.9rem;
             margin-top: 1rem;
             font-weight: 600;
+            color: #7FB3FF;
         }
         main {
-            background: white;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
             padding: 2.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(12px);
         }
         h2 {
-            color: #667eea;
+            color: #7FB3FF;
             margin: 2.5rem 0 1.5rem 0;
             padding-bottom: 0.75rem;
-            border-bottom: 2px solid #e1e4e8;
+            border-bottom: 2px solid rgba(26, 29, 36, 0.5);
             font-weight: 600;
         }
         .intro {
             line-height: 1.8;
             margin-bottom: 2.5rem;
-            color: #444;
+            color: #B6BDCB;
         }
         .intro p {
             margin-bottom: 1.25rem;
         }
         .intro strong {
-            color: #667eea;
+            color: #7FB3FF;
             font-weight: 600;
         }
         .schema-grid {
@@ -68,38 +74,38 @@
             margin-top: 1.5rem;
         }
         .schema-card {
-            border: 1px solid #e1e4e8;
-            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
             padding: 1.25rem;
             transition: all 0.2s ease;
-            background: white;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
+            backdrop-filter: blur(12px);
             cursor: pointer;
         }
         .schema-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.15);
-            transform: translateY(-3px);
+            border-color: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
         }
         .schema-card a {
             text-decoration: none;
-            color: #24292e;
+            color: #E6EAF2;
             display: block;
         }
         .schema-card h3 {
-            color: #667eea;
+            color: #7FB3FF;
             font-size: 1.15rem;
             margin-bottom: 0.5rem;
             font-weight: 600;
         }
         .schema-card .description {
             font-size: 0.9rem;
-            color: #586069;
+            color: #6B7280;
             line-height: 1.5;
         }
         .resources {
-            background: #f6f8fa;
+            background: rgba(10, 12, 20, 0.3);
             padding: 2rem;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-top: 3rem;
         }
         .resources ul {
@@ -110,27 +116,27 @@
         }
         .resources li {
             padding: 1rem;
-            background: white;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
             border-radius: 6px;
-            border-left: 3px solid #667eea;
+            border-left: 3px solid #1E67FF;
             transition: all 0.2s;
         }
         .resources li:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             transform: translateX(4px);
         }
         .resources a {
-            color: #667eea;
+            color: #7FB3FF;
             text-decoration: none;
             font-weight: 500;
             display: flex;
             align-items: center;
         }
         .resources a:hover {
-            color: #764ba2;
+            color: #E6EAF2;
         }
         .resources a::before {
-            content: "→";
+            content: "\2192";
             margin-right: 0.75rem;
             font-weight: bold;
         }
@@ -138,32 +144,32 @@
             text-align: center;
             margin-top: 4rem;
             padding-top: 2rem;
-            border-top: 1px solid #e1e4e8;
-            color: #586069;
+            border-top: 1px solid rgba(26, 29, 36, 0.5);
+            color: #6B7280;
             font-size: 0.9rem;
         }
         footer a {
-            color: #667eea;
+            color: #7FB3FF;
             text-decoration: none;
         }
         footer a:hover {
             text-decoration: underline;
         }
         code {
-            background: #f6f8fa;
+            background: rgba(6, 8, 16, 0.5);
             padding: 0.2rem 0.5rem;
             border-radius: 3px;
             font-family: 'SFMono-Regular', Consolas, monospace;
             font-size: 0.9em;
-            color: #667eea;
+            color: #7FB3FF;
         }
     </style>
 </head>
 <body>
     <header>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <a href="https://domainintelligenceschema.org" style="color: white; text-decoration: none; font-weight: 500; opacity: 0.9; font-size: 0.9rem;">&larr; domainintelligenceschema.org</a>
-            <a href="https://github.com/nwalker85/domainintelligenceschema" style="color: white; text-decoration: none; font-weight: 500; opacity: 0.9; font-size: 0.9rem;">GitHub &rarr;</a>
+            <a href="https://domainintelligenceschema.org" style="color: #B6BDCB; text-decoration: none; font-weight: 500; font-size: 0.9rem;" onmouseover="this.style.color='#E6EAF2'" onmouseout="this.style.color='#B6BDCB'">&larr; domainintelligenceschema.org</a>
+            <a href="https://github.com/nwalker85/domainintelligenceschema" style="color: #B6BDCB; text-decoration: none; font-weight: 500; font-size: 0.9rem;" onmouseover="this.style.color='#E6EAF2'" onmouseout="this.style.color='#B6BDCB'">GitHub &rarr;</a>
         </div>
         <h1>Domain Intelligence Schema</h1>
         <div class="subtitle">Terraform for Agentic AI Systems<br>A declarative framework for modeling and deploying enterprise AI agents</div>

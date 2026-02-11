@@ -6,56 +6,66 @@
     <title>Domain Intelligence Schema - Terraform for Agentic AI Systems</title>
     <meta name="description" content="A declarative framework for modeling and deploying enterprise AI agents. 23 core constructs, 7 canonical modes, zero vendor lock-in.">
     <link rel="canonical" href="https://domainintelligenceschema.org/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
-            color: #24292e;
-            background: #f6f8fa;
+            color: #E6EAF2;
+            background: #030305;
         }
 
         /* Hero */
         .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.08) 0%, rgba(47, 214, 255, 0.04) 45%, rgba(168, 140, 250, 0.06) 100%), #030305;
             text-align: center;
-            padding: 5rem 2rem 4rem;
+            padding: 6rem 2rem 5rem;
+            border-bottom: 1px solid rgba(26, 29, 36, 0.5);
         }
         .hero h1 {
             font-size: 3rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #E6EAF2 0%, #7FB3FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .hero .tagline {
-            font-size: 1.4rem;
-            opacity: 0.95;
+            font-size: 1.3rem;
+            color: #B6BDCB;
             margin-bottom: 1.5rem;
         }
         .version-badge {
             display: inline-block;
-            background: rgba(255,255,255,0.25);
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 2rem;
+            background: #0E1018;
+            border: 1px solid rgba(30, 103, 255, 0.3);
+            padding: 0.3rem 1rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #7FB3FF;
+            margin-bottom: 2.5rem;
         }
         .cta-primary {
             display: inline-block;
-            background: white;
-            color: #667eea;
-            font-size: 1.15rem;
-            font-weight: 600;
-            padding: 0.9rem 2.5rem;
+            background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%), rgba(30, 103, 255, 0.55);
+            color: #E6EAF2;
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0.85rem 2.5rem;
             border-radius: 8px;
             text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(4px);
             transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .cta-primary:hover {
+            background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%), rgba(58, 128, 255, 0.55);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         }
         .cta-row {
             display: flex;
@@ -66,18 +76,21 @@
         }
         .cta-secondary {
             display: inline-block;
-            border: 2px solid rgba(255,255,255,0.8);
-            color: white;
-            font-size: 1rem;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.03) 0%, rgba(168, 140, 250, 0.02) 100%), rgba(10, 12, 20, 0.5);
+            color: #B6BDCB;
+            font-size: 0.95rem;
             font-weight: 500;
             padding: 0.7rem 1.8rem;
             border-radius: 8px;
             text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(6px);
             transition: all 0.2s ease;
         }
         .cta-secondary:hover {
-            background: rgba(255,255,255,0.15);
-            border-color: white;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.06) 0%, rgba(168, 140, 250, 0.04) 100%), rgba(10, 12, 20, 0.7);
+            color: #E6EAF2;
+            border-color: rgba(255,255,255,0.15);
         }
 
         /* Container */
@@ -92,8 +105,8 @@
             padding: 4rem 0;
         }
         section h2 {
-            color: #667eea;
-            font-size: 1.8rem;
+            color: #B6BDCB;
+            font-size: 1.6rem;
             font-weight: 600;
             margin-bottom: 1.5rem;
             text-align: center;
@@ -104,9 +117,22 @@
             max-width: 800px;
             margin: 0 auto;
             text-align: center;
-            color: #444;
-            font-size: 1.1rem;
+            color: #6B7280;
+            font-size: 1.05rem;
             line-height: 1.8;
+        }
+
+        /* Glass card mixin */
+        .glass-card {
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(12px);
+            transition: all 0.2s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
         }
 
         /* Features grid */
@@ -117,34 +143,29 @@
             margin-top: 2rem;
         }
         .feature-card {
-            background: white;
-            border-radius: 8px;
             padding: 2rem;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-            transition: all 0.2s ease;
-        }
-        .feature-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(102,126,234,0.15);
         }
         .feature-card h3 {
-            color: #667eea;
-            font-size: 1.3rem;
+            color: #7FB3FF;
+            font-size: 1.2rem;
+            font-weight: 500;
             margin-bottom: 0.5rem;
         }
         .feature-card p {
-            color: #586069;
-            font-size: 0.95rem;
+            color: #6B7280;
+            font-size: 0.9rem;
         }
 
         /* Quick Start */
         .quickstart {
-            background: white;
+            background: linear-gradient(135deg, rgba(30, 102, 255, 0.03) 0%, rgba(168, 140, 250, 0.02) 100%), rgba(10, 12, 20, 0.3);
+            border-top: 1px solid rgba(26, 29, 36, 0.5);
+            border-bottom: 1px solid rgba(26, 29, 36, 0.5);
         }
         .quickstart .container > p {
             text-align: center;
-            color: #586069;
+            color: #6B7280;
             margin-bottom: 2rem;
         }
         .code-tabs {
@@ -155,30 +176,32 @@
             gap: 1.5rem;
         }
         .code-block {
-            background: #1e1e2e;
-            border-radius: 8px;
+            background: rgba(6, 8, 16, 0.65);
+            border-radius: 12px;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .code-block .label {
-            background: rgba(102,126,234,0.15);
-            color: #667eea;
+            background: rgba(30, 103, 255, 0.08);
+            color: #7FB3FF;
             padding: 0.5rem 1rem;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(26, 29, 36, 0.5);
         }
         .code-block pre {
             padding: 1rem 1.25rem;
             overflow-x: auto;
-            color: #cdd6f4;
+            color: #B6BDCB;
             font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             line-height: 1.6;
         }
-        .code-block .key { color: #89b4fa; }
-        .code-block .str { color: #a6e3a1; }
-        .code-block .cmt { color: #6c7086; }
+        .code-block .key { color: #7FB3FF; }
+        .code-block .str { color: #6EE7A0; }
+        .code-block .cmt { color: #6B7280; }
 
         /* Categories */
         .categories-grid {
@@ -188,46 +211,41 @@
             margin-top: 2rem;
         }
         .category-card {
-            background: white;
-            border-radius: 8px;
             padding: 1.5rem;
-            border-left: 4px solid #667eea;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border-left: 3px solid #1E67FF;
         }
         .category-card h3 {
-            color: #24292e;
-            font-size: 1.05rem;
+            color: #E6EAF2;
+            font-size: 1rem;
+            font-weight: 500;
             margin-bottom: 0.25rem;
         }
         .category-card .count {
-            color: #667eea;
-            font-weight: 600;
-            font-size: 0.85rem;
+            color: #7FB3FF;
+            font-weight: 500;
+            font-size: 0.8rem;
             margin-bottom: 0.5rem;
         }
         .category-card p {
-            color: #586069;
-            font-size: 0.9rem;
+            color: #6B7280;
+            font-size: 0.85rem;
         }
 
         /* Footer */
         footer {
             text-align: center;
             padding: 3rem 2rem;
-            border-top: 1px solid #e1e4e8;
-            color: #586069;
-            font-size: 0.9rem;
+            border-top: 1px solid rgba(26, 29, 36, 0.5);
+            color: #6B7280;
+            font-size: 0.85rem;
         }
         footer a {
-            color: #667eea;
+            color: #7FB3FF;
             text-decoration: none;
         }
-        footer a:hover {
-            text-decoration: underline;
-        }
-        footer p {
-            margin-bottom: 0.5rem;
-        }
+        footer a:hover { color: #B6BDCB; }
+        footer p { margin-bottom: 0.5rem; }
+        footer strong { color: #B6BDCB; }
 
         /* Responsive */
         @media (max-width: 1200px) {
@@ -237,7 +255,7 @@
         }
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
-            .hero .tagline { font-size: 1.1rem; }
+            .hero .tagline { font-size: 1.05rem; }
             .features-grid, .categories-grid {
                 grid-template-columns: 1fr;
             }
@@ -279,15 +297,15 @@
         <div class="container">
             <h2>Key Features</h2>
             <div class="features-grid">
-                <div class="feature-card">
+                <div class="feature-card glass-card">
                     <h3>23 Core Constructs</h3>
                     <p>A complete vocabulary for modeling entities, roles, behaviors, execution bindings, and governance in agentic AI systems.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card glass-card">
                     <h3>7 Canonical Modes</h3>
                     <p>Atomic verbs &mdash; CREATE, READ, UPDATE, DELETE, INITIATE, RESPOND, NOTIFY &mdash; that force proper entity discovery and prevent scope creep.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card glass-card">
                     <h3>Zero Vendor Lock-in</h3>
                     <p>Compile to LangGraph, CrewAI, AWS Bedrock Agents, Microsoft AutoGen, or any custom platform. No proprietary references.</p>
                 </div>
@@ -332,32 +350,32 @@ ajv validate \
         <div class="container">
             <h2>Schema Categories</h2>
             <div class="categories-grid">
-                <div class="category-card">
+                <div class="category-card glass-card">
                     <h3>Foundation</h3>
                     <div class="count">2 schemas</div>
                     <p>CommonEnums (31 controlled vocabularies) and DISDossier (root container and manifest).</p>
                 </div>
-                <div class="category-card">
+                <div class="category-card glass-card">
                     <h3>Identity &amp; Structure</h3>
                     <div class="count">5 schemas</div>
                     <p>Entity, Role, Application, Endpoint, and Modes &mdash; the core nouns and interfaces of your domain.</p>
                 </div>
-                <div class="category-card">
+                <div class="category-card glass-card">
                     <h3>Behavioral Grammar</h3>
                     <div class="count">2 schemas</div>
                     <p>AgenticTriplet (Entity + Mode + Role) and ModeOfInteractionRegistryEntry for behavioral composition.</p>
                 </div>
-                <div class="category-card">
+                <div class="category-card glass-card">
                     <h3>Matrices</h3>
                     <div class="count">4 schemas</div>
                     <p>AccessGateMatrix, EntityModeMatrix, RelationshipMatrix, and TripletFunctionMatrixEntry for cross-cutting rules.</p>
                 </div>
-                <div class="category-card">
+                <div class="category-card glass-card">
                     <h3>Supporting Constructs</h3>
                     <div class="count">4 schemas</div>
                     <p>FunctionCatalogEntry, KnowledgeDocument, TagDefinition, and ValidationRule for execution and metadata.</p>
                 </div>
-                <div class="category-card">
+                <div class="category-card glass-card">
                     <h3>Governance</h3>
                     <div class="count">6 schemas</div>
                     <p>ValueEngineering, DossierComparison, PrivacyManifest, Telemetry, Marketplace, and ChangeManagement.</p>
