@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading... - DIS Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f6f8fa;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        nav a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        nav a:hover { text-decoration: underline; }
+        .content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .content h1 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e1e4e8;
+        }
+        .content h2 {
+            color: #667eea;
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        .content h3 {
+            color: #24292e;
+            font-size: 1.15rem;
+            margin: 1.5rem 0 0.75rem 0;
+        }
+        .content p { margin-bottom: 1rem; color: #444; }
+        .content ul, .content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            color: #444;
+        }
+        .content li { margin-bottom: 0.4rem; }
+        .content strong { color: #24292e; }
+        .content code {
+            background: #f6f8fa;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.88em;
+            color: #667eea;
+        }
+        .content pre {
+            background: #1e1e2e;
+            color: #cdd6f4;
+            border-radius: 8px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .content pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: inherit;
+        }
+        .content a { color: #667eea; }
+        .content a:hover { text-decoration: underline; }
+        .content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        .content th, .content td {
+            border: 1px solid #e1e4e8;
+            padding: 0.6rem 1rem;
+            text-align: left;
+        }
+        .content th {
+            background: #f6f8fa;
+            font-weight: 600;
+        }
+        .error {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #586069;
+        }
+        .error h2 { color: #cb2431; border: none; }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e1e4e8;
+            color: #586069;
+            font-size: 0.85rem;
+        }
+        footer a { color: #667eea; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="https://domainintelligenceschema.org">&larr; domainintelligenceschema.org</a>
+        <a href="./">Schema Documentation</a>
+        <a href="https://github.com/nwalker85/domainintelligenceschema">GitHub &rarr;</a>
+    </nav>
+
+    <div class="content" id="content">
+        <p>Loading documentation...</p>
+    </div>
+
+    <footer>
+        <p><strong>Domain Intelligence Schema v1.6.0</strong> | <a href="https://github.com/nwalker85/domainintelligenceschema/blob/main/LICENSE">Apache License 2.0</a></p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@15/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+    <script>
+        (async function() {
+            var params = new URLSearchParams(window.location.search);
+            var doc = params.get('doc');
+            var el = document.getElementById('content');
+
+            if (!doc || !doc.endsWith('.md')) {
+                el.textContent = 'No document specified. Return to the documentation index.';
+                return;
+            }
+
+            // Allowlist: only schemas/*.md paths
+            if (!/^schemas\/[A-Za-z]+\.md$/.test(doc)) {
+                el.textContent = 'Invalid document path.';
+                return;
+            }
+
+            var name = doc.replace(/^schemas\//, '').replace(/\.md$/, '');
+            document.title = name + ' - DIS Documentation';
+
+            try {
+                var res = await fetch(doc);
+                if (!res.ok) throw new Error(res.status);
+                var md = await res.text();
+                var html = marked.parse(md);
+                el.innerHTML = DOMPurify.sanitize(html);
+            } catch (e) {
+                el.textContent = 'Could not load ' + doc + '. Return to the documentation index.';
+            }
+        })();
+    </script>
+</body>
+</html>
