@@ -128,6 +128,12 @@ Standardized query and transformation language for:
 - [Live Schema Browser](https://schemas.domainintelligenceschema.org/docs/)
 - [Canonical URIs](https://schemas.domainintelligenceschema.org/dis/1.6.0/)
 - [Schema Index](https://schemas.domainintelligenceschema.org/dis/1.6.0/index.json)
+- [Repository Documentation Map](docs/DOCUMENTATION.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Runbook](docs/RUNBOOK.md)
+- [Repository Documentation Map](docs/DOCUMENTATION.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Runbook](docs/RUNBOOK.md)
 
 ## 🔧 Development
 
