@@ -39,18 +39,18 @@
           },
           "dataCategory": {
             "description": "The classification of this data.",
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dataCategory"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dataCategory"
           },
           "processingPurposes": {
             "type": "array",
             "description": "A list of allowed purposes for processing this data.",
             "items": {
-              "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/processingPurpose"
+              "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/processingPurpose"
             }
           },
           "storagePolicy": {
             "description": "The required storage policy for this data.",
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/storagePolicy"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/storagePolicy"
           },
           "retentionDays": {
             "type": "integer",

@@ -20,7 +20,7 @@
     },
     "documentType": {
       "description": "The classification of the knowledge document.",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/documentType"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/documentType"
     },
     "sourceURI": {
       "type": "string",

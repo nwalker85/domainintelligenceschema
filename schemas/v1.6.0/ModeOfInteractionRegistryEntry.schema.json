@@ -7,7 +7,7 @@
   "properties": {
     "modeName": {
       "description": "Fixed name. (Mandatory). Must be one of the 7 canonical modes.",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
     },
     "description": {
       "type": "string",

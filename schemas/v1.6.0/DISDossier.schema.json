@@ -42,11 +42,11 @@
         },
         "dossierType": {
           "description": "Type of DIS Dossier (optional).",
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dossierType"
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dossierType"
         },
         "dossierStatus": {
           "description": "Lifecycle status of a DIS Dossier (optional).",
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dossierStatus"
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dossierStatus"
         },
         "relatedDossierId": {
           "type": "string",
@@ -126,7 +126,7 @@
           "type": "array",
           "description": "The 7 canonical modes of interaction.",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
           },
           "default": []
         },
@@ -188,91 +188,91 @@
         "entities": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Entity.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Entity.schema.json"
           },
           "default": []
         },
         "modes": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Modes.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Modes.schema.json"
           },
           "default": []
         },
         "roles": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Role.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Role.schema.json"
           },
           "default": []
         },
         "applications": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Application.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Application.schema.json"
           },
           "default": []
         },
         "endpoints": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/Endpoint.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/Endpoint.schema.json"
           },
           "default": []
         },
         "knowledgeDocuments": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/KnowledgeDocument.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/KnowledgeDocument.schema.json"
           },
           "default": []
         },
         "tagDefinitions": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TagDefinition.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TagDefinition.schema.json"
           },
           "default": []
         },
         "agenticTriplets": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/AgenticTriplet.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/AgenticTriplet.schema.json"
           },
           "default": []
         },
         "functionCatalogEntries": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/FunctionCatalogEntry.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/FunctionCatalogEntry.schema.json"
           },
           "default": []
         },
         "entityModeMatrixEntries": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/EntityModeMatrix.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/EntityModeMatrix.schema.json"
           },
           "default": []
         },
         "relationshipMatrixEntries": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/RelationshipMatrix.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/RelationshipMatrix.schema.json"
           },
           "default": []
         },
         "accessGateMatrixEntries": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/AccessGateMatrix.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/AccessGateMatrix.schema.json"
           },
           "default": []
         },
         "tripletFunctionMatrixEntries": {
           "type": "array",
           "items": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json"
           },
           "default": []
         }
