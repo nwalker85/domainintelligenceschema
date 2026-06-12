@@ -38,7 +38,7 @@
           },
           "unit": {
             "description": "The unit of measurement for this metric.",
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/metricUnit"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/metricUnit"
           },
           "calculationFormula": {
             "type": "string",
@@ -67,7 +67,7 @@
         },
         "currency": {
           "description": "The currency for this cost model.",
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/currency"
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/currency"
         },
         "avgInfrastructureCostPerInteraction": {
           "type": "number"

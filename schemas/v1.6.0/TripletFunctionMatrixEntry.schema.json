@@ -32,16 +32,16 @@
       "description": "Concrete execution mechanism. (Mandatory)",
       "oneOf": [
         {
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/apiExecutionBinding"
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/apiExecutionBinding"
         },
         {
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/scriptExecutionBinding"
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/scriptExecutionBinding"
         },
         {
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/workflowExecutionBinding"
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/workflowExecutionBinding"
         },
         {
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/internalCodeExecutionBinding"
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/TripletFunctionMatrixEntry.schema.json#/definitions/internalCodeExecutionBinding"
         }
       ]
     },
@@ -178,7 +178,7 @@
         },
         "scriptLanguage": {
           "description": "The language of the script.",
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/scriptLanguage"
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/scriptLanguage"
         },
         "scriptReference": {
           "type": "string",

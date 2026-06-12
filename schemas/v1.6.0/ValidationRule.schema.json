@@ -29,7 +29,7 @@
     },
     "severity": {
       "description": "The severity of the failure (e.g., 'error' stops compilation, 'warning' does not).",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/validationSeverity",
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/validationSeverity",
       "default": "error"
     },
     "primaryKey": {

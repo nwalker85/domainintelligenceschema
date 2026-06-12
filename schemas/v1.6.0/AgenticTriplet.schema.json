@@ -30,11 +30,11 @@
     },
     "stance": {
       "description": "Whether the actor is ACTing or REACTing. (Mandatory)",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/stance"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/stance"
     },
     "modeOfInteraction": {
       "description": "One of the 7 protocol modes. (Mandatory)",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
     },
     "targetEntityId": {
       "type": "string",

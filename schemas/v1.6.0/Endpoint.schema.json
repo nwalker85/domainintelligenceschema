@@ -20,7 +20,7 @@
     },
     "endpointType": {
       "description": "The classification of the endpoint.",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/endpointType"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/endpointType"
     },
     "url": {
       "type": "string",
@@ -31,18 +31,18 @@
     },
     "httpMethod": {
       "description": "The HTTP method for this endpoint, if applicable.",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/httpMethod"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/httpMethod"
     },
     "dataFormat": {
       "description": "The data format used by this endpoint.",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dataFormat"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/dataFormat"
     },
     "version": {
       "type": "string"
     },
     "status": {
       "description": "The operational status of the endpoint.",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/endpointStatus"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/endpointStatus"
     },
     "applicationId": {
       "type": "string",
