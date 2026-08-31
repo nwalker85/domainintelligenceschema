@@ -8,7 +8,7 @@ Official JSON Schema definitions for the Domain Intelligence System - A grammar 
 
 ## 🎯 What is DIS?
 
-DIS is "Terraform for Agentic AI" — a declarative specification that captures:
+DIS is an open, platform-agnostic standard — "Terraform for the domain model," not for a runtime. It is a declarative specification that captures:
 - **Domain structure** (entities, roles, applications)
 - **Behavioral rules** (AgenticTriplets: Entity-Mode-Role)
 - **Execution bindings** (functions, endpoints, workflows)
@@ -108,13 +108,8 @@ The atomic verbs that force proper entity discovery:
 - **RESPOND** - Reply to initiated interactions
 - **NOTIFY** - Send one-way alerts
 
-### Zero Vendor Lock-in
-v1.6 removes all proprietary references. Compile to:
-- LangGraph
-- CrewAI
-- AWS Bedrock Agents
-- Microsoft AutoGen
-- Or custom platforms
+### Platform-agnostic
+v1.6 has no proprietary runtime references. The schema is the standard. Compilers and playbooks that apply a dossier to a platform are separate and optional. No vendor is required.
 
 ### JMESPath Expressions
 Standardized query and transformation language for:
