@@ -1,0 +1,20 @@
+# A VIEW IS A QUERY. Everything governed by a medical-class policy —
+# the policy, the triplet it binds, the role, the entity, the function.
+PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/>
+CONSTRUCT {
+  ?policy  ?pp ?po .    ?policy dis:__label ?pl .
+  ?triplet ?tp ?to .    ?triplet dis:__label ?tl .
+  ?role    dis:__label ?rl . ?entity dis:__label ?el .
+}
+WHERE {
+  ?policy a dis:UtterancePolicy ; dis:liabilityClass dis:MEDICAL ; ?pp ?po .
+  OPTIONAL { ?policy dis:name ?pl }
+  OPTIONAL {
+    ?policy dis:appliesToTriplet ?triplet .
+    ?triplet ?tp ?to .
+    OPTIONAL { ?triplet dis:name ?tl }
+    OPTIONAL { ?triplet dis:actingRole ?role . OPTIONAL { ?role dis:name ?rl } }
+    OPTIONAL { ?triplet dis:targetEntity ?entity . OPTIONAL { ?entity dis:name ?el } }
+  }
+  FILTER(?pp != dis:description && ?pp != dis:requirement)
+}

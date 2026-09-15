@@ -1,0 +1,9 @@
+# AUDIT: which policies are enforced only by instruction, and at what liability?
+# The answer to "is the guardrail load-bearing or decorative?"
+PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/>
+SELECT ?policy ?name ?liability ?enforcement WHERE {
+  ?policy a dis:UtterancePolicy ;
+          dis:name ?name ;
+          dis:enforcement ?enforcement .
+  OPTIONAL { ?policy dis:liabilityClass ?liability }
+} ORDER BY ?enforcement ?liability

@@ -1,0 +1,126 @@
+@prefix dis:  <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+dis: a owl:Ontology ;
+    dct:title "Domain Intelligence Schema" ;
+    owl:versionInfo "1.7.0" ;
+    dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
+    rdfs:comment """DIS models a business domain as reified, typed, closed-vocabulary
+statements. An AgenticTriplet is an RDF triple with three additional commitments:
+the predicate is drawn from a closed set of seven modes, the subject must be a Role
+and the object an Entity, and the statement carries a stance. 1.7 adds UtterancePolicy —
+constraints on what an agent may SAY, as distinct from what it may DO.""" .
+
+# ---------------------------------------------------------------- classes
+dis:Construct a owl:Class ; rdfs:label "Construct" ;
+    rdfs:comment "Anything a dossier declares. Every construct has a stable IRI." .
+
+dis:Role a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Role" ;
+    rdfs:comment "A capacity that can be embodied by an actor. Legal subject of a triplet." .
+dis:Entity a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Entity" ;
+    rdfs:comment "A business object. Legal object of a triplet." .
+dis:Application a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Application" .
+dis:Endpoint a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Endpoint" .
+dis:FunctionCatalogEntry a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Function catalog entry" ;
+    rdfs:comment "HOW an intent is executed. Separated from the triplet, which states WHAT." .
+dis:KnowledgeDocument a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Knowledge document" .
+dis:AccessGate a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Access gate" ;
+    rdfs:comment "Whether a Role may REACH an Entity. Contrast UtterancePolicy." .
+
+dis:AgenticTriplet a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Agentic triplet" ;
+    rdfs:comment """A reified statement: Role -> Mode -> Entity, carrying a stance.
+Equivalent to an RDF-star annotated triple; reified as a node so that policies,
+functions and provenance can attach to the statement itself.""" .
+
+dis:UtterancePolicy a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Utterance policy" ;
+    rdfs:comment """NEW IN 1.7. A constraint on what an agent may SAY, independent of
+what it may DO. AccessGate governs reach; UtterancePolicy governs the form and content
+of the utterance once reach is granted. Holds the RULE, never the copy — wording is a
+target-profile concern and varies by channel and language.""" .
+
+# ---------------------------------------------------------------- the closed verb set
+dis:Mode a owl:Class ; rdfs:label "Mode of interaction" ;
+    rdfs:comment "CLOSED. Seven modes. Do not invent verbs." .
+dis:CREATE   a dis:Mode ; rdfs:label "CREATE" .
+dis:READ     a dis:Mode ; rdfs:label "READ" .
+dis:UPDATE   a dis:Mode ; rdfs:label "UPDATE" .
+dis:DELETE   a dis:Mode ; rdfs:label "DELETE" .
+dis:INITIATE a dis:Mode ; rdfs:label "INITIATE" .
+dis:RESPOND  a dis:Mode ; rdfs:label "RESPOND" .
+dis:NOTIFY   a dis:Mode ; rdfs:label "NOTIFY" .
+
+dis:Stance a owl:Class ; rdfs:label "Stance" ;
+    rdfs:comment "Whether the actor initiated or responded. No RDF equivalent." .
+dis:ACT   a dis:Stance ; rdfs:label "ACT" .
+dis:REACT a dis:Stance ; rdfs:label "REACT" .
+
+# ---------------------------------------------------------------- 1.7 enumerations
+dis:PolicyType a owl:Class ; rdfs:label "Policy type" .
+dis:OBLIGATION       a dis:PolicyType ; rdfs:label "OBLIGATION" ;
+    rdfs:comment "Something that MUST accompany the utterance." .
+dis:PROHIBITION      a dis:PolicyType ; rdfs:label "PROHIBITION" ;
+    rdfs:comment "Something that must never be said." .
+dis:DISCLOSURE_LIMIT a dis:PolicyType ; rdfs:label "DISCLOSURE_LIMIT" ;
+    rdfs:comment "A value may be uttered only in reduced form." .
+dis:LIFECYCLE        a dis:PolicyType ; rdfs:label "LIFECYCLE" ;
+    rdfs:comment "An utterance tied to no entity — greeting, holding, error, closing." .
+
+dis:Enforcement a owl:Class ; rdfs:label "Enforcement" ;
+    rdfs:comment "WHERE the rule is enforced. Compilers MUST NOT silently downgrade STRUCTURAL." .
+dis:STRUCTURAL a dis:Enforcement ; rdfs:label "STRUCTURAL" ;
+    rdfs:comment "The target cannot produce a violating utterance — composed data, withheld capability." .
+dis:INSTRUCTED a dis:Enforcement ; rdfs:label "INSTRUCTED" ;
+    rdfs:comment "Asked for in instructions. Can be forgotten under context pressure." .
+dis:ADVISORY   a dis:Enforcement ; rdfs:label "ADVISORY" .
+
+dis:LiabilityClass a owl:Class ; rdfs:label "Liability class" ;
+    rdfs:comment "Drives escalation thresholds. Not all violations cost the same." .
+dis:STANDARD   a dis:LiabilityClass ; rdfs:label "STANDARD" .
+dis:REGULATORY a dis:LiabilityClass ; rdfs:label "REGULATORY" .
+dis:MEDICAL    a dis:LiabilityClass ; rdfs:label "MEDICAL" .
+dis:FINANCIAL  a dis:LiabilityClass ; rdfs:label "FINANCIAL" .
+dis:SAFETY     a dis:LiabilityClass ; rdfs:label "SAFETY" .
+
+dis:ViolationAction a owl:Class ; rdfs:label "Violation action" .
+dis:REFUSE   a dis:ViolationAction ; rdfs:label "REFUSE" .
+dis:ESCALATE a dis:ViolationAction ; rdfs:label "ESCALATE" .
+dis:SUPPRESS a dis:ViolationAction ; rdfs:label "SUPPRESS" .
+dis:REDACT   a dis:ViolationAction ; rdfs:label "REDACT" .
+dis:LOG_ONLY a dis:ViolationAction ; rdfs:label "LOG_ONLY" .
+
+dis:LifecyclePhase a owl:Class ; rdfs:label "Lifecycle phase" .
+dis:GREETING a dis:LifecyclePhase . dis:HOLDING a dis:LifecyclePhase .
+dis:ERROR    a dis:LifecyclePhase . dis:CLOSING a dis:LifecyclePhase .
+dis:HANDOFF  a dis:LifecyclePhase .
+
+# ---------------------------------------------------------------- properties
+dis:name        a owl:DatatypeProperty ; rdfs:range xsd:string .
+dis:description a owl:DatatypeProperty ; rdfs:range xsd:string .
+dis:requirement a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "The rule, as a condition. Never copy, never steps." .
+dis:mutates     a owl:DatatypeProperty ; rdfs:range xsd:boolean ;
+    rdfs:comment "Declared side effect. The HTTP verb does not carry intent." .
+
+dis:actingRole    a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Role .
+dis:targetEntity  a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Entity .
+dis:mode          a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Mode .
+dis:stance        a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Stance .
+dis:boundFunction a owl:ObjectProperty ; rdfs:range dis:FunctionCatalogEntry .
+
+dis:policyType       a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:PolicyType .
+dis:enforcement      a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:Enforcement .
+dis:liabilityClass   a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:LiabilityClass .
+dis:onViolation      a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:ViolationAction .
+dis:lifecyclePhase   a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:LifecyclePhase .
+dis:appliesToTriplet a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:AgenticTriplet .
+dis:appliesToEntity  a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:Entity .
+dis:appliesToRole    a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:Role .
+dis:boundValue       a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ;
+    rdfs:comment "For OBLIGATION: the value the utterance must carry." .

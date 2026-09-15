@@ -1,0 +1,101 @@
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------- AgenticTriplet — the Grammar Validity Matrix, mechanised ----------
+dis:AgenticTripletShape a sh:NodeShape ;
+    sh:targetClass dis:AgenticTriplet ;
+    sh:closed true ;
+    sh:ignoredProperties ( <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ;
+
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+
+    # "may a Role act on an Entity?" — the line-224 question, as a shape
+    sh:property [ sh:path dis:actingRole ;
+                  sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:class dis:Role ;
+                  sh:message "actingRole must reference a dis:Role" ] ;
+    sh:property [ sh:path dis:targetEntity ;
+                  sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:class dis:Entity ;
+                  sh:message "targetEntity must reference a dis:Entity — not a Role" ] ;
+
+    # the closed grammar: seven modes, two stances. Do not invent verbs.
+    sh:property [ sh:path dis:mode ;
+                  sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:CREATE dis:READ dis:UPDATE dis:DELETE dis:INITIATE dis:RESPOND dis:NOTIFY ) ;
+                  sh:message "mode must be one of the seven protocol modes" ] ;
+    sh:property [ sh:path dis:stance ;
+                  sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:ACT dis:REACT ) ;
+                  sh:message "stance must be ACT or REACT" ] ;
+    sh:property [ sh:path dis:boundFunction ; sh:class dis:FunctionCatalogEntry ] .
+
+# ---------- UtterancePolicy ----------
+dis:UtterancePolicyShape a sh:NodeShape ;
+    sh:targetClass dis:UtterancePolicy ;
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
+    sh:property [ sh:path dis:requirement ; sh:minCount 1 ;
+                  sh:message "a policy must state its rule" ] ;
+    sh:property [ sh:path dis:policyType ;
+                  sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:OBLIGATION dis:PROHIBITION dis:DISCLOSURE_LIMIT dis:LIFECYCLE ) ] ;
+    sh:property [ sh:path dis:enforcement ;
+                  sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:STRUCTURAL dis:INSTRUCTED dis:ADVISORY ) ;
+                  sh:message "enforcement must be declared — it is the whole point of the field" ] ;
+    sh:property [ sh:path dis:appliesToTriplet ; sh:class dis:AgenticTriplet ] ;
+
+    # An OBLIGATION that binds no value obliges nothing.
+    sh:or (
+      [ sh:not [ sh:property [ sh:path dis:policyType ; sh:hasValue dis:OBLIGATION ] ] ]
+      [ sh:property [ sh:path dis:boundValue ; sh:minCount 1 ] ]
+    ) ;
+    sh:message "an OBLIGATION must bind at least one value that the utterance has to carry" .
+
+# ---------- Role / Entity ----------
+dis:RoleShape a sh:NodeShape ;
+    sh:targetClass dis:Role ;
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
+    sh:property [ sh:path dis:roleType ; sh:minCount 1 ;
+                  sh:in ( "human" "agent" "system" ) ] .
+
+dis:EntityShape a sh:NodeShape ;
+    sh:targetClass dis:Entity ;
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
+    sh:property [ sh:path dis:entityType ; sh:minCount 1 ; sh:in ( "data" "agent" ) ] .
+
+
+# ---------- vocabulary conformance: enum values must exist in dis.ttl ----------
+dis:VocabularyBoundShape a sh:NodeShape ;
+    sh:targetClass dis:UtterancePolicy ;
+    sh:property [ sh:path dis:liabilityClass ; sh:class dis:LiabilityClass ;
+                  sh:message "liabilityClass must be a term declared in the DIS vocabulary" ] ;
+    sh:property [ sh:path dis:onViolation ; sh:class dis:ViolationAction ;
+                  sh:message "onViolation must be a term declared in the DIS vocabulary" ] ;
+    sh:property [ sh:path dis:policyType ; sh:class dis:PolicyType ] ;
+    sh:property [ sh:path dis:enforcement ; sh:class dis:Enforcement ] .
+
+# ---------- LIFECYCLE must name its phase ----------
+dis:LifecycleNeedsPhaseShape a sh:NodeShape ;
+    sh:targetClass dis:UtterancePolicy ;
+    sh:or (
+      [ sh:not [ sh:property [ sh:path dis:policyType ; sh:hasValue dis:LIFECYCLE ] ] ]
+      [ sh:property [ sh:path dis:lifecyclePhase ; sh:minCount 1 ] ]
+    ) ;
+    sh:message "a LIFECYCLE policy must name its phase" .
+
+# ---------- STRUCTURAL enforcement on a MEDICAL policy must bind a value ----------
+dis:StructuralMedicalShape a sh:NodeShape ;
+    sh:targetClass dis:UtterancePolicy ;
+    sh:or (
+      [ sh:not [ sh:property [ sh:path dis:liabilityClass ; sh:hasValue dis:MEDICAL ] ] ]
+      [ sh:property [ sh:path dis:enforcement ; sh:hasValue dis:STRUCTURAL ] ]
+    ) ;
+    sh:severity sh:Warning ;
+    sh:message "a MEDICAL-class policy enforced only by instruction is a known failure mode" .

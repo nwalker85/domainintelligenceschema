@@ -1,0 +1,79 @@
+<!doctype html>
+<meta charset="utf-8"><title>DIS 1.7 — UtterancePolicy</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
+<style>
+ :root{--bg:#141417;--panel:#1c1c21;--line:#2c2c34;--fg:#e9e9ec;--dim:#8b8b96}
+ *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
+   font:13px/1.5 ui-sans-serif,system-ui,-apple-system}
+ header{height:52px;display:flex;align-items:center;gap:18px;padding:0 18px;border-bottom:1px solid var(--line)}
+ .t{font-weight:650;letter-spacing:-.01em} .t span{color:var(--dim);font-weight:400;margin-left:8px}
+ .views{display:flex;gap:6px;margin-left:auto}
+ button{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:6px;
+   padding:6px 12px;font:inherit;font-size:12px;cursor:pointer}
+ button[aria-pressed=true]{background:#2563eb;border-color:#2563eb}
+ main{position:absolute;inset:52px 0 0 0;display:grid;grid-template-columns:1fr 300px}
+ #cy{background:var(--bg)}
+ aside{border-left:1px solid var(--line);padding:14px;overflow:auto;background:var(--panel)}
+ aside h3{margin:0 0 4px;font-size:13px} aside .k{color:var(--dim);font-size:11px;text-transform:uppercase;
+   letter-spacing:.06em;margin:14px 0 6px}
+ dl{margin:0;font-size:12px} dt{color:var(--dim);margin-top:7px} dd{margin:1px 0 0}
+ .legend{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--dim)}
+ .sw{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:-1px}
+ .empty{color:var(--dim);font-size:12px}
+</style>
+<header>
+  <div class="t">DIS 1.7<span>UtterancePolicy · Oxigraph → SPARQL → Cytoscape</span></div>
+  <div class="views" id="views"></div>
+</header>
+<main>
+  <div id="cy"></div>
+  <aside>
+    <div id="detail"><p class="empty">Select a node.</p></div>
+    <div class="k">Constructs</div>
+    <div class="legend" id="legend"></div>
+  </aside>
+</main>
+<script>
+const COLOR={Role:'#60a5fa',Entity:'#a78bfa',AgenticTriplet:'#fbbf24',FunctionCatalogEntry:'#34d399',
+             UtterancePolicy:'#f87171',Dossier:'#6b7280',Mode:'#475569',Stance:'#475569',
+             PolicyType:'#7f1d1d',Enforcement:'#78350f',LiabilityClass:'#7f1d1d',
+             ViolationAction:'#7f1d1d',LifecyclePhase:'#334155',Construct:'#475569',thing:'#3f3f46'};
+document.getElementById('legend').innerHTML =
+  ['Role','Entity','AgenticTriplet','FunctionCatalogEntry','UtterancePolicy']
+  .map(k=>`<span><i class="sw" style="background:${COLOR[k]}"></i>${k}</span>`).join('');
+
+let cy, views;
+const style=[
+ {selector:'node',style:{'background-color':n=>COLOR[n.data('kind')]||'#3f3f46','label':'data(label)',
+   'color':'#e9e9ec','font-size':'10px','text-valign':'center','text-halign':'right','text-margin-x':7,
+   'width':16,'height':16,'border-width':2,'border-color':'#141417'}},
+ {selector:'node[kind = "AgenticTriplet"]',style:{'shape':'diamond','width':26,'height':26}},
+ {selector:'node[kind = "UtterancePolicy"]',style:{'shape':'round-rectangle','width':26,'height':17,'font-weight':'600'}},
+ {selector:'node[kind = "Role"]',style:{'shape':'ellipse','width':20,'height':20}},
+ {selector:'edge',style:{'width':1.2,'line-color':'#3a3a44','target-arrow-color':'#3a3a44',
+   'target-arrow-shape':'triangle','arrow-scale':.8,'curve-style':'bezier','label':'data(label)',
+   'font-size':'8px','color':'#77777f','text-rotation':'autorotate',
+   'text-background-color':'#141417','text-background-opacity':1,'text-background-padding':2}},
+ {selector:':selected',style:{'border-color':'#fff','border-width':3}}
+];
+function render(name){
+  document.querySelectorAll('#views button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===name));
+  if(cy) cy.destroy();
+  cy=cytoscape({container:document.getElementById('cy'),elements:views[name],style,
+    layout:{name:'cose',animate:false,nodeRepulsion:12000,idealEdgeLength:95,padding:50,nodeOverlap:20}});
+  cy.on('tap','node',e=>{
+    const d=e.target.data();
+    document.getElementById('detail').innerHTML =
+      `<h3>${d.label}</h3><div class="k">${d.kind}</div><dl>` +
+      Object.entries(d.props||{}).map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('') +
+      `</dl>`;
+  });
+}
+fetch('views.json').then(r=>r.json()).then(v=>{
+  views=v;
+  document.getElementById('views').innerHTML =
+    Object.keys(v).map(k=>`<button data-v="${k}">${k.replace(/-/g,' ')}</button>`).join('');
+  document.querySelectorAll('#views button').forEach(b=>b.onclick=()=>render(b.dataset.v));
+  render(Object.keys(v)[0]);
+});
+</script>
