@@ -20,11 +20,11 @@
     },
     "roleType": {
       "description": "Classification of the role (optional).",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/roleType"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/roleType"
     },
     "agentArchetype": {
       "description": "Behavioral pattern if the role is for an AI agent (optional).",
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/agentArchetype"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/agentArchetype"
     },
     "primaryKey": {
       "type": "string",

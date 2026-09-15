@@ -36,10 +36,10 @@
             "type": "string"
           },
           "metricType": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/telemetryMetricType"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/telemetryMetricType"
           },
           "unit": {
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/metricUnit"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/metricUnit"
           },
           "sourceExpression": {
             "type": "string",
@@ -59,7 +59,7 @@
       "description": "Configuration for structured logging.",
       "properties": {
         "logLevel": {
-          "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/telemetryLogLevel",
+          "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/telemetryLogLevel",
           "default": "INFO"
         },
         "includeContext": {
