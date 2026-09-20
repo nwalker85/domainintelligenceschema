@@ -68,12 +68,7 @@ def test_every_sh_class_object_is_an_owl_class_in_the_vocab(vocab, shapes):
         assert (row["c"], RDF.type, OWL.Class) in vocab, f"{row['c']} is not owl:Class"
 
 
-def test_every_sh_path_is_declared_in_vocab_or_shapes_gap4(vocab, shapes):
-    """RAV-1947 gap 4: dis:roleType and dis:entityType are used as sh:path but
-    never declared as a property (owl:ObjectProperty/DatatypeProperty/
-    rdf:Property) anywhere. This test documents the gap directly (not via
-    xfail) because it enumerates ALL undeclared paths, not one fixed pair --
-    if the gap set ever changes this test's failure message says how."""
+def _undeclared_sh_paths(vocab, shapes):
     q = "PREFIX sh: <http://www.w3.org/ns/shacl#> SELECT DISTINCT ?p WHERE { ?ps sh:path ?p }"
     prop_types = {OWL.ObjectProperty, OWL.DatatypeProperty, RDF.Property}
     undeclared = []
@@ -82,13 +77,32 @@ def test_every_sh_path_is_declared_in_vocab_or_shapes_gap4(vocab, shapes):
         types = set(vocab.objects(p, RDF.type)) | set(shapes.objects(p, RDF.type))
         if not (types & prop_types):
             undeclared.append(_local(p))
-    assert set(undeclared) == {"roleType", "entityType"}
+    return set(undeclared)
 
 
-def test_every_construct_subclass_has_a_targeting_nodeshape_gap5(vocab, shapes):
+def test_gap4_every_sh_path_is_declared_as_a_property_in_vocab_or_shapes(vocab, shapes):
+    """Documents the exact, current gap-4 set directly (not xfail) because it
+    enumerates ALL undeclared paths -- if the set ever grows this test's
+    failure message says exactly what changed."""
+    assert _undeclared_sh_paths(vocab, shapes) == {"roleType", "entityType"}
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="RAV-1947 gap 4: dis:roleType and dis:entityType are used as "
+    "sh:path but never declared as a property anywhere",
+)
+def test_gap4_no_sh_path_is_left_undeclared(vocab, shapes):
+    assert _undeclared_sh_paths(vocab, shapes) == set()
+
+
+def _construct_subclasses_without_a_targeting_nodeshape(vocab, shapes):
     subclasses = set(vocab.subjects(RDFS.subClassOf, DIS.Construct))
     targeted = set(shapes.objects(None, SH.targetClass))
-    missing = subclasses - targeted
+    return subclasses - targeted
+
+
+def test_gap5_the_exact_construct_subclasses_missing_a_nodeshape(vocab, shapes):
     expected = {
         DIS.TagDefinition,
         DIS.PrivacyManifest,
@@ -100,14 +114,42 @@ def test_every_construct_subclass_has_a_targeting_nodeshape_gap5(vocab, shapes):
         DIS.KnowledgeDocument,
         DIS.AccessGate,
     }
-    assert missing == expected
+    assert _construct_subclasses_without_a_targeting_nodeshape(vocab, shapes) == expected
 
 
-def test_no_nodeshape_iri_declared_twice_at_text_level_gap2(repo):
+@pytest.mark.xfail(
+    strict=True,
+    reason="RAV-1947 gap 5: nine rdfs:subClassOf dis:Construct classes have "
+    "no NodeShape sh:targetClass -- a class declared only in the vocabulary "
+    "is invisible to anything generated from the shapes",
+)
+def test_gap5_every_construct_subclass_has_a_targeting_nodeshape(vocab, shapes):
+    assert _construct_subclasses_without_a_targeting_nodeshape(vocab, shapes) == set()
+
+
+def _duplicated_nodeshape_names(repo):
     text = (repo / "shapes/v1.7.0/dis-shapes.ttl").read_text()
     names = re.findall(r"^(dis:\w+Shape)\s+a\s+sh:NodeShape", text, re.MULTILINE)
-    dups = {name for name, count in Counter(names).items() if count > 1}
-    assert dups == {"dis:VocabularyBoundShape", "dis:LifecycleNeedsPhaseShape", "dis:StructuralMedicalShape"}
+    return {name for name, count in Counter(names).items() if count > 1}
+
+
+def test_gap2_the_exact_nodeshapes_declared_twice(repo):
+    assert _duplicated_nodeshape_names(repo) == {
+        "dis:VocabularyBoundShape",
+        "dis:LifecycleNeedsPhaseShape",
+        "dis:StructuralMedicalShape",
+    }
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="RAV-1947 gap 2: VocabularyBoundShape, LifecycleNeedsPhaseShape "
+    "and StructuralMedicalShape are each declared twice (text-level, "
+    "~lines 107-133 and 160-187) -- harmless under SHACL semantics "
+    "(shape merge) but a maintenance trap",
+)
+def test_gap2_no_nodeshape_iri_declared_twice_at_text_level(repo):
+    assert _duplicated_nodeshape_names(repo) == set()
 
 
 def test_every_palette_shape_has_name_description_order_and_a_declared_group(shapes):
@@ -138,15 +180,28 @@ def test_every_showsconstruct_is_a_declared_class(vocab, shapes):
         assert (c, RDF.type, OWL.Class) in vocab, c
 
 
-def test_fullview_shows_every_palette_constructs_target_class_gap6(shapes):
+def _palette_targets_missing_from_fullview(shapes):
     palette_targets = {
         shapes.value(s, SH.targetClass)
         for s in shapes.subjects(DIS.paletteConstruct, Literal(True))
     }
     full_view_shows = set(shapes.objects(DIS.FullView, DIS.showsConstruct))
-    missing = palette_targets - full_view_shows
+    return palette_targets - full_view_shows
+
+
+def test_gap6_the_exact_palette_constructs_fullview_omits(shapes):
     expected = {DIS.AccessGateMatrix, DIS.Application, DIS.Endpoint, DIS.EntityModeMatrix, DIS.FunctionCatalogEntry}
-    assert missing == expected
+    assert _palette_targets_missing_from_fullview(shapes) == expected
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="RAV-1947 gap 6: dis:FullView ('Everything') shows only Role/"
+    "Entity/AgenticTriplet/UtterancePolicy, not the Systems-layer or matrix "
+    "palette constructs added since",
+)
+def test_gap6_fullview_shows_every_palette_constructs_target_class(shapes):
+    assert _palette_targets_missing_from_fullview(shapes) == set()
 
 
 def test_shared_enum_individuals_is_exactly_none(vocab):
