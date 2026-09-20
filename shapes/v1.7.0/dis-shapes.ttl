@@ -221,9 +221,9 @@ dis:ApplicationShape a sh:NodeShape ;
     sh:property [ sh:path dis:applicationType ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:in ( dis:SYSTEM_OF_RECORD dis:SAAS_PLATFORM dis:MOCK dis:KNOWLEDGE_STORE ) ;
                   sh:message "applicationType must be one of the four declared kinds" ] ;
-    sh:property [ sh:path dis:baseUrl ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:property [ sh:path dis:baseUrl ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:pattern "^https://" ;
-                  sh:message "baseUrl must be https — a target that cannot reach it cannot use it" ] ;
+                  sh:message "baseUrl is required and must be https — a target that cannot reach it cannot use it" ] ;
     sh:property [ sh:path dis:authMethod ; sh:maxCount 1 ;
                   sh:in ( dis:NONE dis:API_KEY dis:OAUTH2 dis:BEARER ) ] .
 
@@ -244,7 +244,7 @@ dis:EndpointShape a sh:NodeShape ;
     sh:property [ sh:path dis:urlPath ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:pattern "^/" ;
                   sh:message "urlPath is relative to the Application's baseUrl and must start with /" ] ;
-    sh:property [ sh:path dis:mutates ; sh:maxCount 1 ; sh:datatype xsd:boolean ;
+    sh:property [ sh:path dis:mutates ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ;
                   sh:message "declare whether this endpoint changes state; HTTP method is not the answer" ] .
 
 dis:FunctionCatalogEntryShape a sh:NodeShape ;
@@ -259,11 +259,11 @@ dis:FunctionCatalogEntryShape a sh:NodeShape ;
     sh:property [ sh:path dis:callsEndpoint ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:class dis:Endpoint ;
                   sh:message "a function must call an Endpoint — otherwise it states nothing executable" ] ;
-    sh:property [ sh:path dis:readsEntity ; sh:maxCount 1 ; sh:class dis:Entity ;
-                  sh:message "readsEntity must reference a dis:Entity" ] ;
-    sh:property [ sh:path dis:inputFields ;  sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:property [ sh:path dis:readsEntity ; sh:minCount 1 ; sh:maxCount 1 ; sh:class dis:Entity ;
+                  sh:message "readsEntity is required and must reference a dis:Entity" ] ;
+    sh:property [ sh:path dis:inputFields ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:message "comma-separated field names the caller must supply" ] ;
-    sh:property [ sh:path dis:outputFields ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:property [ sh:path dis:outputFields ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:message "comma-separated field names the response returns" ] .
 
 # A mock is a design-time stand-in. Saying so is the point of the type, so a

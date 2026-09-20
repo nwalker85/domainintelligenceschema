@@ -103,6 +103,10 @@ dis:HANDOFF  a dis:LifecyclePhase .
 # ---------------------------------------------------------------- properties
 dis:name        a owl:DatatypeProperty ; rdfs:range xsd:string .
 dis:description a owl:DatatypeProperty ; rdfs:range xsd:string .
+dis:roleType   a owl:DatatypeProperty ; rdfs:domain dis:Role   ; rdfs:range xsd:string ;
+    rdfs:comment "human | agent | system. Closed by RoleShape." .
+dis:entityType a owl:DatatypeProperty ; rdfs:domain dis:Entity ; rdfs:range xsd:string ;
+    rdfs:comment "data | agent. Closed by EntityShape." .
 dis:requirement a owl:DatatypeProperty ; rdfs:range xsd:string ;
     rdfs:comment "The rule, as a condition. Never copy, never steps." .
 dis:mutates     a owl:DatatypeProperty ; rdfs:range xsd:boolean ;
