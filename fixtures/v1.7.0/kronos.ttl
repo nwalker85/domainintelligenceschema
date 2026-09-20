@@ -1,0 +1,63 @@
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix k:   <https://dossier.example/kronos/> .
+
+k:role-consumer a dis:Role ; dis:name "Consumer" ;
+    dis:description "Member of the public asking about products." ; dis:roleType "human" .
+k:role-agent a dis:Role ; dis:name "Kronos Support Agent" ;
+    dis:description "Answers product questions, routes to competent authority." ; dis:roleType "agent" .
+k:role-qa a dis:Role ; dis:name "QA / Regulatory" ;
+    dis:description "Sole authority for binding allergen statements." ; dis:roleType "human" .
+
+k:entity-product a dis:Entity ; dis:name "Product" ;
+    dis:description "A Kronos confectionery SKU." ; dis:entityType "data" .
+k:entity-allergen a dis:Entity ; dis:name "AllergenProfile" ;
+    dis:description "Per-product allergen values composed with the domain facility disclosure." ;
+    dis:entityType "data" .
+
+k:fn-compose-allergen a dis:FunctionCatalogEntry ;
+    dis:functionName "compose_allergen_profile" ;
+    dis:description "Returns the per-product value already composed with the facility disclosure." ;
+    dis:mutates false .
+
+k:triplet-read-allergen a dis:AgenticTriplet ;
+    dis:name "Consumer reads allergen profile" ;
+    dis:description "A caller asks whether a product is gluten-free or contains nuts." ;
+    dis:actingRole k:role-agent ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity k:entity-allergen ;
+    dis:boundFunction k:fn-compose-allergen .
+
+# THE POLICY THAT HAD NO HOME BEFORE 1.7
+k:policy-allergen-composition a dis:UtterancePolicy ;
+    dis:name "Allergen facts never travel bare" ;
+    dis:description "A per-product allergen value and the domain facility disclosure are different scopes of the same question. Uttering one without the other is materially misleading to a caller with a medical allergy." ;
+    dis:policyType dis:OBLIGATION ;
+    dis:requirement "Any utterance sourced from a per-product allergen attribute must carry the domain facility disclosure in the same utterance." ;
+    dis:appliesToEntity k:entity-allergen ;
+    dis:appliesToTriplet k:triplet-read-allergen ;
+    dis:boundValue k:disclosure-facility ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:MEDICAL ;
+    dis:onViolation dis:REFUSE .
+
+k:policy-no-safety-assertion a dis:UtterancePolicy ;
+    dis:name "Agent may relay, never assert safety" ;
+    dis:description "Separation of duty: binding allergen statements belong to QA/Regulatory." ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "The agent must not assert that a product is safe for a person. On medical-allergy phrasing it routes to the competent authority without answering." ;
+    dis:appliesToRole k:role-agent ;
+    dis:appliesToTriplet k:triplet-read-allergen ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:MEDICAL ;
+    dis:onViolation dis:ESCALATE .
+
+k:policy-greeting a dis:UtterancePolicy ;
+    dis:name "Greeting states scope" ;
+    dis:description "An open invitation produces out-of-scope requests the agent cannot serve." ;
+    dis:policyType dis:LIFECYCLE ;
+    dis:lifecyclePhase dis:GREETING ;
+    dis:requirement "The opening utterance must name the agent's scope and must not invite open-ended requests." ;
+    dis:enforcement dis:INSTRUCTED ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:onViolation dis:LOG_ONLY .

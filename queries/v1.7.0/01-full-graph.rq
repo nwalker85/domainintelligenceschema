@@ -1,0 +1,8 @@
+# The default view: everything, with labels folded on.
+PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/>
+CONSTRUCT { ?s ?p ?o . ?s dis:__label ?label }
+WHERE {
+  ?s ?p ?o .
+  FILTER(?p != dis:description && ?p != dis:requirement)
+  OPTIONAL { ?s dis:name ?label }
+}

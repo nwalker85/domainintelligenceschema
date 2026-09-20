@@ -1,0 +1,48 @@
+@prefix dis:  <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix d:    <https://dossier.example/dadjoke/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+d:dossier a dis:Dossier ;
+    dis:domainName "Dad Joke Agent" ;
+    dis:disSpecificationRef "1.7.0" .
+
+# ---- Roles ----
+d:role-caller a dis:Role ;
+    dis:name "Caller" ; dis:description "The person who dials." ;
+    dis:roleType "human" .
+
+d:role-agent a dis:Role ;
+    dis:name "Dad Joke Agent" ; dis:description "Agent under configuration." ;
+    dis:roleType "agent" .
+
+# ---- Entities ----
+d:entity-joke a dis:Entity ;
+    dis:name "Joke" ; dis:description "Returned by the webhook." ;
+    dis:entityType "data" ; dis:privacyClassification "INTERNAL" .
+
+# ---- Function ----
+d:fn-get-dad-joke a dis:FunctionCatalogEntry ;
+    dis:functionName "get_dad_joke" ;
+    dis:description "Fetch a joke from the webhook." ;
+    dis:mutates false .
+
+# ---- The triplet IS a triple ----
+d:triplet-tell-joke a dis:AgenticTriplet ;
+    dis:name "tell_dad_joke → get_dad_joke" ;
+    dis:description "Caller asks for a joke." ;
+    dis:actingRole   d:role-agent ;
+    dis:stance       dis:REACT ;
+    dis:mode         dis:READ ;
+    dis:targetEntity d:entity-joke ;
+    dis:boundFunction d:fn-get-dad-joke .
+
+# ---- UtterancePolicy — the construct DIS is missing ----
+d:policy-no-improvise a dis:UtterancePolicy ;
+    dis:name "Tool unavailable is stated, never improvised" ;
+    dis:description "Must not substitute generated content for the function result." ;
+    dis:policyType    dis:PROHIBITION ;
+    dis:requirement   "When the bound function is unavailable, state unavailability and do not substitute generated content." ;
+    dis:appliesToTriplet d:triplet-tell-joke ;
+    dis:enforcement   dis:INSTRUCTED ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:onViolation   dis:REFUSE .

@@ -1,0 +1,147 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "Enforcement": {
+            "enum": [
+                "STRUCTURAL",
+                "INSTRUCTED",
+                "ADVISORY"
+            ]
+        },
+        "LiabilityClass": {
+            "enum": [
+                "STANDARD",
+                "REGULATORY",
+                "MEDICAL",
+                "FINANCIAL",
+                "SAFETY"
+            ]
+        },
+        "Lifecycle": {
+            "enum": [
+                "GREETING",
+                "HOLDING",
+                "ERROR",
+                "CLOSING",
+                "HANDOFF"
+            ]
+        },
+        "PolicyType": {
+            "enum": [
+                "OBLIGATION",
+                "PROHIBITION",
+                "DISCLOSURE_LIMIT",
+                "LIFECYCLE"
+            ]
+        },
+        "Violation": {
+            "enum": [
+                "REFUSE",
+                "ESCALATE",
+                "SUPPRESS",
+                "REDACT",
+                "LOG_ONLY"
+            ]
+        },
+        "uuid": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        }
+    },
+    "type": "object",
+    "description": "A constraint on what an agent may SAY, independent of what it may DO.\nAccessGate governs reach; this governs the form of the utterance once reach is granted.",
+    "additionalProperties": false,
+    "properties": {
+        "appliedTags": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "appliesToEntityIds": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/uuid"
+            }
+        },
+        "appliesToRoleIds": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/uuid"
+            }
+        },
+        "appliesToTripletIds": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/uuid"
+            }
+        },
+        "boundValueRefs": {
+            "type": "array",
+            "description": "For OBLIGATION: values the utterance must carry.",
+            "items": {
+                "type": "string"
+            }
+        },
+        "condition": {
+            "type": "string",
+            "description": "When the policy is active. Absent = always."
+        },
+        "description": {
+            "type": "string",
+            "not": {
+                "const": ""
+            }
+        },
+        "enforcement": {
+            "description": "Where the rule is actually enforced. Required — the whole value of the\nfield is that it is a deliberate choice, not a default.",
+            "$ref": "#/$defs/Enforcement"
+        },
+        "foreignKeys": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "liabilityClass": {
+            "$ref": "#/$defs/LiabilityClass"
+        },
+        "lifecyclePhase": {
+            "description": "Only meaningful for LIFECYCLE.",
+            "$ref": "#/$defs/Lifecycle"
+        },
+        "name": {
+            "type": "string",
+            "not": {
+                "const": ""
+            }
+        },
+        "onViolation": {
+            "$ref": "#/$defs/Violation"
+        },
+        "policyId": {
+            "$ref": "#/$defs/uuid"
+        },
+        "policyType": {
+            "$ref": "#/$defs/PolicyType"
+        },
+        "primaryKey": {
+            "type": "string"
+        },
+        "requirement": {
+            "type": "string",
+            "description": "The rule, as a condition. Never copy, never steps.",
+            "not": {
+                "const": ""
+            }
+        }
+    },
+    "required": [
+        "description",
+        "enforcement",
+        "name",
+        "policyId",
+        "policyType",
+        "requirement"
+    ]
+}

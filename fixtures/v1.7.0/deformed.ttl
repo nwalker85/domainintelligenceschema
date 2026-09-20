@@ -1,0 +1,27 @@
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix d:   <https://dossier.example/broken/> .
+
+d:role-agent a dis:Role ;
+    dis:name "Agent" ; dis:description "x" ; dis:roleType "agent" .
+
+d:entity-joke a dis:Entity ;
+    dis:name "Joke" ; dis:description "x" ; dis:entityType "data" .
+
+# DEFORMITY 1 — triplet points at a Role where an Entity is required
+d:bad-target a dis:AgenticTriplet ;
+    dis:name "bad target" ; dis:description "x" ;
+    dis:actingRole d:role-agent ; dis:stance dis:REACT ; dis:mode dis:READ ;
+    dis:targetEntity d:role-agent .
+
+# DEFORMITY 2 — invented mode, not in the closed set of seven
+d:bad-mode a dis:AgenticTriplet ;
+    dis:name "bad mode" ; dis:description "x" ;
+    dis:actingRole d:role-agent ; dis:stance dis:REACT ; dis:mode dis:YEET ;
+    dis:targetEntity d:entity-joke .
+
+# DEFORMITY 3 — OBLIGATION with no bound value to carry
+d:bad-policy a dis:UtterancePolicy ;
+    dis:name "obligation with nothing bound" ; dis:description "x" ;
+    dis:policyType dis:OBLIGATION ;
+    dis:requirement "must carry something" ;
+    dis:enforcement dis:STRUCTURAL .

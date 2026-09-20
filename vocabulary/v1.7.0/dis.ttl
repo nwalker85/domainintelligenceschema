@@ -1,0 +1,419 @@
+@prefix dis:  <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+dis: a owl:Ontology ;
+    dct:title "Domain Intelligence Schema" ;
+    owl:versionInfo "1.7.0" ;
+    dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
+    rdfs:comment """DIS models a business domain as reified, typed, closed-vocabulary
+statements. An AgenticTriplet is an RDF triple with three additional commitments:
+the predicate is drawn from a closed set of seven modes, the subject must be a Role
+and the object an Entity, and the statement carries a stance. 1.7 adds UtterancePolicy —
+constraints on what an agent may SAY, as distinct from what it may DO.""" .
+
+# ---------------------------------------------------------------- classes
+dis:Construct a owl:Class ; rdfs:label "Construct" ;
+    rdfs:comment "Anything a dossier declares. Every construct has a stable IRI." .
+
+dis:Role a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Role" ;
+    rdfs:comment "A capacity that can be embodied by an actor. Legal subject of a triplet." .
+dis:Entity a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Entity" ;
+    rdfs:comment "A business object. Legal object of a triplet." .
+dis:Application a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Application" .
+dis:Endpoint a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Endpoint" .
+dis:FunctionCatalogEntry a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Function catalog entry" ;
+    rdfs:comment "HOW an intent is executed. Separated from the triplet, which states WHAT." .
+dis:KnowledgeDocument a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Knowledge document" .
+dis:AccessGate a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Access gate" ;
+    rdfs:comment "Whether a Role may REACH an Entity. Contrast UtterancePolicy." .
+
+dis:AgenticTriplet a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Agentic triplet" ;
+    rdfs:comment """A reified statement: Role -> Mode -> Entity, carrying a stance.
+Equivalent to an RDF-star annotated triple; reified as a node so that policies,
+functions and provenance can attach to the statement itself.""" .
+
+dis:UtterancePolicy a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Utterance policy" ;
+    rdfs:comment """NEW IN 1.7. A constraint on what an agent may SAY, independent of
+what it may DO. AccessGate governs reach; UtterancePolicy governs the form and content
+of the utterance once reach is granted. Holds the RULE, never the copy — wording is a
+target-profile concern and varies by channel and language.""" .
+
+# ---------------------------------------------------------------- the closed verb set
+dis:Mode a owl:Class ; rdfs:label "Mode of interaction" ;
+    rdfs:comment "CLOSED. Seven modes. Do not invent verbs." .
+dis:CREATE   a dis:Mode ; rdfs:label "CREATE" .
+dis:READ     a dis:Mode ; rdfs:label "READ" .
+dis:UPDATE   a dis:Mode ; rdfs:label "UPDATE" .
+dis:DELETE   a dis:Mode ; rdfs:label "DELETE" .
+dis:INITIATE a dis:Mode ; rdfs:label "INITIATE" .
+dis:RESPOND  a dis:Mode ; rdfs:label "RESPOND" .
+dis:NOTIFY   a dis:Mode ; rdfs:label "NOTIFY" .
+
+dis:Stance a owl:Class ; rdfs:label "Stance" ;
+    rdfs:comment "Whether the actor initiated or responded. No RDF equivalent." .
+dis:ACT   a dis:Stance ; rdfs:label "ACT" .
+dis:REACT a dis:Stance ; rdfs:label "REACT" .
+
+# ---------------------------------------------------------------- 1.7 enumerations
+dis:PolicyType a owl:Class ; rdfs:label "Policy type" .
+dis:OBLIGATION       a dis:PolicyType ; rdfs:label "OBLIGATION" ;
+    rdfs:comment "Something that MUST accompany the utterance." .
+dis:PROHIBITION      a dis:PolicyType ; rdfs:label "PROHIBITION" ;
+    rdfs:comment "Something that must never be said." .
+dis:DISCLOSURE_LIMIT a dis:PolicyType ; rdfs:label "DISCLOSURE_LIMIT" ;
+    rdfs:comment "A value may be uttered only in reduced form." .
+dis:LIFECYCLE        a dis:PolicyType ; rdfs:label "LIFECYCLE" ;
+    rdfs:comment "An utterance tied to no entity — greeting, holding, error, closing." .
+
+dis:Enforcement a owl:Class ; rdfs:label "Enforcement" ;
+    rdfs:comment "WHERE the rule is enforced. Compilers MUST NOT silently downgrade STRUCTURAL." .
+dis:STRUCTURAL a dis:Enforcement ; rdfs:label "STRUCTURAL" ;
+    rdfs:comment "The target cannot produce a violating utterance — composed data, withheld capability." .
+dis:INSTRUCTED a dis:Enforcement ; rdfs:label "INSTRUCTED" ;
+    rdfs:comment "Asked for in instructions. Can be forgotten under context pressure." .
+dis:ADVISORY   a dis:Enforcement ; rdfs:label "ADVISORY" .
+
+dis:LiabilityClass a owl:Class ; rdfs:label "Liability class" ;
+    rdfs:comment "Drives escalation thresholds. Not all violations cost the same." .
+dis:STANDARD   a dis:LiabilityClass ; rdfs:label "STANDARD" .
+dis:REGULATORY a dis:LiabilityClass ; rdfs:label "REGULATORY" .
+dis:MEDICAL    a dis:LiabilityClass ; rdfs:label "MEDICAL" .
+dis:FINANCIAL  a dis:LiabilityClass ; rdfs:label "FINANCIAL" .
+dis:SAFETY     a dis:LiabilityClass ; rdfs:label "SAFETY" .
+
+dis:ViolationAction a owl:Class ; rdfs:label "Violation action" .
+dis:REFUSE   a dis:ViolationAction ; rdfs:label "REFUSE" .
+dis:ESCALATE a dis:ViolationAction ; rdfs:label "ESCALATE" .
+dis:SUPPRESS a dis:ViolationAction ; rdfs:label "SUPPRESS" .
+dis:REDACT   a dis:ViolationAction ; rdfs:label "REDACT" .
+dis:LOG_ONLY a dis:ViolationAction ; rdfs:label "LOG_ONLY" .
+
+dis:LifecyclePhase a owl:Class ; rdfs:label "Lifecycle phase" .
+dis:GREETING a dis:LifecyclePhase . dis:HOLDING a dis:LifecyclePhase .
+dis:ERROR    a dis:LifecyclePhase . dis:CLOSING a dis:LifecyclePhase .
+dis:HANDOFF  a dis:LifecyclePhase .
+
+# ---------------------------------------------------------------- properties
+dis:name        a owl:DatatypeProperty ; rdfs:range xsd:string .
+dis:description a owl:DatatypeProperty ; rdfs:range xsd:string .
+dis:requirement a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "The rule, as a condition. Never copy, never steps." .
+dis:mutates     a owl:DatatypeProperty ; rdfs:range xsd:boolean ;
+    rdfs:comment "Declared side effect. The HTTP verb does not carry intent." .
+
+dis:actingRole    a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Role .
+dis:targetEntity  a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Entity .
+dis:mode          a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Mode .
+dis:stance        a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Stance .
+dis:boundFunction a owl:ObjectProperty ; rdfs:range dis:FunctionCatalogEntry .
+
+dis:policyType       a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:PolicyType .
+dis:enforcement      a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:Enforcement .
+dis:liabilityClass   a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:LiabilityClass .
+dis:onViolation      a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:ViolationAction .
+dis:lifecyclePhase   a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:LifecyclePhase .
+dis:appliesToTriplet a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:AgenticTriplet .
+dis:appliesToEntity  a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:Entity .
+dis:appliesToRole    a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:Role .
+dis:boundValue       a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ;
+    rdfs:comment "For OBLIGATION: the value the utterance must carry." .
+
+# ---------------------------------------------------------- the systems layer
+# WHERE a fact comes from. Declared in 1.3 as the Function and Integration
+# Catalogs, kept as classes through 1.7, and given shapes here so the workshop
+# can place them and a compiler can bind a triplet to something executable.
+
+dis:ApplicationType a owl:Class ; rdfs:label "Application type" .
+dis:SYSTEM_OF_RECORD a dis:ApplicationType ; rdfs:label "SYSTEM_OF_RECORD" .
+dis:SAAS_PLATFORM    a dis:ApplicationType ; rdfs:label "SAAS_PLATFORM" .
+dis:MOCK             a dis:ApplicationType ; rdfs:label "MOCK" ;
+    rdfs:comment "A stand-in used for design and demonstration. Never a production claim." .
+dis:KNOWLEDGE_STORE  a dis:ApplicationType ; rdfs:label "KNOWLEDGE_STORE" .
+
+dis:AuthMethod a owl:Class ; rdfs:label "Auth method" .
+dis:NONE   a dis:AuthMethod . dis:API_KEY a dis:AuthMethod .
+dis:OAUTH2 a dis:AuthMethod . dis:BEARER  a dis:AuthMethod .
+
+dis:HttpMethod a owl:Class ; rdfs:label "HTTP method" .
+dis:GET a dis:HttpMethod . dis:POST a dis:HttpMethod .
+dis:PUT a dis:HttpMethod . dis:PATCH a dis:HttpMethod . dis:HTTP_DELETE a dis:HttpMethod .
+
+dis:applicationType a owl:ObjectProperty ; rdfs:domain dis:Application ; rdfs:range dis:ApplicationType .
+dis:authMethod      a owl:ObjectProperty ; rdfs:domain dis:Application ; rdfs:range dis:AuthMethod .
+dis:baseUrl         a owl:DatatypeProperty ; rdfs:domain dis:Application ; rdfs:range xsd:string .
+
+dis:hostedBy   a owl:ObjectProperty ; rdfs:domain dis:Endpoint ; rdfs:range dis:Application .
+dis:httpMethod a owl:ObjectProperty ; rdfs:domain dis:Endpoint ; rdfs:range dis:HttpMethod .
+dis:urlPath    a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
+
+dis:callsEndpoint  a owl:ObjectProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range dis:Endpoint .
+dis:readsEntity    a owl:ObjectProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range dis:Entity .
+dis:inputFields    a owl:DatatypeProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range xsd:string .
+dis:outputFields   a owl:DatatypeProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range xsd:string .
+
+# ------------------------------------------------- the grammar matrices (1.6)
+# The triplets are not a list someone wrote down — they are the legal cells of
+# an enumerated cross-product. EntityModeMatrix says which of the seven modes an
+# entity supports at all; AccessGateMatrix says which roles may use which of
+# those modes on it. A triplet outside both is not merely undeclared, it is
+# illegal, and the denials are as much the model as the permissions.
+
+dis:EntityModeMatrix a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Entity-mode matrix" ;
+    rdfs:comment "Which modes of interaction an Entity supports at all. The outer bound on the grammar." .
+
+dis:AccessGateMatrix a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Access gate matrix" ;
+    rdfs:comment "Which Role may use which modes on which Entity. Authority: who may. Contrast UtterancePolicy, which governs the utterance once reach is granted." .
+
+dis:matrixEntity   a owl:ObjectProperty ; rdfs:range dis:Entity .
+dis:matrixRole     a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:Role .
+dis:supportedMode  a owl:ObjectProperty ; rdfs:domain dis:EntityModeMatrix ; rdfs:range dis:Mode .
+dis:allowedMode    a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:Mode .
+dis:gateCondition  a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "An executable condition that must hold for the gate to open. Empty means unconditional." .
+
+# ------------------------------------------------- the instance set (1.7)
+# An Entity says what KIND of thing the domain contains. For a great many
+# entities that is the whole story — there is no knowable population of
+# "Inquiry". But where the population IS closed and known, leaving it out of the
+# model is what makes entity extraction guesswork: the target is handed a type
+# and asked to recognise members of a set nobody ever wrote down.
+#
+# A closed instance set is what lets a compiler emit a closed parameter value
+# set instead of a free string, and a speech recogniser's phrase vocabulary
+# instead of nothing. Both of those are the difference between a wrong value
+# being IMPOSSIBLE and a wrong value being UNLIKELY.
+
+dis:EntityInstance a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Entity instance" ;
+    rdfs:comment "One member of an Entity's closed, known population. Present only where the population is genuinely closed — an open-world entity declares none." .
+
+dis:instanceOf a owl:ObjectProperty ; rdfs:domain dis:EntityInstance ; rdfs:range dis:Entity ;
+    rdfs:comment "The Entity this is a member of." .
+
+dis:spokenForm a owl:DatatypeProperty ; rdfs:domain dis:EntityInstance ; rdfs:range xsd:string ;
+    rdfs:comment "What a person says out loud. Feeds the recogniser's phrase vocabulary. May repeat; it is the human handle, not the identity." .
+
+dis:systemKey a owl:DatatypeProperty ; rdfs:domain dis:EntityInstance ; rdfs:range xsd:string ;
+    rdfs:comment "How a system addresses it. NEVER asked of a language model — the model returns the instance it recognised and the compiler maps it here. Asking a model to emit an identifier is asking it to author a machine artifact from speech." .
+
+dis:confusableWith a owl:ObjectProperty ; rdfs:domain dis:EntityInstance ; rdfs:range dis:EntityInstance ;
+    rdfs:comment "Declares that two instances are mistakable for one another. A compiler must emit a disambiguation turn rather than resolve silently. Symmetric in intent; declare it once." .
+
+# ------------------------------------------------- dossier metadata (1.7)
+# 1.6's DISDossier was a JSON wrapper OBJECT around a whole dossier. In Turtle
+# the file/named graph already is the dossier — kronos-candies.ttl never
+# needed a wrapper node, it just declared its own namespace and used it. No
+# construct is needed for "a dossier"; only its header metadata, carried as
+# ontology-style triples on the dossier's own root IRI, the same way this
+# vocabulary describes itself four lines up in this file.
+#
+#   d: a owl:Ontology ;
+#       dis:dossierType dis:DESIGN ; dis:dossierStatus dis:DRAFT ;
+#       owl:versionInfo "1.0.0" .
+
+dis:DossierType a owl:Class ; rdfs:label "Dossier type" .
+dis:DISCOVERY a dis:DossierType . dis:DESIGN a dis:DossierType .
+dis:DEPLOYMENT a dis:DossierType . dis:TEMPLATE a dis:DossierType .
+
+dis:DossierStatus a owl:Class ; rdfs:label "Dossier status" .
+dis:DRAFT a dis:DossierStatus . dis:IN_REVIEW a dis:DossierStatus .
+dis:PUBLISHED a dis:DossierStatus . dis:DEPRECATED a dis:DossierStatus .
+# APPROVED is declared once, below, and shared with ChangeManagementRecord —
+# a dossier and the record of a change to it agreeing on what "approved"
+# means is the point, not a collision to avoid.
+
+dis:dossierType   a owl:ObjectProperty ; rdfs:range dis:DossierType .
+dis:dossierStatus a owl:ObjectProperty ; rdfs:range dis:DossierStatus .
+
+# ------------------------------------------------- TagDefinition (1.7)
+# A semantic category and its closed set of allowed values. How an arbitrary
+# construct gets tagged with a selected value — the edge-with-data problem —
+# is an open question (§9 in the 1.7 proposal carries the nearest precedent:
+# EntityInstance faced the same "a plain edge cannot carry which value was
+# chosen" shape). Declaring the category is not blocked on solving that.
+
+dis:TagDefinition a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Tag definition" ;
+    rdfs:comment "A semantic category and its closed set of allowed values." .
+
+dis:allowedValue a owl:DatatypeProperty ; rdfs:domain dis:TagDefinition ; rdfs:range xsd:string ;
+    rdfs:comment "One member of the category's closed value set." .
+
+dis:multiSelect a owl:DatatypeProperty ; rdfs:domain dis:TagDefinition ; rdfs:range xsd:boolean ;
+    rdfs:comment "Whether more than one allowedValue may apply to a single tagged construct." .
+
+# ------------------------------------------------- PrivacyManifest (1.7)
+# Data privacy, handling, and purpose-of-use policy for an Entity's
+# attributes — GDPR-shaped, deliberately not GDPR-named, because the same
+# three questions (what kind of data, why is it processed, how must it be
+# stored) recur under CCPA, HIPAA, and every other regime a target profile
+# might need to satisfy.
+
+dis:PrivacyManifest a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Privacy manifest" ;
+    rdfs:comment "Data privacy, handling, and purpose-of-use policy governing one or more Entity attributes." .
+
+dis:DataCategory a owl:Class ; rdfs:label "Data category" .
+dis:PII a dis:DataCategory ; rdfs:label "PII" .
+dis:PHI a dis:DataCategory ; rdfs:label "PHI" .
+dis:PCI a dis:DataCategory ; rdfs:label "PCI" .
+# FINANCIAL_DATA, not FINANCIAL: that name is already a LiabilityClass
+# individual (an UtterancePolicy risk class), a different axis — what kind of
+# data this is, versus what kind of risk saying something about it carries.
+dis:FINANCIAL_DATA a dis:DataCategory ; rdfs:label "FINANCIAL_DATA" .
+dis:AUTHENTICATION a dis:DataCategory ; rdfs:label "AUTHENTICATION" .
+dis:USAGE_ANALYTICS a dis:DataCategory ; rdfs:label "USAGE_ANALYTICS" .
+
+dis:ProcessingPurpose a owl:Class ; rdfs:label "Processing purpose" .
+dis:OPERATIONS a dis:ProcessingPurpose . dis:MARKETING a dis:ProcessingPurpose .
+dis:SECURITY a dis:ProcessingPurpose .
+dis:LEGAL_COMPLIANCE a dis:ProcessingPurpose .
+dis:ANALYTICS a dis:ProcessingPurpose ; rdfs:comment "Distinct from USAGE_ANALYTICS (a DataCategory): this is why data is processed, that is what data it is." .
+
+dis:StoragePolicy a owl:Class ; rdfs:label "Storage policy" .
+dis:PLAINTEXT a dis:StoragePolicy . dis:ENCRYPTED_AT_REST a dis:StoragePolicy .
+dis:ANONYMIZED a dis:StoragePolicy . dis:PSEUDONYMIZED a dis:StoragePolicy .
+dis:MASKED a dis:StoragePolicy . dis:DELETE_AFTER_PROCESSING a dis:StoragePolicy .
+
+dis:governsAttribute  a owl:DatatypeProperty ; rdfs:domain dis:PrivacyManifest ; rdfs:range xsd:string ;
+    rdfs:comment "An RFC 6901 attribute path this manifest governs." .
+dis:dataCategory       a owl:ObjectProperty ; rdfs:domain dis:PrivacyManifest ; rdfs:range dis:DataCategory .
+dis:processingPurpose  a owl:ObjectProperty ; rdfs:domain dis:PrivacyManifest ; rdfs:range dis:ProcessingPurpose .
+dis:storagePolicy      a owl:ObjectProperty ; rdfs:domain dis:PrivacyManifest ; rdfs:range dis:StoragePolicy .
+
+# ------------------------------------------------- TelemetryConfiguration (1.7)
+# Design-time instrumentation spec for observability — WHAT to observe, never
+# HOW; the compiler binds that, the same separation §5/§8 already draw for
+# assurance and function bindings.
+
+dis:TelemetryConfiguration a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Telemetry configuration" ;
+    rdfs:comment "Design-time observability spec: what to observe, never how." .
+
+dis:TelemetryLogLevel a owl:Class ; rdfs:label "Telemetry log level" .
+# NONE is shared with AuthMethod — both axes use it to mean the same thing,
+# the absence of the thing being configured. LOG_ERROR, not ERROR: that name
+# is already a LifecyclePhase (an UtterancePolicy conversation state), an
+# unrelated axis.
+dis:NONE a dis:TelemetryLogLevel .
+dis:LOG_ERROR a dis:TelemetryLogLevel ; rdfs:label "ERROR" .
+dis:INFO  a dis:TelemetryLogLevel . dis:DEBUG a dis:TelemetryLogLevel . dis:TRACE a dis:TelemetryLogLevel .
+
+dis:TelemetryMetricType a owl:Class ; rdfs:label "Telemetry metric type" .
+dis:COUNTER a dis:TelemetryMetricType . dis:GAUGE a dis:TelemetryMetricType . dis:HISTOGRAM a dis:TelemetryMetricType .
+
+dis:logLevel    a owl:ObjectProperty ; rdfs:domain dis:TelemetryConfiguration ; rdfs:range dis:TelemetryLogLevel .
+dis:metricType  a owl:ObjectProperty ; rdfs:range dis:TelemetryMetricType ;
+    rdfs:comment "On a metric instance this configuration declares, not on the configuration itself — a configuration typically declares several metrics." .
+
+# ------------------------------------------------- MarketplaceEntry (1.7)
+# Metadata for publishing a DIS Dossier to a marketplace or exchange.
+
+dis:MarketplaceEntry a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Marketplace entry" ;
+    rdfs:comment "Publication metadata for offering a Dossier in a marketplace or exchange." .
+
+dis:MarketplacePricingModel a owl:Class ; rdfs:label "Marketplace pricing model" .
+dis:FREE a dis:MarketplacePricingModel .
+dis:ONE_TIME_PURCHASE a dis:MarketplacePricingModel .
+dis:SUBSCRIPTION_PER_SEAT a dis:MarketplacePricingModel .
+dis:SUBSCRIPTION_PER_EXECUTION a dis:MarketplacePricingModel .
+
+dis:MarketplaceCategory a owl:Class ; rdfs:label "Marketplace category" .
+dis:FINANCE a dis:MarketplaceCategory . dis:HEALTHCARE a dis:MarketplaceCategory .
+dis:TELECOMMUNICATIONS a dis:MarketplaceCategory . dis:RETAIL a dis:MarketplaceCategory .
+dis:IT_SERVICE_MANAGEMENT a dis:MarketplaceCategory . dis:HUMAN_RESOURCES a dis:MarketplaceCategory .
+dis:CUSTOMER_SUPPORT a dis:MarketplaceCategory . dis:UTILITIES a dis:MarketplaceCategory .
+
+dis:listsDossier    a owl:ObjectProperty ; rdfs:domain dis:MarketplaceEntry ;
+    rdfs:comment "The dossier this entry offers. Points at the dossier's own root IRI, not a DISDossier node — there is no such node." .
+dis:publisherName   a owl:DatatypeProperty ; rdfs:domain dis:MarketplaceEntry ; rdfs:range xsd:string .
+dis:pricingModel    a owl:ObjectProperty ; rdfs:domain dis:MarketplaceEntry ; rdfs:range dis:MarketplacePricingModel .
+dis:marketplaceCategory a owl:ObjectProperty ; rdfs:domain dis:MarketplaceEntry ; rdfs:range dis:MarketplaceCategory .
+dis:documentationUrl a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+# ------------------------------------------------- ChangeManagementRecord (1.7)
+# The approval workflow and audit history for a change to a Dossier itself —
+# a change to the SPEC, not a runtime firing. This is the spec-authoring
+# analogue of the DO-receipt discipline the grammar already applies to
+# everything else: a version bump without a record of who approved it and
+# from what is exactly the undeclared-write problem §6.1 names for BE.
+
+dis:ChangeManagementRecord a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Change management record" ;
+    rdfs:comment "The approval workflow and audit trail for one change to a Dossier." .
+
+dis:ChangeManagementStatus a owl:Class ; rdfs:label "Change management status" .
+dis:PENDING_REVIEW a dis:ChangeManagementStatus .
+dis:APPROVED a dis:ChangeManagementStatus .
+dis:REJECTED a dis:ChangeManagementStatus .
+dis:IMPLEMENTED a dis:ChangeManagementStatus .
+dis:CANCELLED a dis:ChangeManagementStatus .
+
+dis:recordsChangeTo a owl:ObjectProperty ; rdfs:domain dis:ChangeManagementRecord ;
+    rdfs:comment "The dossier this record tracks a change to. Points at the dossier's own root IRI." .
+dis:fromVersion  a owl:DatatypeProperty ; rdfs:domain dis:ChangeManagementRecord ; rdfs:range xsd:string .
+dis:toVersion    a owl:DatatypeProperty ; rdfs:domain dis:ChangeManagementRecord ; rdfs:range xsd:string .
+dis:changeStatus a owl:ObjectProperty ; rdfs:domain dis:ChangeManagementRecord ; rdfs:range dis:ChangeManagementStatus .
+dis:submittedBy  a owl:DatatypeProperty ; rdfs:domain dis:ChangeManagementRecord ; rdfs:range xsd:string .
+dis:approver     a owl:DatatypeProperty ; rdfs:domain dis:ChangeManagementRecord ; rdfs:range xsd:string .
+
+# ------------------------------------------------- ValueEngineeringProfile (1.7)
+# Operational metrics and a cost model for ROI calculation — the AS-IS
+# baseline a TO-BE design is measured against. This is what
+# DossierComparison.valueProposition cites; it exists here because that
+# citation needs a real target, not because it was independently requested.
+
+dis:ValueEngineeringProfile a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Value engineering profile" ;
+    rdfs:comment "Operational metrics and a cost model for one domain or process, as an AS-IS baseline or a TO-BE projection." .
+
+dis:MetricUnit a owl:Class ; rdfs:label "Metric unit" .
+dis:SECONDS a dis:MetricUnit . dis:MINUTES a dis:MetricUnit . dis:HOURS a dis:MetricUnit .
+dis:PERCENTAGE a dis:MetricUnit . dis:CURRENCY_UNIT a dis:MetricUnit ; rdfs:comment "Not CURRENCY: that name is the Currency class itself, below." .
+
+dis:Currency a owl:Class ; rdfs:label "Currency" .
+dis:USD a dis:Currency . dis:EUR a dis:Currency . dis:GBP a dis:Currency .
+dis:JPY a dis:Currency . dis:CAD a dis:Currency . dis:AUD a dis:Currency .
+
+dis:metricValue a owl:DatatypeProperty ; rdfs:range xsd:decimal .
+dis:metricUnit  a owl:ObjectProperty ; rdfs:range dis:MetricUnit .
+dis:currency    a owl:ObjectProperty ; rdfs:domain dis:ValueEngineeringProfile ; rdfs:range dis:Currency .
+dis:avgLaborRatePerHour a owl:DatatypeProperty ; rdfs:domain dis:ValueEngineeringProfile ; rdfs:range xsd:decimal .
+dis:costFormula a owl:DatatypeProperty ; rdfs:domain dis:ValueEngineeringProfile ; rdfs:range xsd:string ;
+    rdfs:comment "A JMESPath expression, evaluated at runtime against a context this vocabulary does not define — the same honest limitation §5 names for gateCondition." .
+
+# ------------------------------------------------- DossierComparison (1.7)
+# A delta analysis between a Discovery (AS-IS) dossier and a Design (TO-BE)
+# dossier — the business case for a transformation, and the reason §1 of the
+# 1.7 proposal opens on "discover what workflows emerge" rather than
+# "declare workflows": the comparison is only sayable once both dossiers
+# already exist as real, separately-discovered models.
+
+dis:DossierComparison a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Dossier comparison" ;
+    rdfs:comment "A delta analysis between a Discovery dossier and a Design dossier, and the value case for the change between them." .
+
+dis:comparesDiscovery a owl:ObjectProperty ; rdfs:domain dis:DossierComparison ;
+    rdfs:comment "The Discovery (AS-IS) dossier's own root IRI." .
+dis:comparesDesign a owl:ObjectProperty ; rdfs:domain dis:DossierComparison ;
+    rdfs:comment "The Design (TO-BE) dossier's own root IRI." .
+dis:addsEntity    a owl:ObjectProperty ; rdfs:domain dis:DossierComparison ; rdfs:range dis:Entity .
+dis:removesEntity a owl:ObjectProperty ; rdfs:domain dis:DossierComparison ; rdfs:range dis:Entity .
+dis:addsTriplet    a owl:ObjectProperty ; rdfs:domain dis:DossierComparison ; rdfs:range dis:AgenticTriplet .
+dis:removesTriplet a owl:ObjectProperty ; rdfs:domain dis:DossierComparison ; rdfs:range dis:AgenticTriplet .
+dis:automatesProcess a owl:DatatypeProperty ; rdfs:domain dis:DossierComparison ; rdfs:range xsd:string ;
+    rdfs:comment "A human process, named in prose, that the Design dossier automates and the Discovery dossier does not. Not a construct reference — the AS-IS process is definitionally outside any DIS model, or automating it would not be news." .
+dis:baselineProfile  a owl:ObjectProperty ; rdfs:domain dis:DossierComparison ; rdfs:range dis:ValueEngineeringProfile .
+dis:projectedProfile a owl:ObjectProperty ; rdfs:domain dis:DossierComparison ; rdfs:range dis:ValueEngineeringProfile .
+dis:projectedAnnualSavings a owl:DatatypeProperty ; rdfs:domain dis:DossierComparison ; rdfs:range xsd:decimal .
+dis:projectedRoiPercentage a owl:DatatypeProperty ; rdfs:domain dis:DossierComparison ; rdfs:range xsd:decimal .
