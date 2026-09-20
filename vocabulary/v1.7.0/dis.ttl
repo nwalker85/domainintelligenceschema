@@ -29,8 +29,6 @@ dis:FunctionCatalogEntry a owl:Class ; rdfs:subClassOf dis:Construct ;
     rdfs:label "Function catalog entry" ;
     rdfs:comment "HOW an intent is executed. Separated from the triplet, which states WHAT." .
 dis:KnowledgeDocument a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Knowledge document" .
-dis:AccessGate a owl:Class ; rdfs:subClassOf dis:Construct ; rdfs:label "Access gate" ;
-    rdfs:comment "Whether a Role may REACH an Entity. Contrast UtterancePolicy." .
 
 dis:AgenticTriplet a owl:Class ; rdfs:subClassOf dis:Construct ;
     rdfs:label "Agentic triplet" ;
@@ -41,7 +39,7 @@ functions and provenance can attach to the statement itself.""" .
 dis:UtterancePolicy a owl:Class ; rdfs:subClassOf dis:Construct ;
     rdfs:label "Utterance policy" ;
     rdfs:comment """NEW IN 1.7. A constraint on what an agent may SAY, independent of
-what it may DO. AccessGate governs reach; UtterancePolicy governs the form and content
+what it may DO. AccessGateMatrix governs reach; UtterancePolicy governs the form and content
 of the utterance once reach is granted. Holds the RULE, never the copy — wording is a
 target-profile concern and varies by channel and language.""" .
 
@@ -234,6 +232,7 @@ dis:PUBLISHED a dis:DossierStatus . dis:DEPRECATED a dis:DossierStatus .
 # APPROVED is declared once, below, and shared with ChangeManagementRecord —
 # a dossier and the record of a change to it agreeing on what "approved"
 # means is the point, not a collision to avoid.
+dis:APPROVED a dis:DossierStatus .
 
 dis:dossierType   a owl:ObjectProperty ; rdfs:range dis:DossierType .
 dis:dossierStatus a owl:ObjectProperty ; rdfs:range dis:DossierStatus .
