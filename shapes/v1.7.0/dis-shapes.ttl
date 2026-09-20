@@ -566,6 +566,11 @@ dis:KnowledgeDocumentShape a sh:NodeShape ;
 # above DossierType) is ontology-style triples on the dossier's own root
 # IRI: dis:dossierType, dis:dossierStatus, owl:versionInfo.
 
+# owl:versionInfo is a standard OWL property, not a DIS one, but it is now
+# used as an sh:path below — the gap-4 fix (every sh:path is a declared
+# property somewhere) covers imported paths too.
+<http://www.w3.org/2002/07/owl#versionInfo> a rdf:Property .
+
 dis:DossierMetadataShape a sh:NodeShape ;
     sh:targetSubjectsOf dis:dossierType ;
     sh:property [ sh:path dis:dossierType ; sh:minCount 1 ; sh:maxCount 1 ;
