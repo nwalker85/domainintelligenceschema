@@ -11,6 +11,18 @@ dis:paletteConstruct a rdf:Property ;
     rdfs:comment "true when this shape defines a construct the workshop can place on a canvas." .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+# Every placeable construct requires exactly one name and one description.
+# Declared once and referenced by sh:property IRI (valid SHACL: a PropertyShape
+# can be named and reused, not only written inline) instead of repeated as an
+# inline blank node on each NodeShape — nine copies had drifted out of sync
+# before this fix: three were missing sh:maxCount 1, silently allowing more
+# than one name or description where every other copy allowed exactly one.
+dis:RequiredNameShape a sh:PropertyShape ;
+    sh:path dis:name ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string .
+
+dis:RequiredDescriptionShape a sh:PropertyShape ;
+    sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string .
+
 # ---------- AgenticTriplet — the Grammar Validity Matrix, mechanised ----------
 dis:AgenticTripletShape a sh:NodeShape ;
     dis:paletteConstruct true ;
@@ -22,8 +34,8 @@ dis:AgenticTripletShape a sh:NodeShape ;
     sh:closed true ;
     sh:ignoredProperties ( <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ;
 
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
 
     # "may a Role act on an Entity?" — the line-224 question, as a shape
     sh:property [ sh:path dis:actingRole ;
@@ -54,8 +66,8 @@ dis:UtterancePolicyShape a sh:NodeShape ;
     sh:description "What the agent may SAY — separate from what it may DO." ;
     sh:order 40 ;
     sh:group dis:GovernanceGroup ;
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
     sh:property [ sh:path dis:requirement ; sh:minCount 1 ;
                   sh:message "a policy must state its rule" ] ;
     sh:property [ sh:path dis:policyType ;
@@ -128,8 +140,8 @@ dis:RoleShape a sh:NodeShape ;
     sh:description "Who acts. A capacity an actor embodies." ;
     sh:order 10 ;
     sh:group dis:PeopleGroup ;
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
     sh:property [ sh:path dis:roleType ; sh:minCount 1 ;
                   sh:in ( "human" "agent" "system" ) ] .
 
@@ -140,8 +152,8 @@ dis:EntityShape a sh:NodeShape ;
     sh:description "What is acted upon. A business object." ;
     sh:order 20 ;
     sh:group dis:PeopleGroup ;
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
     sh:property [ sh:path dis:entityType ; sh:minCount 1 ; sh:in ( "data" "agent" ) ] .
 
 
@@ -234,8 +246,8 @@ dis:ApplicationShape a sh:NodeShape ;
     sh:description "A system that holds facts. The system of record, or the mock standing in for one." ;
     sh:order 10 ;
     sh:group dis:SystemsGroup ;
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
     sh:property [ sh:path dis:applicationType ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:in ( dis:SYSTEM_OF_RECORD dis:SAAS_PLATFORM dis:MOCK dis:KNOWLEDGE_STORE ) ;
                   sh:message "applicationType must be one of the four declared kinds" ] ;
@@ -252,8 +264,8 @@ dis:EndpointShape a sh:NodeShape ;
     sh:description "One callable operation on an Application." ;
     sh:order 20 ;
     sh:group dis:SystemsGroup ;
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
     sh:property [ sh:path dis:hostedBy ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:class dis:Application ;
                   sh:message "an endpoint must be hosted by an Application" ] ;
@@ -272,8 +284,8 @@ dis:FunctionCatalogEntryShape a sh:NodeShape ;
     sh:description "HOW an intent is executed. Binds a triplet to an endpoint and an entity." ;
     sh:order 30 ;
     sh:group dis:SystemsGroup ;
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
     sh:property [ sh:path dis:callsEndpoint ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:class dis:Endpoint ;
                   sh:message "a function must call an Endpoint — otherwise it states nothing executable" ] ;
@@ -303,8 +315,8 @@ dis:EntityModeMatrixShape a sh:NodeShape ;
     sh:description "Which of the seven modes this entity supports at all." ;
     sh:order 30 ;
     sh:group dis:PeopleGroup ;
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
     sh:property [ sh:path dis:matrixEntity ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:class dis:Entity ;
                   sh:message "an entity-mode matrix must name the Entity it bounds" ] ;
@@ -319,8 +331,8 @@ dis:AccessGateMatrixShape a sh:NodeShape ;
     sh:description "Which modes this role may use on this entity. Authority, not utterance." ;
     sh:order 40 ;
     sh:group dis:PeopleGroup ;
-    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
-    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
     sh:property [ sh:path dis:matrixRole ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:class dis:Role ;
                   sh:message "an access gate must name the Role it grants to" ] ;
