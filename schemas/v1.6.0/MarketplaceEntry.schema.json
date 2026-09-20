@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/MarketplaceEntry.schema.json",
+  "deprecated": true,
   "title": "MarketplaceEntry (v1.6)",
   "description": "v1.6: A new, separate construct that provides metadata for publishing a DIS Dossier to a marketplace or exchange.",
   "type": "object",

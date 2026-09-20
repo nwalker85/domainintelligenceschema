@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/KnowledgeDocument.schema.json",
+  "deprecated": true,
   "title": "KnowledgeDocument (v1.6)",
   "description": "v1.6: A document used for knowledge/RAG/context. This version migrates enums to CommonEnums.schema.json.",
   "type": "object",

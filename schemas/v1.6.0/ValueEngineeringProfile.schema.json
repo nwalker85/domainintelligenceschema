@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/ValueEngineeringProfile.schema.json",
+  "deprecated": true,
   "title": "ValueEngineeringProfile (v1.6)",
   "description": "v1.6: A new, separate construct that defines operational metrics and cost models for ROI calculation. This is the 'AS-IS' baseline for a 'TO-BE' design.",
   "type": "object",
