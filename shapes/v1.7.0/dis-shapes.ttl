@@ -557,3 +557,29 @@ dis:KnowledgeDocumentShape a sh:NodeShape ;
     sh:group dis:SystemsGroup ;
     sh:property dis:RequiredNameShape ;
     sh:property dis:RequiredDescriptionShape .
+
+
+# ---------- dossier metadata (1.7) ----------
+# RAV-1947 gap 7: kronos-candies.ttl and dadjoke.ttl declared a header using
+# dis:Dossier/dis:domainName/dis:disSpecificationRef, none of which dis.ttl
+# ever declared. The vocabulary's actual design (see dis.ttl's own comment
+# above DossierType) is ontology-style triples on the dossier's own root
+# IRI: dis:dossierType, dis:dossierStatus, owl:versionInfo.
+
+dis:DossierMetadataShape a sh:NodeShape ;
+    sh:targetSubjectsOf dis:dossierType ;
+    sh:property [ sh:path dis:dossierType ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:DISCOVERY dis:DESIGN dis:DEPLOYMENT dis:TEMPLATE ) ;
+                  sh:message "dossierType must be exactly one of DISCOVERY, DESIGN, DEPLOYMENT, TEMPLATE" ] ;
+    sh:property [ sh:path <http://www.w3.org/2002/07/owl#versionInfo> ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:datatype xsd:string ;
+                  sh:message "a dossier must declare exactly one owl:versionInfo" ] .
+
+dis:DossierStatusMetadataShape a sh:NodeShape ;
+    sh:targetSubjectsOf dis:dossierStatus ;
+    sh:property [ sh:path dis:dossierStatus ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:DRAFT dis:IN_REVIEW dis:APPROVED dis:PUBLISHED dis:DEPRECATED ) ;
+                  sh:message "dossierStatus must be exactly one of DRAFT, IN_REVIEW, APPROVED, PUBLISHED, DEPRECATED" ] ;
+    sh:property [ sh:path <http://www.w3.org/2002/07/owl#versionInfo> ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:datatype xsd:string ;
+                  sh:message "a dossier must declare exactly one owl:versionInfo" ] .
