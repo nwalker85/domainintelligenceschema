@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/DossierComparison.schema.json",
+  "deprecated": true,
   "title": "DossierComparison (v1.6)",
   "description": "v1.6: A new, separate construct that provides a delta analysis (diff) between a 'Discovery (AS-IS)' dossier and a 'Design (TO-BE)' dossier. This captures the business case for a transformation.",
   "type": "object",

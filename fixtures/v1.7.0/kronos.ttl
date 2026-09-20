@@ -14,10 +14,28 @@ k:entity-allergen a dis:Entity ; dis:name "AllergenProfile" ;
     dis:description "Per-product allergen values composed with the domain facility disclosure." ;
     dis:entityType "data" .
 
-k:fn-compose-allergen a dis:FunctionCatalogEntry ;
-    dis:functionName "compose_allergen_profile" ;
-    dis:description "Returns the per-product value already composed with the facility disclosure." ;
+k:kronos-product-api a dis:Application ;
+    dis:name "Kronos Product API" ;
+    dis:description "Mock standing in for the published product catalogue." ;
+    dis:applicationType dis:MOCK ;
+    dis:authMethod dis:NONE ;
+    dis:baseUrl "https://kronos.example/api" .
+
+k:get-allergen-profile a dis:Endpoint ;
+    dis:name "Get allergen profile" ;
+    dis:description "Per-product allergen attributes and the facility disclosure that must accompany them." ;
+    dis:hostedBy k:kronos-product-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/allergen-profile" ;
     dis:mutates false .
+
+k:fn-compose-allergen a dis:FunctionCatalogEntry ;
+    dis:name "compose_allergen_profile" ;
+    dis:description "Returns the per-product value already composed with the facility disclosure." ;
+    dis:callsEndpoint k:get-allergen-profile ;
+    dis:readsEntity k:entity-allergen ;
+    dis:inputFields "product" ;
+    dis:outputFields "product,allergens,facility_disclosure" .
 
 k:triplet-read-allergen a dis:AgenticTriplet ;
     dis:name "Consumer reads allergen profile" ;

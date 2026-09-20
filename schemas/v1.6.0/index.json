@@ -1,5 +1,7 @@
 {
   "version": "1.6.0",
+  "deprecated": true,
+  "supersededBy": "1.7.0",
   "published": "2025-11-08T05:05:59Z",
   "baseUrl": "https://schemas.domainintelligenceschema.org/dis/1.6.0",
   "schemaCount": 23,

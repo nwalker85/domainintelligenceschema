@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/RelationshipMatrix.schema.json",
+  "deprecated": true,
   "title": "RelationshipMatrix (v1.6)",
   "description": "v1.6: Defines a specific relationship instance between two DIS constructs. This version is unchanged from v1.5, aside from its URI.",
   "type": "object",

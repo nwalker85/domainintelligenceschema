@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/DISDossier.schema.json",
+  "deprecated": true,
   "title": "DISDossier (v1.6)",
   "description": "v1.6: Standardized JSON package for a complete, domain-specific DIS model. This version removes AmeliaBotInstance, adds new metadata to the header, and migrates enums to CommonEnums.schema.json.",
   "type": "object",

@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://schemas.domainintelligenceschema.org/dis/1.6.0/AccessGateMatrix.schema.json",
+  "deprecated": true,
   "title": "AccessGateMatrix (v1.6)",
   "description": "v1.6: Defines a single rule within the Access Gate Matrix. This version is unchanged from v1.5, aside from its URI and the addition of 'contentMediaType' to the 'gateCondition' field.",
   "type": "object",

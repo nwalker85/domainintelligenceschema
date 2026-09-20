@@ -157,36 +157,6 @@ dis:EntityShape a sh:NodeShape ;
     sh:property [ sh:path dis:entityType ; sh:minCount 1 ; sh:in ( "data" "agent" ) ] .
 
 
-# ---------- vocabulary conformance: enum values must exist in dis.ttl ----------
-dis:VocabularyBoundShape a sh:NodeShape ;
-    sh:targetClass dis:UtterancePolicy ;
-    sh:property [ sh:path dis:liabilityClass ; sh:class dis:LiabilityClass ;
-                  sh:message "liabilityClass must be a term declared in the DIS vocabulary" ] ;
-    sh:property [ sh:path dis:onViolation ; sh:class dis:ViolationAction ;
-                  sh:message "onViolation must be a term declared in the DIS vocabulary" ] ;
-    sh:property [ sh:path dis:policyType ; sh:class dis:PolicyType ] ;
-    sh:property [ sh:path dis:enforcement ; sh:class dis:Enforcement ] .
-
-# ---------- LIFECYCLE must name its phase ----------
-dis:LifecycleNeedsPhaseShape a sh:NodeShape ;
-    sh:targetClass dis:UtterancePolicy ;
-    sh:or (
-      [ sh:not [ sh:property [ sh:path dis:policyType ; sh:hasValue dis:LIFECYCLE ] ] ]
-      [ sh:property [ sh:path dis:lifecyclePhase ; sh:minCount 1 ] ]
-    ) ;
-    sh:message "a LIFECYCLE policy must name its phase" .
-
-# ---------- STRUCTURAL enforcement on a MEDICAL policy must bind a value ----------
-dis:StructuralMedicalShape a sh:NodeShape ;
-    sh:targetClass dis:UtterancePolicy ;
-    sh:or (
-      [ sh:not [ sh:property [ sh:path dis:liabilityClass ; sh:hasValue dis:MEDICAL ] ] ]
-      [ sh:property [ sh:path dis:enforcement ; sh:hasValue dis:STRUCTURAL ] ]
-    ) ;
-    sh:severity sh:Warning ;
-    sh:message "a MEDICAL-class policy enforced only by instruction is a known failure mode" .
-
-
 # ---------- property groups — the palette's section headers ----------
 dis:PeopleGroup     a sh:PropertyGroup ; rdfs:label "People and responsibility" ; sh:order 10 .
 dis:SystemsGroup    a sh:PropertyGroup ; rdfs:label "Systems and access"        ; sh:order 20 .
@@ -229,7 +199,24 @@ dis:FullView a dis:View ;
     rdfs:label "Everything" ;
     rdfs:comment "The whole dossier. Useful for review, hard to talk over." ;
     sh:order 40 ;
-    dis:showsConstruct dis:Role, dis:Entity, dis:AgenticTriplet, dis:UtterancePolicy .
+    dis:showsConstruct dis:Role, dis:Entity, dis:AgenticTriplet, dis:UtterancePolicy,
+        dis:Application, dis:Endpoint, dis:FunctionCatalogEntry,
+        dis:EntityModeMatrix, dis:AccessGateMatrix, dis:KnowledgeDocument,
+        dis:TagDefinition, dis:PrivacyManifest, dis:TelemetryConfiguration,
+        dis:MarketplaceEntry, dis:ChangeManagementRecord, dis:ValueEngineeringProfile,
+        dis:DossierComparison .
+
+dis:SystemsView a dis:View ;
+    rdfs:label "Systems" ;
+    rdfs:comment "Where facts come from — applications, endpoints, the functions that call them, and the triplets they bind." ;
+    sh:order 25 ;
+    dis:showsConstruct dis:Application, dis:Endpoint, dis:FunctionCatalogEntry, dis:AgenticTriplet .
+
+dis:GrammarView a dis:View ;
+    rdfs:label "Grammar" ;
+    rdfs:comment "What is sayable at all — every entity's supported modes and every role's gates." ;
+    sh:order 15 ;
+    dis:showsConstruct dis:Role, dis:Entity, dis:EntityModeMatrix, dis:AccessGateMatrix .
 
 
 # ---------- the systems layer — WHERE a fact comes from ----------
@@ -251,9 +238,9 @@ dis:ApplicationShape a sh:NodeShape ;
     sh:property [ sh:path dis:applicationType ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:in ( dis:SYSTEM_OF_RECORD dis:SAAS_PLATFORM dis:MOCK dis:KNOWLEDGE_STORE ) ;
                   sh:message "applicationType must be one of the four declared kinds" ] ;
-    sh:property [ sh:path dis:baseUrl ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:property [ sh:path dis:baseUrl ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:pattern "^https://" ;
-                  sh:message "baseUrl must be https — a target that cannot reach it cannot use it" ] ;
+                  sh:message "baseUrl is required and must be https — a target that cannot reach it cannot use it" ] ;
     sh:property [ sh:path dis:authMethod ; sh:maxCount 1 ;
                   sh:in ( dis:NONE dis:API_KEY dis:OAUTH2 dis:BEARER ) ] .
 
@@ -274,7 +261,7 @@ dis:EndpointShape a sh:NodeShape ;
     sh:property [ sh:path dis:urlPath ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:pattern "^/" ;
                   sh:message "urlPath is relative to the Application's baseUrl and must start with /" ] ;
-    sh:property [ sh:path dis:mutates ; sh:maxCount 1 ; sh:datatype xsd:boolean ;
+    sh:property [ sh:path dis:mutates ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ;
                   sh:message "declare whether this endpoint changes state; HTTP method is not the answer" ] .
 
 dis:FunctionCatalogEntryShape a sh:NodeShape ;
@@ -289,11 +276,11 @@ dis:FunctionCatalogEntryShape a sh:NodeShape ;
     sh:property [ sh:path dis:callsEndpoint ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:class dis:Endpoint ;
                   sh:message "a function must call an Endpoint — otherwise it states nothing executable" ] ;
-    sh:property [ sh:path dis:readsEntity ; sh:maxCount 1 ; sh:class dis:Entity ;
-                  sh:message "readsEntity must reference a dis:Entity" ] ;
-    sh:property [ sh:path dis:inputFields ;  sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:property [ sh:path dis:readsEntity ; sh:minCount 1 ; sh:maxCount 1 ; sh:class dis:Entity ;
+                  sh:message "readsEntity is required and must reference a dis:Entity" ] ;
+    sh:property [ sh:path dis:inputFields ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:message "comma-separated field names the caller must supply" ] ;
-    sh:property [ sh:path dis:outputFields ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:property [ sh:path dis:outputFields ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:message "comma-separated field names the response returns" ] .
 
 # A mock is a design-time stand-in. Saying so is the point of the type, so a
@@ -415,3 +402,189 @@ dis:InstanceNotSelfConfusableShape a sh:NodeShape ;
         sh:select """
             SELECT $this WHERE { $this dis:confusableWith $this . }
         """ ] .
+
+
+# ---------- governance and value constructs (ported from 1.6 in 1.7) ----------
+# RAV-1947 gap 5: these eight rdfs:subClassOf dis:Construct classes were
+# declared in dis.ttl but had no targeting NodeShape — invisible to the
+# palette and unvalidated. Constraints below are derived from each
+# property's own domain/range declaration in dis.ttl; none are invented.
+
+dis:TagDefinitionShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:TagDefinition ;
+    sh:name "Tag definition" ;
+    sh:description "A semantic category and its closed set of allowed values." ;
+    sh:order 50 ;
+    sh:group dis:GovernanceGroup ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
+    sh:property [ sh:path dis:allowedValue ; sh:minCount 1 ; sh:datatype xsd:string ;
+                  sh:message "at least one allowed value — a category with no members has no closed set" ] ;
+    sh:property [ sh:path dis:multiSelect ; sh:maxCount 1 ; sh:datatype xsd:boolean ] .
+
+dis:PrivacyManifestShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:PrivacyManifest ;
+    sh:name "Privacy manifest" ;
+    sh:description "Data privacy, handling, and purpose-of-use policy for one or more Entity attributes." ;
+    sh:order 60 ;
+    sh:group dis:GovernanceGroup ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
+    sh:property [ sh:path dis:governsAttribute ; sh:minCount 1 ; sh:datatype xsd:string ;
+                  sh:pattern "^/" ;
+                  sh:message "governsAttribute must be an RFC 6901 JSON pointer, starting with /" ] ;
+    sh:property [ sh:path dis:dataCategory ; sh:minCount 1 ; sh:class dis:DataCategory ;
+                  sh:message "at least one declared data category" ] ;
+    sh:property [ sh:path dis:processingPurpose ; sh:minCount 1 ; sh:class dis:ProcessingPurpose ;
+                  sh:message "at least one declared processing purpose" ] ;
+    sh:property [ sh:path dis:storagePolicy ; sh:minCount 1 ; sh:maxCount 1 ; sh:class dis:StoragePolicy ;
+                  sh:message "exactly one storage policy" ] .
+
+dis:TelemetryConfigurationShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:TelemetryConfiguration ;
+    sh:name "Telemetry configuration" ;
+    sh:description "Design-time observability spec: what to observe, never how." ;
+    sh:order 70 ;
+    sh:group dis:GovernanceGroup ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
+    # metricType lives on metric nodes the vocabulary does not yet link to the
+    # configuration (dis:metricType has no rdfs:domain). Not adding a linking
+    # property here — that is a vocabulary decision, not a shapes one.
+    sh:property [ sh:path dis:logLevel ; sh:maxCount 1 ; sh:class dis:TelemetryLogLevel ] .
+
+dis:MarketplaceEntryShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:MarketplaceEntry ;
+    sh:name "Marketplace entry" ;
+    sh:description "Publication metadata for offering a Dossier in a marketplace or exchange." ;
+    sh:order 80 ;
+    sh:group dis:GovernanceGroup ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
+    sh:property [ sh:path dis:listsDossier ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+                  sh:message "must point at the dossier's own root IRI" ] ;
+    sh:property [ sh:path dis:publisherName ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:pricingModel ; sh:minCount 1 ; sh:maxCount 1 ; sh:class dis:MarketplacePricingModel ] ;
+    sh:property [ sh:path dis:marketplaceCategory ; sh:minCount 1 ; sh:class dis:MarketplaceCategory ] ;
+    sh:property [ sh:path dis:documentationUrl ; sh:maxCount 1 ; sh:datatype xsd:string ;
+                  sh:pattern "^https://" ;
+                  sh:message "documentationUrl must be https" ] .
+
+dis:ChangeManagementRecordShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:ChangeManagementRecord ;
+    sh:name "Change management record" ;
+    sh:description "The approval workflow and audit trail for one change to a Dossier." ;
+    sh:order 90 ;
+    sh:group dis:GovernanceGroup ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
+    sh:property [ sh:path dis:recordsChangeTo ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+                  sh:message "must point at the dossier's own root IRI" ] ;
+    sh:property [ sh:path dis:fromVersion ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:toVersion ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:changeStatus ; sh:minCount 1 ; sh:maxCount 1 ; sh:class dis:ChangeManagementStatus ] ;
+    sh:property [ sh:path dis:submittedBy ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:approver ; sh:maxCount 1 ; sh:datatype xsd:string ] .
+
+# An APPROVED change without a named approver is exactly the undeclared-write
+# problem §6.1 names for BE — a version bump with no record of who signed it.
+dis:ApprovedChangeNamesApproverShape a sh:NodeShape ;
+    sh:targetClass dis:ChangeManagementRecord ;
+    sh:or (
+      [ sh:not [ sh:property [ sh:path dis:changeStatus ; sh:hasValue dis:APPROVED ] ] ]
+      [ sh:property [ sh:path dis:approver ; sh:minCount 1 ] ]
+    ) ;
+    sh:message "an APPROVED change must name who approved it — a version bump without a signer is the undeclared-write problem" .
+
+dis:ValueEngineeringProfileShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:ValueEngineeringProfile ;
+    sh:name "Value engineering profile" ;
+    sh:description "Operational metrics and a cost model, as an AS-IS baseline or a TO-BE projection." ;
+    sh:order 100 ;
+    sh:group dis:GovernanceGroup ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
+    sh:property [ sh:path dis:currency ; sh:maxCount 1 ; sh:class dis:Currency ] ;
+    sh:property [ sh:path dis:avgLaborRatePerHour ; sh:maxCount 1 ; sh:datatype xsd:decimal ] ;
+    sh:property [ sh:path dis:costFormula ; sh:maxCount 1 ; sh:datatype xsd:string ] .
+
+dis:DossierComparisonShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:DossierComparison ;
+    sh:name "Dossier comparison" ;
+    sh:description "A delta analysis between a Discovery dossier and a Design dossier." ;
+    sh:order 110 ;
+    sh:group dis:GovernanceGroup ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape ;
+    sh:property [ sh:path dis:comparesDiscovery ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+                  sh:message "must point at the Discovery (AS-IS) dossier's own root IRI" ] ;
+    sh:property [ sh:path dis:comparesDesign ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ;
+                  sh:message "must point at the Design (TO-BE) dossier's own root IRI" ] ;
+    sh:property [ sh:path dis:addsEntity ; sh:class dis:Entity ] ;
+    sh:property [ sh:path dis:removesEntity ; sh:class dis:Entity ] ;
+    sh:property [ sh:path dis:addsTriplet ; sh:class dis:AgenticTriplet ] ;
+    sh:property [ sh:path dis:removesTriplet ; sh:class dis:AgenticTriplet ] ;
+    sh:property [ sh:path dis:automatesProcess ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:baselineProfile ; sh:maxCount 1 ; sh:class dis:ValueEngineeringProfile ] ;
+    sh:property [ sh:path dis:projectedProfile ; sh:maxCount 1 ; sh:class dis:ValueEngineeringProfile ] ;
+    sh:property [ sh:path dis:projectedAnnualSavings ; sh:maxCount 1 ; sh:datatype xsd:decimal ] ;
+    sh:property [ sh:path dis:projectedRoiPercentage ; sh:maxCount 1 ; sh:datatype xsd:decimal ] .
+
+dis:ComparisonIsBetweenTwoDossiersShape a sh:NodeShape ;
+    sh:targetClass dis:DossierComparison ;
+    sh:sparql [
+        sh:message "a comparison of a dossier with itself has no delta" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this WHERE { $this dis:comparesDiscovery ?x ; dis:comparesDesign ?x . }
+        """ ] .
+
+dis:KnowledgeDocumentShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:KnowledgeDocument ;
+    sh:name "Knowledge document" ;
+    sh:description "A document the agent may draw on. Retrieval scope undecided — see spec §9.3." ;
+    # §9.3 of the 1.7 proposal leaves retrieval scope (which documents, how
+    # chunked, how ranked) an open question. Name and description only.
+    sh:order 40 ;
+    sh:group dis:SystemsGroup ;
+    sh:property dis:RequiredNameShape ;
+    sh:property dis:RequiredDescriptionShape .
+
+
+# ---------- dossier metadata (1.7) ----------
+# RAV-1947 gap 7: kronos-candies.ttl and dadjoke.ttl declared a header using
+# dis:Dossier/dis:domainName/dis:disSpecificationRef, none of which dis.ttl
+# ever declared. The vocabulary's actual design (see dis.ttl's own comment
+# above DossierType) is ontology-style triples on the dossier's own root
+# IRI: dis:dossierType, dis:dossierStatus, owl:versionInfo.
+
+# owl:versionInfo is a standard OWL property, not a DIS one, but it is now
+# used as an sh:path below — the gap-4 fix (every sh:path is a declared
+# property somewhere) covers imported paths too.
+<http://www.w3.org/2002/07/owl#versionInfo> a rdf:Property .
+
+dis:DossierMetadataShape a sh:NodeShape ;
+    sh:targetSubjectsOf dis:dossierType ;
+    sh:property [ sh:path dis:dossierType ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:DISCOVERY dis:DESIGN dis:DEPLOYMENT dis:TEMPLATE ) ;
+                  sh:message "dossierType must be exactly one of DISCOVERY, DESIGN, DEPLOYMENT, TEMPLATE" ] ;
+    sh:property [ sh:path <http://www.w3.org/2002/07/owl#versionInfo> ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:datatype xsd:string ;
+                  sh:message "a dossier must declare exactly one owl:versionInfo" ] .
+
+dis:DossierStatusMetadataShape a sh:NodeShape ;
+    sh:targetSubjectsOf dis:dossierStatus ;
+    sh:property [ sh:path dis:dossierStatus ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:DRAFT dis:IN_REVIEW dis:APPROVED dis:PUBLISHED dis:DEPRECATED ) ;
+                  sh:message "dossierStatus must be exactly one of DRAFT, IN_REVIEW, APPROVED, PUBLISHED, DEPRECATED" ] ;
+    sh:property [ sh:path <http://www.w3.org/2002/07/owl#versionInfo> ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:datatype xsd:string ;
+                  sh:message "a dossier must declare exactly one owl:versionInfo" ] .
