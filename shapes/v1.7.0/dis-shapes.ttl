@@ -199,7 +199,24 @@ dis:FullView a dis:View ;
     rdfs:label "Everything" ;
     rdfs:comment "The whole dossier. Useful for review, hard to talk over." ;
     sh:order 40 ;
-    dis:showsConstruct dis:Role, dis:Entity, dis:AgenticTriplet, dis:UtterancePolicy .
+    dis:showsConstruct dis:Role, dis:Entity, dis:AgenticTriplet, dis:UtterancePolicy,
+        dis:Application, dis:Endpoint, dis:FunctionCatalogEntry,
+        dis:EntityModeMatrix, dis:AccessGateMatrix, dis:KnowledgeDocument,
+        dis:TagDefinition, dis:PrivacyManifest, dis:TelemetryConfiguration,
+        dis:MarketplaceEntry, dis:ChangeManagementRecord, dis:ValueEngineeringProfile,
+        dis:DossierComparison .
+
+dis:SystemsView a dis:View ;
+    rdfs:label "Systems" ;
+    rdfs:comment "Where facts come from — applications, endpoints, the functions that call them, and the triplets they bind." ;
+    sh:order 25 ;
+    dis:showsConstruct dis:Application, dis:Endpoint, dis:FunctionCatalogEntry, dis:AgenticTriplet .
+
+dis:GrammarView a dis:View ;
+    rdfs:label "Grammar" ;
+    rdfs:comment "What is sayable at all — every entity's supported modes and every role's gates." ;
+    sh:order 15 ;
+    dis:showsConstruct dis:Role, dis:Entity, dis:EntityModeMatrix, dis:AccessGateMatrix .
 
 
 # ---------- the systems layer — WHERE a fact comes from ----------
