@@ -1,0 +1,3 @@
+This version has not been tagged as a release. See README.md and CHANGELOG.md
+for current status. Delete this file as part of actually tagging the 1.7.0
+release, not before -- that deletion is what lets deploy-cdn.yml publish it.

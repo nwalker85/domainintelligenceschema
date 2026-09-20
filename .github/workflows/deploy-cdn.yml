@@ -34,14 +34,25 @@ jobs:
       # Sync every schemas/v<ver>/ dir to dis/<ver>/ on the bucket.
       # No -d: published spec versions are append-only; nothing is ever
       # deleted from the CDN by automation.
+      #
+      # A version directory carrying a `.unreleased` marker file is skipped
+      # by both steps below. That marker is how "merged to main" and
+      # "published to the public CDN" stay decoupled: a version can sit on
+      # main, reviewed and buildable, without becoming a live URL until
+      # someone deliberately deletes the marker as part of actually tagging
+      # the release. Never delete a marker as a side effect of a merge.
       - name: Sync schema versions to bucket
         run: |
           set -euo pipefail
           for d in schemas/v*/; do
             ver="${d#schemas/v}"; ver="${ver%/}"
+            if [ -f "${d}.unreleased" ]; then
+              echo "::notice::skipping dis/${ver} — marked .unreleased, not yet tagged for release"
+              continue
+            fi
             echo "::group::dis/${ver}"
             gsutil -m -h "Cache-Control:public, max-age=3600" \
-              rsync -c -x '.*\.DS_Store$' "$d" "gs://schemas-domainintelligenceschema-org/dis/${ver}"
+              rsync -c -x '(\.DS_Store|\.unreleased)$' "$d" "gs://schemas-domainintelligenceschema-org/dis/${ver}"
             echo "::endgroup::"
           done
 
@@ -51,6 +62,9 @@ jobs:
           fail=0
           for d in schemas/v*/; do
             ver="${d#schemas/v}"; ver="${ver%/}"
+            if [ -f "${d}.unreleased" ]; then
+              continue
+            fi
             for f in "$d"*.json; do
               name="$(basename "$f")"
               if ! curl -fsS "https://schemas.domainintelligenceschema.org/dis/${ver}/${name}" | diff -q - "$f" >/dev/null; then
