@@ -50,7 +50,7 @@ dis:AgenticTripletShape a sh:NodeShape ;
     # the closed grammar: seven modes, two stances. Do not invent verbs.
     sh:property [ sh:path dis:mode ;
                   sh:minCount 1 ; sh:maxCount 1 ;
-                  sh:in ( dis:CREATE dis:READ dis:UPDATE dis:DELETE dis:INITIATE dis:RESPOND dis:NOTIFY ) ;
+                  sh:class dis:Mode ;
                   sh:message "mode must be one of the seven protocol modes" ] ;
     sh:property [ sh:path dis:stance ;
                   sh:minCount 1 ; sh:maxCount 1 ;
@@ -321,7 +321,7 @@ dis:EntityModeMatrixShape a sh:NodeShape ;
                   sh:class dis:Entity ;
                   sh:message "an entity-mode matrix must name the Entity it bounds" ] ;
     sh:property [ sh:path dis:supportedMode ; sh:minCount 1 ;
-                  sh:in ( dis:CREATE dis:READ dis:UPDATE dis:DELETE dis:INITIATE dis:RESPOND dis:NOTIFY ) ;
+                  sh:class dis:Mode ;
                   sh:message "at least one mode — an entity supporting nothing cannot appear in any triplet" ] .
 
 dis:AccessGateMatrixShape a sh:NodeShape ;
@@ -340,7 +340,7 @@ dis:AccessGateMatrixShape a sh:NodeShape ;
                   sh:class dis:Entity ;
                   sh:message "an access gate must name the Entity it protects" ] ;
     sh:property [ sh:path dis:allowedMode ;
-                  sh:in ( dis:CREATE dis:READ dis:UPDATE dis:DELETE dis:INITIATE dis:RESPOND dis:NOTIFY ) ;
+                  sh:class dis:Mode ;
                   sh:message "allowedMode must be one of the seven canonical modes" ] ;
     sh:property [ sh:path dis:gateCondition ; sh:maxCount 1 ; sh:datatype xsd:string ] .
 
