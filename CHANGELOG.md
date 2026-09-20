@@ -16,6 +16,40 @@ proposal. No tag or release exists yet; nothing here is published.
   operation, whether it mutates state (declared, never inferred from HTTP method).
 - **`EntityInstance`** — a closed, known population for an Entity that genuinely
   has one, so a compiler can emit a closed value set instead of a free string.
+- **The remaining v1.6.0 constructs, ported to Turtle/SHACL**: `TagDefinition`,
+  `PrivacyManifest`, `TelemetryConfiguration`, `MarketplaceEntry`,
+  `ChangeManagementRecord`, `ValueEngineeringProfile`, `DossierComparison`. Plus
+  dossier-level metadata (`dossierType`, `dossierStatus`) as ontology-style
+  triples on a dossier's own root IRI, replacing the `DISDossier` JSON wrapper
+  object — in Turtle the file/named graph already is the dossier.
+- Three real naming/semantic collisions found and resolved while porting:
+  `applicationType` (old: technology shape; new: domain role — technology shape
+  drove no constraint anywhere and was dropped, not duplicated), `httpMethod`
+  (old: 7 values including `OPTIONS`/`HEAD`; new: 5, and `DELETE` → `HTTP_DELETE`
+  to dodge SPARQL's own `DELETE` keyword — `OPTIONS`/`HEAD` don't represent
+  agent-invokable actions and were dropped), and legacy `Modes` (v1.5-era
+  "operational personas an Entity adopts" — folds into the existing `Role`
+  rather than becoming its own class, since it's the same concept).
+
+### Deprecated and replaced this version
+- **JSON Schema is no longer the published contract.** CUE (canonical source,
+  where it exists) and Turtle/SHACL (the graph and its constraints) are. Every
+  `schemas/v1.6.0/*.schema.json` file, plus `schemas/v1.7.0/UtterancePolicy.schema.json`,
+  is deprecated as of 1.7 — kept for existing consumers during the transition,
+  generating no further constructs. `EntityInstance` and the seven constructs
+  above are the first built the new way: Turtle/SHACL only, no `.schema.json`
+  at all. `queries/*.rq` (SPARQL) is how a store is asked questions about a
+  conforming dossier; `pyshacl` is how a dossier is validated.
+- **`TripletFunctionMatrixEntry`** — a join-record binding a triplet to a
+  function with an execution binding. Superseded by `dis:boundFunction`, a
+  direct property already on `AgenticTriplet` (§3.4 of the 1.7 proposal) —
+  already flagged as a deprecation candidate in this file's own 1.6.0 history.
+- **`ValidationRule`** — a data record holding a free-text `condition` and a
+  `severity`. That is what a SHACL shape is; writing one as data instead of as
+  a shape is the pre-SHACL indirection this migration removes.
+- **`RelationshipMatrix`** — a generic `actor`/`related_actor` join-table. In
+  RDF a relationship is a typed triple; the wrapper was JSON's workaround for
+  not having one.
 
 ### Changed (breaking)
 - **`EntityModeMatrix` and `AccessGateMatrix` become enforceable.** A triplet is
