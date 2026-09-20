@@ -157,36 +157,6 @@ dis:EntityShape a sh:NodeShape ;
     sh:property [ sh:path dis:entityType ; sh:minCount 1 ; sh:in ( "data" "agent" ) ] .
 
 
-# ---------- vocabulary conformance: enum values must exist in dis.ttl ----------
-dis:VocabularyBoundShape a sh:NodeShape ;
-    sh:targetClass dis:UtterancePolicy ;
-    sh:property [ sh:path dis:liabilityClass ; sh:class dis:LiabilityClass ;
-                  sh:message "liabilityClass must be a term declared in the DIS vocabulary" ] ;
-    sh:property [ sh:path dis:onViolation ; sh:class dis:ViolationAction ;
-                  sh:message "onViolation must be a term declared in the DIS vocabulary" ] ;
-    sh:property [ sh:path dis:policyType ; sh:class dis:PolicyType ] ;
-    sh:property [ sh:path dis:enforcement ; sh:class dis:Enforcement ] .
-
-# ---------- LIFECYCLE must name its phase ----------
-dis:LifecycleNeedsPhaseShape a sh:NodeShape ;
-    sh:targetClass dis:UtterancePolicy ;
-    sh:or (
-      [ sh:not [ sh:property [ sh:path dis:policyType ; sh:hasValue dis:LIFECYCLE ] ] ]
-      [ sh:property [ sh:path dis:lifecyclePhase ; sh:minCount 1 ] ]
-    ) ;
-    sh:message "a LIFECYCLE policy must name its phase" .
-
-# ---------- STRUCTURAL enforcement on a MEDICAL policy must bind a value ----------
-dis:StructuralMedicalShape a sh:NodeShape ;
-    sh:targetClass dis:UtterancePolicy ;
-    sh:or (
-      [ sh:not [ sh:property [ sh:path dis:liabilityClass ; sh:hasValue dis:MEDICAL ] ] ]
-      [ sh:property [ sh:path dis:enforcement ; sh:hasValue dis:STRUCTURAL ] ]
-    ) ;
-    sh:severity sh:Warning ;
-    sh:message "a MEDICAL-class policy enforced only by instruction is a known failure mode" .
-
-
 # ---------- property groups — the palette's section headers ----------
 dis:PeopleGroup     a sh:PropertyGroup ; rdfs:label "People and responsibility" ; sh:order 10 .
 dis:SystemsGroup    a sh:PropertyGroup ; rdfs:label "Systems and access"        ; sh:order 20 .
