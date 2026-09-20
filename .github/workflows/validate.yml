@@ -23,3 +23,17 @@ jobs:
           echo "Expected 23 schemas, found $COUNT"
           exit 1
         fi
+
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+    - uses: cue-lang/setup-cue@v1
+      with:
+        version: v0.17.1
+    - run: uv python install 3.12
+    - run: uv sync --group test
+    - run: uv run pytest
