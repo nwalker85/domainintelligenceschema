@@ -124,3 +124,86 @@ dis:appliesToEntity  a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rd
 dis:appliesToRole    a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:Role .
 dis:boundValue       a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ;
     rdfs:comment "For OBLIGATION: the value the utterance must carry." .
+
+# ---------------------------------------------------------- the systems layer
+# WHERE a fact comes from. Declared in 1.3 as the Function and Integration
+# Catalogs, kept as classes through 1.7, and given shapes here so the workshop
+# can place them and a compiler can bind a triplet to something executable.
+
+dis:ApplicationType a owl:Class ; rdfs:label "Application type" .
+dis:SYSTEM_OF_RECORD a dis:ApplicationType ; rdfs:label "SYSTEM_OF_RECORD" .
+dis:SAAS_PLATFORM    a dis:ApplicationType ; rdfs:label "SAAS_PLATFORM" .
+dis:MOCK             a dis:ApplicationType ; rdfs:label "MOCK" ;
+    rdfs:comment "A stand-in used for design and demonstration. Never a production claim." .
+dis:KNOWLEDGE_STORE  a dis:ApplicationType ; rdfs:label "KNOWLEDGE_STORE" .
+
+dis:AuthMethod a owl:Class ; rdfs:label "Auth method" .
+dis:NONE   a dis:AuthMethod . dis:API_KEY a dis:AuthMethod .
+dis:OAUTH2 a dis:AuthMethod . dis:BEARER  a dis:AuthMethod .
+
+dis:HttpMethod a owl:Class ; rdfs:label "HTTP method" .
+dis:GET a dis:HttpMethod . dis:POST a dis:HttpMethod .
+dis:PUT a dis:HttpMethod . dis:PATCH a dis:HttpMethod . dis:HTTP_DELETE a dis:HttpMethod .
+
+dis:applicationType a owl:ObjectProperty ; rdfs:domain dis:Application ; rdfs:range dis:ApplicationType .
+dis:authMethod      a owl:ObjectProperty ; rdfs:domain dis:Application ; rdfs:range dis:AuthMethod .
+dis:baseUrl         a owl:DatatypeProperty ; rdfs:domain dis:Application ; rdfs:range xsd:string .
+
+dis:hostedBy   a owl:ObjectProperty ; rdfs:domain dis:Endpoint ; rdfs:range dis:Application .
+dis:httpMethod a owl:ObjectProperty ; rdfs:domain dis:Endpoint ; rdfs:range dis:HttpMethod .
+dis:urlPath    a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
+
+dis:callsEndpoint  a owl:ObjectProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range dis:Endpoint .
+dis:readsEntity    a owl:ObjectProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range dis:Entity .
+dis:inputFields    a owl:DatatypeProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range xsd:string .
+dis:outputFields   a owl:DatatypeProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range xsd:string .
+
+# ------------------------------------------------- the grammar matrices (1.6)
+# The triplets are not a list someone wrote down — they are the legal cells of
+# an enumerated cross-product. EntityModeMatrix says which of the seven modes an
+# entity supports at all; AccessGateMatrix says which roles may use which of
+# those modes on it. A triplet outside both is not merely undeclared, it is
+# illegal, and the denials are as much the model as the permissions.
+
+dis:EntityModeMatrix a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Entity-mode matrix" ;
+    rdfs:comment "Which modes of interaction an Entity supports at all. The outer bound on the grammar." .
+
+dis:AccessGateMatrix a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Access gate matrix" ;
+    rdfs:comment "Which Role may use which modes on which Entity. Authority: who may. Contrast UtterancePolicy, which governs the utterance once reach is granted." .
+
+dis:matrixEntity   a owl:ObjectProperty ; rdfs:range dis:Entity .
+dis:matrixRole     a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:Role .
+dis:supportedMode  a owl:ObjectProperty ; rdfs:domain dis:EntityModeMatrix ; rdfs:range dis:Mode .
+dis:allowedMode    a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:Mode .
+dis:gateCondition  a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "An executable condition that must hold for the gate to open. Empty means unconditional." .
+
+# ------------------------------------------------- the instance set (1.7)
+# An Entity says what KIND of thing the domain contains. For a great many
+# entities that is the whole story — there is no knowable population of
+# "Inquiry". But where the population IS closed and known, leaving it out of the
+# model is what makes entity extraction guesswork: the target is handed a type
+# and asked to recognise members of a set nobody ever wrote down.
+#
+# A closed instance set is what lets a compiler emit a closed parameter value
+# set instead of a free string, and a speech recogniser's phrase vocabulary
+# instead of nothing. Both of those are the difference between a wrong value
+# being IMPOSSIBLE and a wrong value being UNLIKELY.
+
+dis:EntityInstance a owl:Class ; rdfs:subClassOf dis:Construct ;
+    rdfs:label "Entity instance" ;
+    rdfs:comment "One member of an Entity's closed, known population. Present only where the population is genuinely closed — an open-world entity declares none." .
+
+dis:instanceOf a owl:ObjectProperty ; rdfs:domain dis:EntityInstance ; rdfs:range dis:Entity ;
+    rdfs:comment "The Entity this is a member of." .
+
+dis:spokenForm a owl:DatatypeProperty ; rdfs:domain dis:EntityInstance ; rdfs:range xsd:string ;
+    rdfs:comment "What a person says out loud. Feeds the recogniser's phrase vocabulary. May repeat; it is the human handle, not the identity." .
+
+dis:systemKey a owl:DatatypeProperty ; rdfs:domain dis:EntityInstance ; rdfs:range xsd:string ;
+    rdfs:comment "How a system addresses it. NEVER asked of a language model — the model returns the instance it recognised and the compiler maps it here. Asking a model to emit an identifier is asking it to author a machine artifact from speech." .
+
+dis:confusableWith a owl:ObjectProperty ; rdfs:domain dis:EntityInstance ; rdfs:range dis:EntityInstance ;
+    rdfs:comment "Declares that two instances are mistakable for one another. A compiler must emit a disambiguation turn rather than resolve silently. Symmetric in intent; declare it once." .

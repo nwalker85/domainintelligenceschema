@@ -1,0 +1,462 @@
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix d:   <https://dossier.ravenhelm.dev/kronos-candies/> .
+
+d:dossier a dis:Dossier ;
+    dis:domainName "Kronos Candies" ;
+    dis:disSpecificationRef "1.7.0" .
+
+d:bulk-distribution-rep a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Holds authority over wholesale and distribution terms." ;
+    dis:name "Bulk Distribution Rep" .
+
+d:consumer a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Member of the public asking about products." ;
+    dis:name "Consumer" .
+
+d:distribution-partner a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Wholesale, retail and corporate customers." ;
+    dis:name "Distribution Partner" .
+
+d:kronos-support-agent a dis:Role ;
+    dis:roleType "agent" ;
+    dis:description "Answers product questions, routes to the competent authority." ;
+    dis:name "Kronos Support Agent" .
+
+d:legal-compliance a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Owns alcohol, age and jurisdiction policy. NOT IN THE BRIEF." ;
+    dis:name "Legal Compliance" .
+
+d:qa-regulatory a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Sole authority for binding allergen statements. NOT IN THE BRIEF." ;
+    dis:name "QA Regulatory" .
+
+d:support-agent a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Human fallback queue." ;
+    dis:name "Support Agent" .
+
+d:alcoholcontent a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Three SKUs contain alcohol. Age and shipping rules are not supplied." ;
+    dis:name "AlcoholContent" .
+
+d:allergenprofile a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Derived: per-product values composed with the domain facility disclosure." ;
+    dis:name "AllergenProfile" .
+
+d:inquiry a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "One inbound interaction: channel, intent, liability class, confidence." ;
+    dis:name "Inquiry" .
+
+d:product a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "A Kronos confectionery SKU. Nine of them." ;
+    dis:name "Product" .
+
+d:productattribute a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Six per-product attributes; two are defaulted rather than enumerated." ;
+    dis:name "ProductAttribute" .
+
+d:routingdestination a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Customer Service · Bulk Distribution · Human Support Queue." ;
+    dis:name "RoutingDestination" .
+
+d:t1-read-product-attribute a dis:AgenticTriplet ;
+    dis:boundFunction d:fn-read-product-attribute ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity d:productattribute ;
+    dis:actingRole d:kronos-support-agent ;
+    dis:description "Standard-liability attribute question." ;
+    dis:name "T1 read product attribute" .
+
+d:t2-read-allergen-profile a dis:AgenticTriplet ;
+    dis:boundFunction d:fn-read-allergen-profile ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity d:allergenprofile ;
+    dis:actingRole d:kronos-support-agent ;
+    dis:description "Gluten, nuts, safe-to-eat. Governed by P1 and P2." ;
+    dis:name "T2 read allergen profile" .
+
+d:t3-read-alcohol-content a dis:AgenticTriplet ;
+    dis:boundFunction d:fn-read-alcohol-content ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity d:alcoholcontent ;
+    dis:actingRole d:kronos-support-agent ;
+    dis:description "Three alcohol-bearing SKUs. Governed by P3." ;
+    dis:name "T3 read alcohol content" .
+
+d:t4-route-to-human-support a dis:AgenticTriplet ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity d:routingdestination ;
+    dis:actingRole d:kronos-support-agent ;
+    dis:description "Failure exit with context." ;
+    dis:name "T4 route to human support" .
+
+d:t5-route-to-bulk-line a dis:AgenticTriplet ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity d:routingdestination ;
+    dis:actingRole d:kronos-support-agent ;
+    dis:description "Authority over wholesale terms sits elsewhere." ;
+    dis:name "T5 route to bulk line" .
+
+d:t6-deflect-to-website a dis:AgenticTriplet ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity d:routingdestination ;
+    dis:actingRole d:kronos-support-agent ;
+    dis:description "Out of scope. The brief supplies this rule." ;
+    dis:name "T6 deflect to website" .
+
+d:p1-allergen-composition a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:OBLIGATION ;
+    dis:requirement "Any utterance sourced from a per-product allergen attribute must carry the domain facility disclosure in the same utterance." ;
+    dis:description "A per-product allergen value and the domain facility disclosure are different scopes of one question." ;
+    dis:name "P1 allergen composition" ;
+    dis:onViolation dis:REFUSE ;
+    dis:liabilityClass dis:MEDICAL ;
+    dis:boundValue d:facility-allergen-disclosure ;
+    dis:appliesToEntity d:allergenprofile ;
+    dis:appliesToTriplet d:t2-read-allergen-profile .
+
+d:p2-medical-allergy-escalation a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "The agent must not assert that a product is safe for a person. On medical-allergy phrasing it routes to the competent authority without answering." ;
+    dis:description "Separation of duty: binding allergen statements belong to QA and Regulatory." ;
+    dis:name "P2 medical allergy escalation" ;
+    dis:appliesToRole d:kronos-support-agent ;
+    dis:onViolation dis:ESCALATE ;
+    dis:liabilityClass dis:MEDICAL ;
+    dis:appliesToTriplet d:t2-read-allergen-profile .
+
+d:p3-alcohol-disclosure a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "Alcohol content is disclosed on any answer; purchase and shipping questions route out." ;
+    dis:description "Age and shipping jurisdiction rules were never supplied, so those questions are not answerable." ;
+    dis:name "P3 alcohol disclosure" ;
+    dis:onViolation dis:ESCALATE ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:appliesToEntity d:alcoholcontent ;
+    dis:appliesToTriplet d:t3-read-alcohol-content .
+
+d:p4-bounded-knowledge a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "No inference and no cross-product extrapolation. Anything outside supplied knowledge deflects to the website or escalates." ;
+    dis:description "The agent knows only what Kronos told it. The boundary is the safety mechanism." ;
+    dis:name "P4 bounded knowledge" ;
+    dis:onViolation dis:REFUSE ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:appliesToTriplet d:t6-deflect-to-website , d:t1-read-product-attribute .
+
+d:p5-greeting-states-scope a dis:UtterancePolicy ;
+    dis:enforcement dis:INSTRUCTED ;
+    dis:policyType dis:LIFECYCLE ;
+    dis:requirement "The opening utterance must name the agent scope and must not invite open-ended requests." ;
+    dis:description "An open invitation produces out-of-scope requests the agent cannot serve." ;
+    dis:name "P5 greeting states scope" ;
+    dis:onViolation dis:LOG_ONLY ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:lifecyclePhase dis:GREETING .
+
+d:kronos-product-api a dis:Application ;
+    dis:applicationType dis:MOCK ;
+    dis:authMethod dis:NONE ;
+    dis:baseUrl "https://292aa376-2ee1-43e9-9e36-22efc36449b5.mock.pstmn.io" ;
+    dis:description "Postman mock standing in for the published product catalogue. Design-time only." ;
+    dis:name "Kronos Product API" .
+
+d:get-product-attribute a dis:Endpoint ;
+    dis:hostedBy d:kronos-product-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/product-attribute" ;
+    dis:mutates false ;
+    dis:description "Published attributes for one product." ;
+    dis:name "Get product attribute" .
+
+d:get-allergen-profile a dis:Endpoint ;
+    dis:hostedBy d:kronos-product-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/allergen-profile" ;
+    dis:mutates false ;
+    dis:description "Per-product allergen attributes and the facility disclosure that must accompany them." ;
+    dis:name "Get allergen profile" .
+
+d:get-alcohol-content a dis:Endpoint ;
+    dis:hostedBy d:kronos-product-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/alcohol-content" ;
+    dis:mutates false ;
+    dis:description "Alcohol content for one product, where declared." ;
+    dis:name "Get alcohol content" .
+
+d:fn-read-product-attribute a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint d:get-product-attribute ;
+    dis:readsEntity d:productattribute ;
+    dis:inputFields "product" ;
+    dis:outputFields "product,attribute,value,status" ;
+    dis:description "Retrieves a published product attribute." ;
+    dis:name "Read product attribute" .
+
+d:fn-read-allergen-profile a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint d:get-allergen-profile ;
+    dis:readsEntity d:allergenprofile ;
+    dis:inputFields "product" ;
+    dis:outputFields "product,allergens,facility_disclosure,status" ;
+    dis:description "Retrieves the allergen profile and its required facility disclosure." ;
+    dis:name "Read allergen profile" .
+
+d:fn-read-alcohol-content a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint d:get-alcohol-content ;
+    dis:readsEntity d:alcoholcontent ;
+    dis:inputFields "product" ;
+    dis:outputFields "product,abv_percent,contains_alcohol,status,alcohol" ;
+    dis:description "Retrieves declared alcohol content." ;
+    dis:name "Read alcohol content" .
+
+
+# ---------- entity-mode matrices — what is sayable about each entity ----------
+d:emm-product a dis:EntityModeMatrix ;
+    dis:matrixEntity d:product ;
+    dis:supportedMode dis:READ ;
+    dis:description "Catalogue data. Nothing in Phase 1 writes to it — there is no order or account system to write through." ;
+    dis:name "product supports READ" .
+
+d:emm-productattribute a dis:EntityModeMatrix ;
+    dis:matrixEntity d:productattribute ;
+    dis:supportedMode dis:READ ;
+    dis:description "A published attribute of a product. Read only." ;
+    dis:name "productattribute supports READ" .
+
+d:emm-allergenprofile a dis:EntityModeMatrix ;
+    dis:matrixEntity d:allergenprofile ;
+    dis:supportedMode dis:READ ;
+    dis:description "Derived: per-product allergen booleans composed with the domain facility disclosure. No uncomposed form is retrievable." ;
+    dis:name "allergenprofile supports READ" .
+
+d:emm-alcoholcontent a dis:EntityModeMatrix ;
+    dis:matrixEntity d:alcoholcontent ;
+    dis:supportedMode dis:READ ;
+    dis:description "Declared alcohol content. Read only; purchase and shipping are not modelled because age and jurisdiction rules were never supplied." ;
+    dis:name "alcoholcontent supports READ" .
+
+d:emm-inquiry a dis:EntityModeMatrix ;
+    dis:matrixEntity d:inquiry ;
+    dis:supportedMode dis:CREATE ;
+    dis:supportedMode dis:READ ;
+    dis:description "The caller's request itself. Created by the arrival of a call; read to classify it." ;
+    dis:name "inquiry supports CREATE, READ" .
+
+d:emm-routingdestination a dis:EntityModeMatrix ;
+    dis:matrixEntity d:routingdestination ;
+    dis:supportedMode dis:INITIATE ;
+    dis:description "A destination exists only to be handed off to. It is never read, updated or deleted by this agent." ;
+    dis:name "routingdestination supports INITIATE" .
+
+# ---------- access gates — who may use which mode on which entity ----------
+d:gate-consumer-product a dis:AccessGateMatrix ;
+    dis:matrixRole d:consumer ;
+    dis:matrixEntity d:product ;
+    dis:allowedMode dis:READ ;
+    dis:description "Published catalogue facts are public." ;
+    dis:name "consumer → product: READ" .
+
+d:gate-consumer-productattribute a dis:AccessGateMatrix ;
+    dis:matrixRole d:consumer ;
+    dis:matrixEntity d:productattribute ;
+    dis:allowedMode dis:READ ;
+    dis:description "Published attributes are public." ;
+    dis:name "consumer → productattribute: READ" .
+
+d:gate-consumer-allergenprofile a dis:AccessGateMatrix ;
+    dis:matrixRole d:consumer ;
+    dis:matrixEntity d:allergenprofile ;
+    dis:allowedMode dis:READ ;
+    dis:description "May read the composed profile. P1 governs how it is stated; P2 removes the safety judgement entirely." ;
+    dis:name "consumer → allergenprofile: READ" .
+
+d:gate-consumer-alcoholcontent a dis:AccessGateMatrix ;
+    dis:matrixRole d:consumer ;
+    dis:matrixEntity d:alcoholcontent ;
+    dis:allowedMode dis:READ ;
+    dis:description "May read declared content. Purchase and shipping route out." ;
+    dis:name "consumer → alcoholcontent: READ" .
+
+d:gate-consumer-inquiry a dis:AccessGateMatrix ;
+    dis:matrixRole d:consumer ;
+    dis:matrixEntity d:inquiry ;
+    dis:allowedMode dis:CREATE ;
+    dis:description "A caller creates an inquiry by calling." ;
+    dis:name "consumer → inquiry: CREATE" .
+
+d:gate-consumer-routingdestination a dis:AccessGateMatrix ;
+    dis:matrixRole d:consumer ;
+    dis:matrixEntity d:routingdestination ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "May be handed to the customer service line or human queue." ;
+    dis:name "consumer → routingdestination: INITIATE" .
+
+d:gate-distribution-partner-routingdestination a dis:AccessGateMatrix ;
+    dis:matrixRole d:distribution-partner ;
+    dis:matrixEntity d:routingdestination ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "Wholesale questions go to the bulk line. Authority over terms sits there, not here." ;
+    dis:name "distribution-partner → routingdestination: INITIATE" .
+
+d:gate-distribution-partner-product a dis:AccessGateMatrix ;
+    dis:matrixRole d:distribution-partner ;
+    dis:matrixEntity d:product ;
+    dis:allowedMode dis:READ ;
+    dis:description "Same public catalogue as any caller. Wholesale terms are NOT readable here." ;
+    dis:name "distribution-partner → product: READ" .
+
+d:gate-kronos-support-agent-product a dis:AccessGateMatrix ;
+    dis:matrixRole d:kronos-support-agent ;
+    dis:matrixEntity d:product ;
+    dis:allowedMode dis:READ ;
+    dis:description "The agent may relay published facts." ;
+    dis:name "kronos-support-agent → product: READ" .
+
+d:gate-kronos-support-agent-productattribute a dis:AccessGateMatrix ;
+    dis:matrixRole d:kronos-support-agent ;
+    dis:matrixEntity d:productattribute ;
+    dis:allowedMode dis:READ ;
+    dis:description "The agent may relay published attributes." ;
+    dis:name "kronos-support-agent → productattribute: READ" .
+
+d:gate-kronos-support-agent-allergenprofile a dis:AccessGateMatrix ;
+    dis:matrixRole d:kronos-support-agent ;
+    dis:matrixEntity d:allergenprofile ;
+    dis:allowedMode dis:READ ;
+    dis:description "May relay the composed profile. May NOT assert that a product is safe for a person — that assertion belongs to QA Regulatory." ;
+    dis:name "kronos-support-agent → allergenprofile: READ" .
+
+d:gate-kronos-support-agent-alcoholcontent a dis:AccessGateMatrix ;
+    dis:matrixRole d:kronos-support-agent ;
+    dis:matrixEntity d:alcoholcontent ;
+    dis:allowedMode dis:READ ;
+    dis:description "May disclose declared alcohol content." ;
+    dis:name "kronos-support-agent → alcoholcontent: READ" .
+
+d:gate-kronos-support-agent-inquiry a dis:AccessGateMatrix ;
+    dis:matrixRole d:kronos-support-agent ;
+    dis:matrixEntity d:inquiry ;
+    dis:allowedMode dis:READ ;
+    dis:description "Reads the inquiry to classify intent and liability class." ;
+    dis:name "kronos-support-agent → inquiry: READ" .
+
+d:gate-kronos-support-agent-routingdestination a dis:AccessGateMatrix ;
+    dis:matrixRole d:kronos-support-agent ;
+    dis:matrixEntity d:routingdestination ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "May initiate a handoff. This is the agent's only non-read capability." ;
+    dis:name "kronos-support-agent → routingdestination: INITIATE" .
+
+d:gate-qa-regulatory-allergenprofile a dis:AccessGateMatrix ;
+    dis:matrixRole d:qa-regulatory ;
+    dis:matrixEntity d:allergenprofile ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:RESPOND ;
+    dis:description "The competent authority for binding allergen statements. Only this role may RESPOND to a medical-allergy question." ;
+    dis:name "qa-regulatory → allergenprofile: READ, RESPOND" .
+
+d:gate-legal-compliance-alcoholcontent a dis:AccessGateMatrix ;
+    dis:matrixRole d:legal-compliance ;
+    dis:matrixEntity d:alcoholcontent ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:RESPOND ;
+    dis:description "Owns age, jurisdiction and shipping policy for the three alcohol-bearing products." ;
+    dis:name "legal-compliance → alcoholcontent: READ, RESPOND" .
+
+d:gate-bulk-distribution-rep-product a dis:AccessGateMatrix ;
+    dis:matrixRole d:bulk-distribution-rep ;
+    dis:matrixEntity d:product ;
+    dis:allowedMode dis:READ ;
+    dis:description "Holds authority over wholesale and distribution terms, which are not modelled as an entity in Phase 1." ;
+    dis:name "bulk-distribution-rep → product: READ" .
+
+d:gate-support-agent-inquiry a dis:AccessGateMatrix ;
+    dis:matrixRole d:support-agent ;
+    dis:matrixEntity d:inquiry ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:RESPOND ;
+    dis:description "The human fallback queue. Resolves what the agent may not." ;
+    dis:name "support-agent → inquiry: READ, RESPOND" .
+
+# ------------------------------------------------- the product population
+# Nine SKUs, closed and known. Declared so the compiler can emit a closed
+# parameter value set and a recogniser vocabulary, rather than handing a model
+# a free string and hoping. Trail Mix and Trail Mix Bar are declared confusable
+# because they differ by one word and carry different vegan and cocoa values —
+# a silent resolution between them returns the wrong allergen data confidently.
+
+d:p-kronos-bar a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "The Kronos Bar" ;
+    dis:systemKey "kronos-bar" ;
+    dis:name "The Kronos Bar" .
+
+d:p-kronos-crunch a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Kronos Crunch" ;
+    dis:systemKey "kronos-crunch" ;
+    dis:name "Kronos Crunch" .
+
+d:p-zeus-thunderbolt a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Zeus's Thunderbolt" ;
+    dis:systemKey "zeus-thunderbolt" ;
+    dis:name "Zeus's Thunderbolt" .
+
+d:p-titans-trail-mix a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Titan's Trail Mix" ;
+    dis:confusableWith d:p-titans-trail-mix-bar ;
+    dis:systemKey "titans-trail-mix" ;
+    dis:name "Titan's Trail Mix" .
+
+d:p-titans-trail-mix-bar a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Titan's Trail Mix Bar" ;
+    dis:systemKey "titans-trail-mix-bar" ;
+    dis:name "Titan's Trail Mix Bar" .
+
+d:p-atlas-almond-clusters a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Atlas Almond Clusters" ;
+    dis:systemKey "atlas-almond-clusters" ;
+    dis:name "Atlas Almond Clusters" .
+
+d:p-helios-heat a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Helios Heat" ;
+    dis:systemKey "helios-heat" ;
+    dis:name "Helios Heat" .
+
+d:p-artemis-arrows a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Artemis Arrows" ;
+    dis:systemKey "artemis-arrows" ;
+    dis:name "Artemis Arrows" .
+
+d:p-poseidons-pearls a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Poseidon's Pearls" ;
+    dis:systemKey "poseidons-pearls" ;
+    dis:name "Poseidon's Pearls" .

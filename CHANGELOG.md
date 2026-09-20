@@ -2,6 +2,44 @@
 
 All notable changes to the Domain Intelligence Schema will be documented in this file.
 
+## [1.7.0] - Proposed, not yet released
+
+See [`docs/spec/DIS-1.7-proposed.md`](docs/spec/DIS-1.7-proposed.md) for the full
+proposal. No tag or release exists yet; nothing here is published.
+
+### Added
+- **`UtterancePolicy`** — constraints on what an agent may SAY, distinct from what
+  it may DO. `policyType`, `requirement`, `enforcement` (STRUCTURAL/INSTRUCTED/
+  ADVISORY — a compiler MUST NOT silently downgrade STRUCTURAL).
+- **The Systems layer** — `Application`, `Endpoint`, `FunctionCatalogEntry`. Ties
+  an `AgenticTriplet` to what it actually reaches: which system, which callable
+  operation, whether it mutates state (declared, never inferred from HTTP method).
+- **`EntityInstance`** — a closed, known population for an Entity that genuinely
+  has one, so a compiler can emit a closed value set instead of a free string.
+
+### Changed (breaking)
+- **`EntityModeMatrix` and `AccessGateMatrix` become enforceable.** A triplet is
+  now legal only if the target Entity supports the mode (`EntityModeMatrix`) and
+  the acting Role has been granted that mode on that Entity (`AccessGateMatrix`).
+  A triplet outside either matrix — when matrices are declared — is illegal, not
+  merely undeclared. Enforced by two `sh:sparql` SHACL shapes
+  (`TripletWithinEntityModeShape`, `TripletWithinAccessGateShape`) since the
+  constraint spans three subjects and SHACL Core property paths cannot compare
+  across them. Opt-in: a dossier that declares no matrices is unconstrained.
+
+### Resolved
+- **Docs-vs-canonical-schema divergence** on `AccessGateMatrix`, `EntityModeMatrix`,
+  and `AgenticTriplet` (docs said one shape, `.schema.json` said another). 1.7
+  resolves in favor of the documentation's semantics: a JMESPath `gateCondition`
+  can only be evaluated at runtime and can observe a block but not prove one is
+  impossible; moving modes onto the gate makes the constraint statically checkable.
+  `gateCondition` is retained as an optional field for genuinely dynamic conditions.
+
+### Validated
+- The 400-line Kronos Candies worked example (`fixtures/v1.7.0/kronos-candies.ttl`)
+  conforms cleanly against the merged vocabulary and shapes.
+- The negative fixture (`fixtures/v1.7.0/deformed.ttl`) is correctly rejected.
+
 ## [1.6.0+ref-fix] - 2026-06-12
 
 ### Fixed

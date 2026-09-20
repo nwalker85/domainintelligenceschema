@@ -1,11 +1,24 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix sh:  <http://www.w3.org/ns/shacl#> .
 @prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# A shape either DEFINES a construct (appears in the palette, renders a form) or
+# merely CONSTRAINS one (validation only). Inferring from sh:targetClass cannot
+# tell them apart — several shapes target the same class. Mark it explicitly.
+dis:paletteConstruct a rdf:Property ;
+    rdfs:label "palette construct" ;
+    rdfs:comment "true when this shape defines a construct the workshop can place on a canvas." .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 # ---------- AgenticTriplet — the Grammar Validity Matrix, mechanised ----------
 dis:AgenticTripletShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
     sh:targetClass dis:AgenticTriplet ;
+    sh:name "Agentic triplet" ;
+    sh:description "A statement: a Role acts on an Entity in one of seven modes." ;
+    sh:order 30 ;
+    sh:group dis:BehaviourGroup ;
     sh:closed true ;
     sh:ignoredProperties ( <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ;
 
@@ -35,7 +48,12 @@ dis:AgenticTripletShape a sh:NodeShape ;
 
 # ---------- UtterancePolicy ----------
 dis:UtterancePolicyShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
     sh:targetClass dis:UtterancePolicy ;
+    sh:name "Utterance policy" ;
+    sh:description "What the agent may SAY — separate from what it may DO." ;
+    sh:order 40 ;
+    sh:group dis:GovernanceGroup ;
     sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
     sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
     sh:property [ sh:path dis:requirement ; sh:minCount 1 ;
@@ -48,6 +66,23 @@ dis:UtterancePolicyShape a sh:NodeShape ;
                   sh:in ( dis:STRUCTURAL dis:INSTRUCTED dis:ADVISORY ) ;
                   sh:message "enforcement must be declared — it is the whole point of the field" ] ;
     sh:property [ sh:path dis:appliesToTriplet ; sh:class dis:AgenticTriplet ] ;
+    sh:property [ sh:path dis:appliesToEntity ; sh:class dis:Entity ;
+                  sh:message "the entity this policy governs utterances about" ] ;
+    # Declared so it can be COLLECTED, not just constrained. The sh:or below
+    # enforces it for OBLIGATION; without an sh:property block no form can offer it.
+    sh:property [ sh:path dis:boundValue ; sh:nodeKind sh:IRI ;
+                  sh:message "a value the utterance must carry — for OBLIGATION this is required" ] ;
+    sh:property [ sh:path dis:lifecyclePhase ; sh:maxCount 1 ;
+                  sh:in ( dis:GREETING dis:HOLDING dis:ERROR dis:CLOSING dis:HANDOFF ) ;
+                  sh:message "for LIFECYCLE policies — the phase this utterance belongs to" ] ;
+    sh:property [ sh:path dis:liabilityClass ; sh:maxCount 1 ;
+                  sh:in ( dis:STANDARD dis:REGULATORY dis:MEDICAL dis:FINANCIAL dis:SAFETY ) ;
+                  sh:message "drives escalation thresholds — not all violations cost the same" ] ;
+    sh:property [ sh:path dis:onViolation ; sh:maxCount 1 ;
+                  sh:in ( dis:REFUSE dis:ESCALATE dis:SUPPRESS dis:REDACT dis:LOG_ONLY ) ;
+                  sh:message "what the agent does when the policy would be breached" ] ;
+    sh:property [ sh:path dis:appliesToRole ; sh:class dis:Role ;
+                  sh:message "whose speech is constrained" ] ;
 
     # An OBLIGATION that binds no value obliges nothing.
     sh:or (
@@ -56,16 +91,55 @@ dis:UtterancePolicyShape a sh:NodeShape ;
     ) ;
     sh:message "an OBLIGATION must bind at least one value that the utterance has to carry" .
 
+# ---------- vocabulary conformance: enum values must exist in dis.ttl ----------
+dis:VocabularyBoundShape a sh:NodeShape ;
+    sh:targetClass dis:UtterancePolicy ;
+    sh:property [ sh:path dis:liabilityClass ; sh:class dis:LiabilityClass ;
+                  sh:message "liabilityClass must be a term declared in the DIS vocabulary" ] ;
+    sh:property [ sh:path dis:onViolation ; sh:class dis:ViolationAction ;
+                  sh:message "onViolation must be a term declared in the DIS vocabulary" ] ;
+    sh:property [ sh:path dis:policyType ; sh:class dis:PolicyType ] ;
+    sh:property [ sh:path dis:enforcement ; sh:class dis:Enforcement ] .
+
+# ---------- LIFECYCLE must name its phase ----------
+dis:LifecycleNeedsPhaseShape a sh:NodeShape ;
+    sh:targetClass dis:UtterancePolicy ;
+    sh:or (
+      [ sh:not [ sh:property [ sh:path dis:policyType ; sh:hasValue dis:LIFECYCLE ] ] ]
+      [ sh:property [ sh:path dis:lifecyclePhase ; sh:minCount 1 ] ]
+    ) ;
+    sh:message "a LIFECYCLE policy must name its phase" .
+
+# ---------- STRUCTURAL enforcement on a MEDICAL policy must bind a value ----------
+dis:StructuralMedicalShape a sh:NodeShape ;
+    sh:targetClass dis:UtterancePolicy ;
+    sh:or (
+      [ sh:not [ sh:property [ sh:path dis:liabilityClass ; sh:hasValue dis:MEDICAL ] ] ]
+      [ sh:property [ sh:path dis:enforcement ; sh:hasValue dis:STRUCTURAL ] ]
+    ) ;
+    sh:severity sh:Warning ;
+    sh:message "a MEDICAL-class policy enforced only by instruction is a known failure mode" .
+
 # ---------- Role / Entity ----------
 dis:RoleShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
     sh:targetClass dis:Role ;
+    sh:name "Role" ;
+    sh:description "Who acts. A capacity an actor embodies." ;
+    sh:order 10 ;
+    sh:group dis:PeopleGroup ;
     sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
     sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
     sh:property [ sh:path dis:roleType ; sh:minCount 1 ;
                   sh:in ( "human" "agent" "system" ) ] .
 
 dis:EntityShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
     sh:targetClass dis:Entity ;
+    sh:name "Entity" ;
+    sh:description "What is acted upon. A business object." ;
+    sh:order 20 ;
+    sh:group dis:PeopleGroup ;
     sh:property [ sh:path dis:name ;        sh:minCount 1 ] ;
     sh:property [ sh:path dis:description ; sh:minCount 1 ] ;
     sh:property [ sh:path dis:entityType ; sh:minCount 1 ; sh:in ( "data" "agent" ) ] .
@@ -99,3 +173,233 @@ dis:StructuralMedicalShape a sh:NodeShape ;
     ) ;
     sh:severity sh:Warning ;
     sh:message "a MEDICAL-class policy enforced only by instruction is a known failure mode" .
+
+
+# ---------- property groups — the palette's section headers ----------
+dis:PeopleGroup     a sh:PropertyGroup ; rdfs:label "People and responsibility" ; sh:order 10 .
+dis:SystemsGroup    a sh:PropertyGroup ; rdfs:label "Systems and access"        ; sh:order 20 .
+dis:BehaviourGroup  a sh:PropertyGroup ; rdfs:label "Behaviour"                 ; sh:order 30 .
+dis:GovernanceGroup a sh:PropertyGroup ; rdfs:label "Governance"                ; sh:order 40 .
+
+
+# ---------- views — the dossier at one altitude at a time ----------
+# A view is a projection, in the same sense the palette is: it declares which
+# constructs are on the canvas and lets the rest fall away. This is the C4 move
+# — a context diagram is not a different model, it is the same model asked a
+# narrower question. Add a view here and it appears in the workshop.
+dis:View a rdfs:Class ;
+    rdfs:label "view" ;
+    rdfs:comment "A named subset of the dossier's constructs, for one conversation." .
+
+dis:showsConstruct a rdf:Property ;
+    rdfs:label "shows construct" ;
+    rdfs:comment "a class this view puts on the canvas; everything else is hidden, not removed." .
+
+dis:ActorsView a dis:View ;
+    rdfs:label "Actors" ;
+    rdfs:comment "Who is in this domain, and what they act on. The first question in any scoping session." ;
+    sh:order 10 ;
+    dis:showsConstruct dis:Role, dis:Entity .
+
+dis:BehaviourView a dis:View ;
+    rdfs:label "Behaviour" ;
+    rdfs:comment "What the agent may do — every triplet, with the roles and entities it binds." ;
+    sh:order 20 ;
+    dis:showsConstruct dis:Role, dis:Entity, dis:AgenticTriplet .
+
+dis:GovernanceView a dis:View ;
+    rdfs:label "Governance" ;
+    rdfs:comment "The policy layer sitting over behaviour. What must, must never, and on whose authority." ;
+    sh:order 30 ;
+    dis:showsConstruct dis:AgenticTriplet, dis:UtterancePolicy .
+
+dis:FullView a dis:View ;
+    rdfs:label "Everything" ;
+    rdfs:comment "The whole dossier. Useful for review, hard to talk over." ;
+    sh:order 40 ;
+    dis:showsConstruct dis:Role, dis:Entity, dis:AgenticTriplet, dis:UtterancePolicy .
+
+
+# ---------- the systems layer — WHERE a fact comes from ----------
+# These classes were declared in dis.ttl from 1.7 onward but had no shapes, so
+# nothing generated from the shapes could see them: the palette had an empty
+# Systems group and AgenticTriplet.boundFunction pointed at a class the canvas
+# could not place. A class declared only in the vocabulary is invisible, exactly
+# as a property referenced only in a conditional is.
+
+dis:ApplicationShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:Application ;
+    sh:name "Application" ;
+    sh:description "A system that holds facts. The system of record, or the mock standing in for one." ;
+    sh:order 10 ;
+    sh:group dis:SystemsGroup ;
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:applicationType ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:SYSTEM_OF_RECORD dis:SAAS_PLATFORM dis:MOCK dis:KNOWLEDGE_STORE ) ;
+                  sh:message "applicationType must be one of the four declared kinds" ] ;
+    sh:property [ sh:path dis:baseUrl ; sh:maxCount 1 ; sh:datatype xsd:string ;
+                  sh:pattern "^https://" ;
+                  sh:message "baseUrl must be https — a target that cannot reach it cannot use it" ] ;
+    sh:property [ sh:path dis:authMethod ; sh:maxCount 1 ;
+                  sh:in ( dis:NONE dis:API_KEY dis:OAUTH2 dis:BEARER ) ] .
+
+dis:EndpointShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:Endpoint ;
+    sh:name "Endpoint" ;
+    sh:description "One callable operation on an Application." ;
+    sh:order 20 ;
+    sh:group dis:SystemsGroup ;
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:hostedBy ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:class dis:Application ;
+                  sh:message "an endpoint must be hosted by an Application" ] ;
+    sh:property [ sh:path dis:httpMethod ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:in ( dis:GET dis:POST dis:PUT dis:PATCH dis:HTTP_DELETE ) ] ;
+    sh:property [ sh:path dis:urlPath ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+                  sh:pattern "^/" ;
+                  sh:message "urlPath is relative to the Application's baseUrl and must start with /" ] ;
+    sh:property [ sh:path dis:mutates ; sh:maxCount 1 ; sh:datatype xsd:boolean ;
+                  sh:message "declare whether this endpoint changes state; HTTP method is not the answer" ] .
+
+dis:FunctionCatalogEntryShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:FunctionCatalogEntry ;
+    sh:name "Function" ;
+    sh:description "HOW an intent is executed. Binds a triplet to an endpoint and an entity." ;
+    sh:order 30 ;
+    sh:group dis:SystemsGroup ;
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:callsEndpoint ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:class dis:Endpoint ;
+                  sh:message "a function must call an Endpoint — otherwise it states nothing executable" ] ;
+    sh:property [ sh:path dis:readsEntity ; sh:maxCount 1 ; sh:class dis:Entity ;
+                  sh:message "readsEntity must reference a dis:Entity" ] ;
+    sh:property [ sh:path dis:inputFields ;  sh:maxCount 1 ; sh:datatype xsd:string ;
+                  sh:message "comma-separated field names the caller must supply" ] ;
+    sh:property [ sh:path dis:outputFields ; sh:maxCount 1 ; sh:datatype xsd:string ;
+                  sh:message "comma-separated field names the response returns" ] .
+
+# A mock is a design-time stand-in. Saying so is the point of the type, so a
+# mock that claims to be the system of record is a contradiction worth catching.
+dis:MockHonestyShape a sh:NodeShape ;
+    sh:targetClass dis:Application ;
+    sh:not [ sh:and (
+      [ sh:property [ sh:path dis:applicationType ; sh:hasValue dis:MOCK ] ]
+      [ sh:property [ sh:path dis:applicationType ; sh:hasValue dis:SYSTEM_OF_RECORD ] ]
+    ) ] ;
+    sh:message "an Application cannot be both a MOCK and the SYSTEM_OF_RECORD" .
+
+
+# ---------- the grammar matrices — what is even sayable ----------
+dis:EntityModeMatrixShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:EntityModeMatrix ;
+    sh:name "Entity-mode matrix" ;
+    sh:description "Which of the seven modes this entity supports at all." ;
+    sh:order 30 ;
+    sh:group dis:PeopleGroup ;
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:matrixEntity ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:class dis:Entity ;
+                  sh:message "an entity-mode matrix must name the Entity it bounds" ] ;
+    sh:property [ sh:path dis:supportedMode ; sh:minCount 1 ;
+                  sh:in ( dis:CREATE dis:READ dis:UPDATE dis:DELETE dis:INITIATE dis:RESPOND dis:NOTIFY ) ;
+                  sh:message "at least one mode — an entity supporting nothing cannot appear in any triplet" ] .
+
+dis:AccessGateMatrixShape a sh:NodeShape ;
+    dis:paletteConstruct true ;
+    sh:targetClass dis:AccessGateMatrix ;
+    sh:name "Access gate" ;
+    sh:description "Which modes this role may use on this entity. Authority, not utterance." ;
+    sh:order 40 ;
+    sh:group dis:PeopleGroup ;
+    sh:property [ sh:path dis:name ;        sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:description ; sh:minCount 1 ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:matrixRole ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:class dis:Role ;
+                  sh:message "an access gate must name the Role it grants to" ] ;
+    sh:property [ sh:path dis:matrixEntity ; sh:minCount 1 ; sh:maxCount 1 ;
+                  sh:class dis:Entity ;
+                  sh:message "an access gate must name the Entity it protects" ] ;
+    sh:property [ sh:path dis:allowedMode ;
+                  sh:in ( dis:CREATE dis:READ dis:UPDATE dis:DELETE dis:INITIATE dis:RESPOND dis:NOTIFY ) ;
+                  sh:message "allowedMode must be one of the seven canonical modes" ] ;
+    sh:property [ sh:path dis:gateCondition ; sh:maxCount 1 ; sh:datatype xsd:string ] .
+
+
+# ---------- the grammar is enforced, not documented ----------
+# A triplet asserts that a Role uses a Mode on an Entity. That is only legal if
+# the Entity supports the mode at all, and the Role has been granted it. Without
+# these two shapes the matrices are a picture beside the model; with them, an
+# illegal triplet cannot be committed.
+#
+# SPARQL rather than property paths because the constraint spans three subjects:
+# the triplet, the entity's mode matrix, and the role's gate.
+
+dis:TripletWithinEntityModeShape a sh:NodeShape ;
+    sh:targetClass dis:AgenticTriplet ;
+    sh:sparql [
+        sh:message "this triplet uses a mode the target entity does not support — declare it in the entity's EntityModeMatrix, or the triplet is not sayable" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this WHERE {
+              $this dis:targetEntity ?entity ;
+                    dis:mode ?mode .
+              FILTER NOT EXISTS {
+                ?matrix a dis:EntityModeMatrix ;
+                        dis:matrixEntity ?entity ;
+                        dis:supportedMode ?mode .
+              }
+              FILTER EXISTS { ?any a dis:EntityModeMatrix }
+            }
+        """ ] .
+
+dis:TripletWithinAccessGateShape a sh:NodeShape ;
+    sh:targetClass dis:AgenticTriplet ;
+    sh:sparql [
+        sh:message "this triplet's acting role has no access gate granting that mode on that entity — authority says who may, and nothing here says this role may" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this WHERE {
+              $this dis:actingRole ?role ;
+                    dis:targetEntity ?entity ;
+                    dis:mode ?mode .
+              FILTER NOT EXISTS {
+                ?gate a dis:AccessGateMatrix ;
+                      dis:matrixRole ?role ;
+                      dis:matrixEntity ?entity ;
+                      dis:allowedMode ?mode .
+              }
+              FILTER EXISTS { ?any a dis:AccessGateMatrix }
+            }
+        """ ] .
+
+
+# ---------- entity instances ----------
+dis:EntityInstanceShape a sh:NodeShape ;
+    sh:targetClass dis:EntityInstance ;
+    sh:property [ sh:path dis:instanceOf ; sh:minCount 1 ; sh:maxCount 1 ; sh:class dis:Entity ;
+                  sh:message "an instance must name the Entity whose population it belongs to" ] ;
+    sh:property [ sh:path dis:spokenForm ; sh:minCount 1 ; sh:datatype xsd:string ;
+                  sh:message "what a person says out loud — without it the recogniser gets no vocabulary" ] ;
+    sh:property [ sh:path dis:systemKey ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+                  sh:message "how a system addresses it — the compiler maps to this, the model never emits it" ] ;
+    sh:property [ sh:path dis:confusableWith ; sh:class dis:EntityInstance ;
+                  sh:message "confusableWith must reference another instance" ] .
+
+# An instance cannot be confusable with itself — that is a modelling slip, and it
+# would make a compiler emit a disambiguation turn that can never resolve.
+dis:InstanceNotSelfConfusableShape a sh:NodeShape ;
+    sh:targetClass dis:EntityInstance ;
+    sh:sparql [
+        sh:message "an instance is declared confusable with itself — a disambiguation turn built from this can never terminate" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this WHERE { $this dis:confusableWith $this . }
+        """ ] .
