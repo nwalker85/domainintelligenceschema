@@ -1,10 +1,8 @@
 """§3 the Systems layer (Application/Endpoint/FunctionCatalogEntry) + §7.4/7.5.
 
-Gap 3 (xfail): the spec text (§3.2/3.3/3.4) says several of these fields are
-required, but the shapes only declare them sh:maxCount (optional). Do not
-"fix" the shapes to match — that is Nate's call, not this suite's.
+RAV-1947 gap 3 (closed): the spec text (§3.2/3.3/3.4) says several of these
+fields are required; the shapes now declare sh:minCount 1 to match.
 """
-import pytest
 from rdflib import Literal
 
 from conftest import DIS, D, add_node
@@ -195,14 +193,9 @@ def test_fce_readsentity_pointing_at_role_rejected(dossier, validate):
     assert any(r.focus == "fcex" and r.path == "readsEntity" for r in report.violations())
 
 
-# ---------- gap 3: spec says required, shapes say optional (xfail) ----------
+# ---------- gap 3: spec says required, shapes now require it (closed) ----------
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 3: spec §3.2 says Application.baseUrl is required, "
-    "ApplicationShape only declares sh:maxCount (optional)",
-)
 def test_gap3_application_missing_baseurl_is_rejected(dossier, validate):
     g = dossier("kronos-candies")
     _app(g, D.appx, baseUrl=None)
@@ -210,11 +203,6 @@ def test_gap3_application_missing_baseurl_is_rejected(dossier, validate):
     assert not report.conforms
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 3: spec §3.3 says Endpoint.mutates is required, "
-    "EndpointShape only declares sh:maxCount (optional)",
-)
 def test_gap3_endpoint_missing_mutates_is_rejected(dossier, validate):
     g = dossier("kronos-candies")
     _endpoint(g, D.epx, mutates=None)
@@ -222,11 +210,6 @@ def test_gap3_endpoint_missing_mutates_is_rejected(dossier, validate):
     assert not report.conforms
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 3: spec §3.4 says FunctionCatalogEntry.readsEntity "
-    "is required, FunctionCatalogEntryShape only declares sh:maxCount",
-)
 def test_gap3_fce_missing_readsentity_is_rejected(dossier, validate):
     g = dossier("kronos-candies")
     _fce(g, D.fcex, readsEntity=None)
@@ -234,11 +217,6 @@ def test_gap3_fce_missing_readsentity_is_rejected(dossier, validate):
     assert not report.conforms
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 3: spec §3.4 says FunctionCatalogEntry.inputFields "
-    "is required, FunctionCatalogEntryShape only declares sh:maxCount",
-)
 def test_gap3_fce_missing_inputfields_is_rejected(dossier, validate):
     g = dossier("kronos-candies")
     _fce(g, D.fcex, inputFields=None)
@@ -246,11 +224,6 @@ def test_gap3_fce_missing_inputfields_is_rejected(dossier, validate):
     assert not report.conforms
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 3: spec §3.4 says FunctionCatalogEntry.outputFields "
-    "is required, FunctionCatalogEntryShape only declares sh:maxCount",
-)
 def test_gap3_fce_missing_outputfields_is_rejected(dossier, validate):
     g = dossier("kronos-candies")
     _fce(g, D.fcex, outputFields=None)

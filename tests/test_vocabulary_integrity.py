@@ -1,14 +1,14 @@
 """dis.ttl <-> dis-shapes.ttl integrity: enums, sh:in/sh:class/sh:path
 closure, palette metadata, views, and the shared-enum-collision inventory.
 
-NOTE on a corrected baseline fact: the brief asserted the individuals with
-more than one rdf:type among the enum classes are exactly {NONE, APPROVED}.
-Verified against the live vocabulary this is wrong: dis:APPROVED is typed
-ONLY as dis:ChangeManagementStatus. dis.ttl's own comment above
-DossierStatus says APPROVED is "declared once, below, and shared with
-ChangeManagementRecord" but no triple actually types dis:APPROVED as
-dis:DossierStatus — the sharing described in prose was never encoded. This
-test asserts the real set {NONE} and is not "fixing" the vocabulary.
+NOTE on the corrected-then-closed baseline fact: an earlier version of this
+suite asserted the individuals with more than one rdf:type among the enum
+classes were exactly {NONE} — dis:APPROVED, despite dis.ttl's own comment
+above DossierStatus claiming it is "shared" with ChangeManagementRecord, was
+typed only as dis:ChangeManagementStatus; no triple actually typed it as
+dis:DossierStatus. RAV-1947 gap 5 closes that: `dis:APPROVED a
+dis:DossierStatus` is now declared, so the prose and the graph agree, and
+the real set is {NONE, APPROVED}.
 """
 import json
 import re
@@ -80,19 +80,9 @@ def _undeclared_sh_paths(vocab, shapes):
     return set(undeclared)
 
 
-def test_gap4_the_exact_sh_paths_left_undeclared(vocab, shapes):
-    """Documents the exact, current gap-4 set directly (not xfail) because it
-    enumerates ALL undeclared paths -- if the set ever grows this test's
-    failure message says exactly what changed."""
-    assert _undeclared_sh_paths(vocab, shapes) == {"roleType", "entityType"}
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 4: dis:roleType and dis:entityType are used as "
-    "sh:path but never declared as a property anywhere",
-)
 def test_gap4_no_sh_path_is_left_undeclared(vocab, shapes):
+    """RAV-1947 gap 4 (closed): dis:roleType and dis:entityType are now
+    declared as owl:DatatypeProperty in dis.ttl."""
     assert _undeclared_sh_paths(vocab, shapes) == set()
 
 
@@ -102,29 +92,13 @@ def _construct_subclasses_without_a_targeting_nodeshape(vocab, shapes):
     return subclasses - targeted
 
 
-def test_gap5_the_exact_construct_subclasses_missing_a_nodeshape(vocab, shapes):
-    expected = {
-        DIS.TagDefinition,
-        DIS.PrivacyManifest,
-        DIS.TelemetryConfiguration,
-        DIS.MarketplaceEntry,
-        DIS.ChangeManagementRecord,
-        DIS.ValueEngineeringProfile,
-        DIS.DossierComparison,
-        DIS.KnowledgeDocument,
-        DIS.AccessGate,
-    }
-    assert _construct_subclasses_without_a_targeting_nodeshape(vocab, shapes) == expected
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 5: nine rdfs:subClassOf dis:Construct classes have "
-    "no NodeShape sh:targetClass -- a class declared only in the vocabulary "
-    "is invisible to anything generated from the shapes",
-)
 def test_gap5_every_construct_subclass_has_a_targeting_nodeshape(vocab, shapes):
+    """RAV-1947 gap 5 (closed): the eight remaining rdfs:subClassOf
+    dis:Construct classes now each have a targeting NodeShape.
+    dis:AccessGate (the ninth) was a leftover duplicate of
+    dis:AccessGateMatrix and was removed from the vocabulary instead."""
     assert _construct_subclasses_without_a_targeting_nodeshape(vocab, shapes) == set()
+    assert (DIS.AccessGate, RDF.type, OWL.Class) not in vocab
 
 
 def _duplicated_nodeshape_names(repo):
@@ -133,28 +107,15 @@ def _duplicated_nodeshape_names(repo):
     return {name for name, count in Counter(names).items() if count > 1}
 
 
-def test_gap2_the_exact_nodeshapes_declared_twice(repo):
-    assert _duplicated_nodeshape_names(repo) == {
-        "dis:VocabularyBoundShape",
-        "dis:LifecycleNeedsPhaseShape",
-        "dis:StructuralMedicalShape",
-    }
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 2: VocabularyBoundShape, LifecycleNeedsPhaseShape "
-    "and StructuralMedicalShape are each declared twice (text-level, "
-    "~lines 107-133 and 160-187) -- harmless under SHACL semantics "
-    "(shape merge) but a maintenance trap",
-)
 def test_gap2_no_nodeshape_iri_declared_twice_at_text_level(repo):
+    """RAV-1947 gap 2 (closed): the duplicate VocabularyBoundShape/
+    LifecycleNeedsPhaseShape/StructuralMedicalShape blocks are removed."""
     assert _duplicated_nodeshape_names(repo) == set()
 
 
 def test_every_palette_shape_has_name_description_order_and_a_declared_group(shapes):
     palette_shapes = list(shapes.subjects(DIS.paletteConstruct, Literal(True)))
-    assert len(palette_shapes) == 9
+    assert len(palette_shapes) == 17
     for s in palette_shapes:
         assert shapes.value(s, SH.name) is not None, s
         assert shapes.value(s, SH.description) is not None, s
@@ -189,25 +150,30 @@ def _palette_targets_missing_from_fullview(shapes):
     return palette_targets - full_view_shows
 
 
-def test_gap6_the_exact_palette_constructs_fullview_omits(shapes):
-    expected = {DIS.AccessGateMatrix, DIS.Application, DIS.Endpoint, DIS.EntityModeMatrix, DIS.FunctionCatalogEntry}
-    assert _palette_targets_missing_from_fullview(shapes) == expected
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 6: dis:FullView ('Everything') shows only Role/"
-    "Entity/AgenticTriplet/UtterancePolicy, not the Systems-layer or matrix "
-    "palette constructs added since",
-)
 def test_gap6_fullview_shows_every_palette_constructs_target_class(shapes):
+    """RAV-1947 gap 6 (closed): dis:FullView now shows every class targeted
+    by a dis:paletteConstruct true shape."""
     assert _palette_targets_missing_from_fullview(shapes) == set()
 
 
-def test_shared_enum_individuals_is_exactly_none(vocab):
-    """Corrected baseline (see module docstring): only dis:NONE is genuinely
-    multi-typed (AuthMethod + TelemetryLogLevel). dis:APPROVED, despite the
-    prose comment, is only ever typed as dis:ChangeManagementStatus."""
+def test_gap6_systems_view_and_grammar_view_exist(vocab, shapes):
+    for view, expected in (
+        (DIS.SystemsView, {DIS.Application, DIS.Endpoint, DIS.FunctionCatalogEntry, DIS.AgenticTriplet}),
+        (DIS.GrammarView, {DIS.Role, DIS.Entity, DIS.EntityModeMatrix, DIS.AccessGateMatrix}),
+    ):
+        assert (view, RDF.type, DIS.View) in shapes
+        shown = set(shapes.objects(view, DIS.showsConstruct))
+        assert shown == expected
+        for c in shown:
+            assert (c, RDF.type, OWL.Class) in vocab, c
+
+
+def test_shared_enum_individuals_are_exactly_none_and_approved(vocab):
+    """RAV-1947 gap 5 (closed): dis:NONE is multi-typed (AuthMethod +
+    TelemetryLogLevel), and dis:APPROVED is now also multi-typed
+    (ChangeManagementStatus + DossierStatus) -- `dis:APPROVED a
+    dis:DossierStatus` was added so the sharing dis.ttl's own comment
+    always claimed actually holds in the graph."""
     construct_subclasses = set(vocab.subjects(RDFS.subClassOf, DIS.Construct)) | {DIS.Construct}
     non_enum = construct_subclasses | {DIS.AgenticTriplet, DIS.UtterancePolicy}
     enum_classes = set(vocab.subjects(RDF.type, OWL.Class)) - non_enum
@@ -217,15 +183,15 @@ def test_shared_enum_individuals_is_exactly_none(vocab):
         for ind in vocab.subjects(RDF.type, cls):
             type_count[ind].add(cls)
     multi = {ind for ind, types in type_count.items() if len(types) > 1}
-    assert multi == {DIS.NONE}
+    assert multi == {DIS.NONE, DIS.APPROVED}
 
     # documented-deliberate check: NONE's comment exists somewhere near its declarations
     assert (DIS.NONE, RDF.type, DIS.AuthMethod) in vocab
     assert (DIS.NONE, RDF.type, DIS.TelemetryLogLevel) in vocab
 
-    # and record that APPROVED is NOT (contra the brief) multiply typed
+    # and APPROVED is now shared between ChangeManagementStatus and DossierStatus
     approved_types = set(vocab.objects(DIS.APPROVED, RDF.type))
-    assert approved_types == {DIS.ChangeManagementStatus}
+    assert approved_types == {DIS.ChangeManagementStatus, DIS.DossierStatus}
 
 
 ENUM_PARITY_CASES = [

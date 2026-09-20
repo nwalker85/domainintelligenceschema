@@ -60,7 +60,6 @@ def test_structural_policies_liability_classes_match_the_03_query_facts(dossier)
     assert g.value(p5, DIS.liabilityClass) == DIS.STANDARD
 
 
-@pytest.mark.xfail(strict=True, reason="RAV-1947 gap 1: kronos.ttl does not conform (FunctionCatalogEntry lacks dis:name/dis:callsEndpoint)")
 def test_gap1_kronos_conforms(repo, validate, vocab):
     from rdflib import Graph
 
@@ -72,7 +71,6 @@ def test_gap1_kronos_conforms(repo, validate, vocab):
     assert report.conforms
 
 
-@pytest.mark.xfail(strict=True, reason="RAV-1947 gap 1: dadjoke.ttl does not conform (FunctionCatalogEntry lacks dis:name/dis:callsEndpoint)")
 def test_gap1_dadjoke_conforms(repo, validate, vocab):
     from rdflib import Graph
 
@@ -84,12 +82,6 @@ def test_gap1_dadjoke_conforms(repo, validate, vocab):
     assert report.conforms
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 7: kronos-candies.ttl declares `d:dossier a dis:Dossier` "
-    "and dis:domainName/dis:disSpecificationRef, none of which exist in dis.ttl "
-    "(the vocabulary's actual design is owl:Ontology + dossierType/dossierStatus)",
-)
 def test_gap7_every_class_used_in_kronos_candies_is_declared_in_vocab(dossier, vocab):
     g = dossier("kronos-candies")
     used = {c for c in g.objects(None, RDF.type) if str(c).startswith(str(DIS))}

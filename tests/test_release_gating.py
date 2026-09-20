@@ -70,11 +70,6 @@ def test_no_v16_schema_id_or_ref_points_off_canonical_host(repo):
     assert offenders == []
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="RAV-1947 gap 8: CHANGELOG deprecates all 23 v1.6.0 schemas as of "
-    "1.7, but none of the .schema.json files carry a deprecated:true keyword",
-)
 def test_gap8_deprecated_v16_schemas_carry_deprecated_keyword(repo):
     files = list((repo / "schemas/v1.6.0").glob("*.schema.json"))
     for f in files:
