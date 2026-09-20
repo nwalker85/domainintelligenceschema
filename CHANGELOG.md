@@ -31,6 +31,41 @@ proposal. No tag or release exists yet; nothing here is published.
   "operational personas an Entity adopts" — folds into the existing `Role`
   rather than becoming its own class, since it's the same concept).
 
+### Fixed (pre-release, found by the conformance suite)
+- **Gap 1** — `kronos.ttl`/`dadjoke.ttl` did not conform: ported both to the
+  Systems layer (an `Application` and `Endpoint` each, `dis:name`/
+  `dis:callsEndpoint`/`dis:readsEntity`/`dis:inputFields`/`dis:outputFields`
+  on each `FunctionCatalogEntry`, `dis:mutates` moved onto the Endpoint).
+- **Gap 2** — `VocabularyBoundShape`, `LifecycleNeedsPhaseShape`,
+  `StructuralMedicalShape` were each declared twice, byte-identical; removed
+  the second copies.
+- **Gap 3** — `Application.baseUrl`, `Endpoint.mutates`, and
+  `FunctionCatalogEntry.readsEntity`/`inputFields`/`outputFields` are now
+  `sh:minCount 1`, matching the spec text that already called them required.
+- **Gap 4** — `dis:roleType` and `dis:entityType`, used as `sh:path` in
+  `RoleShape`/`EntityShape`, are now declared as `owl:DatatypeProperty`.
+- **Gap 5** — added NodeShapes for the eight ungoverned `Construct`
+  subclasses (`TagDefinition`, `PrivacyManifest`, `TelemetryConfiguration`,
+  `MarketplaceEntry`, `ChangeManagementRecord`, `ValueEngineeringProfile`,
+  `DossierComparison`, `KnowledgeDocument`), plus
+  `ApprovedChangeNamesApproverShape` and `ComparisonIsBetweenTwoDossiersShape`.
+  `dis:AccessGate` — a leftover duplicate of `dis:AccessGateMatrix` with no
+  properties and no uses — was removed from the vocabulary rather than given
+  a shape; its two prose mentions now say `AccessGateMatrix`. `dis:APPROVED`
+  is now typed as both `dis:ChangeManagementStatus` and `dis:DossierStatus`,
+  as the vocabulary's own comment already claimed.
+- **Gap 6** — `dis:FullView` now shows every class targeted by a
+  `dis:paletteConstruct true` shape. Added `dis:SystemsView` and
+  `dis:GrammarView`.
+- **Gap 7** — `kronos-candies.ttl`/`dadjoke.ttl` used
+  `dis:Dossier`/`dis:domainName`/`dis:disSpecificationRef`, none of which
+  dis.ttl declares; replaced with the vocabulary's own
+  `owl:Ontology`/`dis:dossierType`/`dis:dossierStatus`/`owl:versionInfo`
+  header, now constrained by `DossierMetadataShape` and
+  `DossierStatusMetadataShape`.
+- **Gap 8** — all 23 `schemas/v1.6.0/*.schema.json` files now carry
+  `"deprecated": true`; see below.
+
 ### Deprecated and replaced this version
 - **JSON Schema is no longer the published contract.** CUE (canonical source,
   where it exists) and Turtle/SHACL (the graph and its constraints) are. Every
@@ -50,6 +85,8 @@ proposal. No tag or release exists yet; nothing here is published.
 - **`RelationshipMatrix`** — a generic `actor`/`related_actor` join-table. In
   RDF a relationship is a typed triple; the wrapper was JSON's workaround for
   not having one.
+- The 1.6.0 files now carry the JSON Schema `deprecated` keyword, and
+  `schemas/v1.6.0/index.json` names 1.7.0 as its `supersededBy`.
 
 ### Changed (breaking)
 - **`EntityModeMatrix` and `AccessGateMatrix` become enforceable.** A triplet is
