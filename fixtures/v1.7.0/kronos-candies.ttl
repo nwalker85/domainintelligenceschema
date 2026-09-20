@@ -1,9 +1,13 @@
 @prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
 @prefix d:   <https://dossier.ravenhelm.dev/kronos-candies/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
 
-d:dossier a dis:Dossier ;
-    dis:domainName "Kronos Candies" ;
-    dis:disSpecificationRef "1.7.0" .
+<https://dossier.ravenhelm.dev/kronos-candies/> a owl:Ontology ;
+    dct:title "Kronos Candies" ;
+    dis:dossierType dis:DESIGN ;
+    dis:dossierStatus dis:DRAFT ;
+    owl:versionInfo "1.0.0" .
 
 d:bulk-distribution-rep a dis:Role ;
     dis:roleType "human" ;
