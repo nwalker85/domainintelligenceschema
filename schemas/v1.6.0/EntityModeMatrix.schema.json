@@ -41,11 +41,11 @@
           },
           "stance": {
             "description": "ACT/REACT. (Mandatory)",
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/stance"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/stance"
           },
           "modeOfInteraction": {
             "description": "One of 7 modes. (Mandatory)",
-            "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
+            "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/modeOfInteraction"
           },
           "description": {
             "type": "string",

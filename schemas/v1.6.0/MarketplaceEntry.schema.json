@@ -38,11 +38,11 @@
       "type": "array",
       "description": "A list of categories for searchability.",
       "items": {
-        "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/marketplaceCategory"
+        "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/marketplaceCategory"
       }
     },
     "pricingModel": {
-      "$ref": "https://schemas.domain-intelligence.org/dis/1.6.0/CommonEnums.schema.json#/definitions/marketplacePricingModel"
+      "$ref": "https://schemas.domainintelligenceschema.org/dis/1.6.0/CommonEnums.schema.json#/definitions/marketplacePricingModel"
     },
     "documentationUrl": {
       "type": "string",

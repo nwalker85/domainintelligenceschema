@@ -1,0 +1,61 @@
+# Deploys versioned schema files to the canonical CDN bucket
+# (gs://schemas-domainintelligenceschema-org -> schemas.domainintelligenceschema.org).
+#
+# Direction of truth: this repo -> CDN. The bucket is a build artifact;
+# never edit it by hand. Auth is keyless via Workload Identity Federation
+# (pool: github, provider: github-actions, project: ravenhelm).
+name: Deploy schemas to CDN
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "schemas/**"
+      - ".github/workflows/deploy-cdn.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/87446681061/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: dis-cdn-deploy@ravenhelm.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      # Sync every schemas/v<ver>/ dir to dis/<ver>/ on the bucket.
+      # No -d: published spec versions are append-only; nothing is ever
+      # deleted from the CDN by automation.
+      - name: Sync schema versions to bucket
+        run: |
+          set -euo pipefail
+          for d in schemas/v*/; do
+            ver="${d#schemas/v}"; ver="${ver%/}"
+            echo "::group::dis/${ver}"
+            gsutil -m -h "Cache-Control:public, max-age=3600" \
+              rsync -c -x '.*\.DS_Store$' "$d" "gs://schemas-domainintelligenceschema-org/dis/${ver}"
+            echo "::endgroup::"
+          done
+
+      - name: Verify live CDN matches repo
+        run: |
+          set -euo pipefail
+          fail=0
+          for d in schemas/v*/; do
+            ver="${d#schemas/v}"; ver="${ver%/}"
+            for f in "$d"*.json; do
+              name="$(basename "$f")"
+              if ! curl -fsS "https://schemas.domainintelligenceschema.org/dis/${ver}/${name}" | diff -q - "$f" >/dev/null; then
+                echo "MISMATCH: dis/${ver}/${name}"; fail=1
+              fi
+            done
+          done
+          exit $fail

@@ -25,6 +25,7 @@ This repository is the public source for Domain Intelligence Schema. It owns the
 - Current DNS: Google Domains/Squarespace nameservers pointing at GitHub Pages.
 - Website: static `index.html`.
 - Schema files: versioned JSON Schema files under `schemas/v1.6.0/`.
+- Schema CDN: `schemas.domainintelligenceschema.org` is a GCS bucket website (`gs://schemas-domainintelligenceschema-org`, project `ravenhelm`), deployed FROM this repo by `.github/workflows/deploy-cdn.yml` on merge to `main` (keyless WIF auth; bucket is a build artifact, never hand-edited). `scripts/verify-cdn.sh` checks for drift.
 - Docs: static docs and schema reference files under `docs/`.
 
 ## Canonical URL Policy
