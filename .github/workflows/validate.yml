@@ -28,6 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        # the release-gating test compares the .unreleased marker against
+        # the tag list; a tagless shallow clone would make it vacuous.
+        fetch-tags: true
     - uses: astral-sh/setup-uv@v6
       with:
         enable-cache: true

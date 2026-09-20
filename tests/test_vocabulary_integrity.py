@@ -80,7 +80,7 @@ def _undeclared_sh_paths(vocab, shapes):
     return set(undeclared)
 
 
-def test_gap4_every_sh_path_is_declared_as_a_property_in_vocab_or_shapes(vocab, shapes):
+def test_gap4_the_exact_sh_paths_left_undeclared(vocab, shapes):
     """Documents the exact, current gap-4 set directly (not xfail) because it
     enumerates ALL undeclared paths -- if the set ever grows this test's
     failure message says exactly what changed."""

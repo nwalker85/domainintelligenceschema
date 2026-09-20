@@ -15,10 +15,12 @@ VOCAB="$REPO_ROOT/vocabulary/v1.7.0/dis.ttl"
 SHAPES="$REPO_ROOT/shapes/v1.7.0/dis-shapes.ttl"
 
 command -v pyshacl >/dev/null 2>&1 && PYSHACL=(pyshacl) || PYSHACL=(uvx pyshacl)
-command -v uv >/dev/null 2>&1 && PYRUN=(uv run --group test python -) || PYRUN=(uvx --from rdflib python -)
+# --project pins uv to this repo's environment regardless of the caller's cwd.
+command -v uv >/dev/null 2>&1 && PYRUN=(uv run --project "$REPO_ROOT" --group test python -) || PYRUN=(uvx --from rdflib python -)
 
-MERGED="$(mktemp -t dis-merged-XXXXXX.ttl)"
-trap 'rm -f "$MERGED"' EXIT
+MERGED_DIR="$(mktemp -d)"
+MERGED="$MERGED_DIR/merged.ttl"
+trap 'rm -rf "$MERGED_DIR"' EXIT
 
 "${PYRUN[@]}" "$VOCAB" "$@" > "$MERGED" << 'PYEOF'
 import sys
