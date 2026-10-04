@@ -15,7 +15,7 @@ from rdflib import Graph, Namespace, RDF
 from pyshacl import validate as _pyshacl_validate
 
 DIS = Namespace("https://schemas.domainintelligenceschema.org/dis/1.7.0/")
-D = Namespace("https://dossier.ravenhelm.dev/kronos-candies/")
+D = Namespace("https://dossier.ravenhelm.dev/retail/")
 SH = Namespace("http://www.w3.org/ns/shacl#")
 
 REPO = Path(__file__).resolve().parent.parent
@@ -74,7 +74,7 @@ def shapes() -> Graph:
 
 @pytest.fixture
 def dossier(vocab):
-    """Factory: dossier("kronos-candies") -> a NEW merged Graph each call."""
+    """Factory: dossier("retail") -> a NEW merged Graph each call."""
 
     def _make(name: str) -> Graph:
         g = Graph()

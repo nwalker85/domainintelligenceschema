@@ -212,7 +212,7 @@ dis:confusableWith a owl:ObjectProperty ; rdfs:domain dis:EntityInstance ; rdfs:
 
 # ------------------------------------------------- dossier metadata (1.7)
 # 1.6's DISDossier was a JSON wrapper OBJECT around a whole dossier. In Turtle
-# the file/named graph already is the dossier — kronos-candies.ttl never
+# the file/named graph already is the dossier — retail.ttl never
 # needed a wrapper node, it just declared its own namespace and used it. No
 # construct is needed for "a dossier"; only its header metadata, carried as
 # ontology-style triples on the dossier's own root IRI, the same way this

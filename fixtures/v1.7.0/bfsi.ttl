@@ -1,0 +1,318 @@
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix b:   <https://dossier.ravenhelm.dev/bfsi/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://dossier.ravenhelm.dev/bfsi/> a owl:Ontology ;
+    dct:title "Vanguard Federal Financial Virtual Banking Assistant" ;
+    dis:dossierType dis:DESIGN ;
+    dis:dossierStatus dis:DRAFT ;
+    owl:versionInfo "1.0.0" .
+
+# ---------- Roles ----------
+b:accountholder a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Retail banking customer with checking, savings, or credit accounts." ;
+    dis:name "Account Holder" .
+
+b:banking-assistant a dis:Role ;
+    dis:roleType "agent" ;
+    dis:description "Automated banking assistant handling balances, transaction history, and card locks." ;
+    dis:name "Banking Virtual Assistant" .
+
+b:fraud-analyst a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Bank security specialist investigating suspicious transactions and identity theft." ;
+    dis:name "Fraud Analyst" .
+
+b:wealth-advisor a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Licensed financial advisor holding sole authority to provide investment and securities recommendations." ;
+    dis:name "Wealth Advisor" .
+
+b:branch-specialist a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "In-branch customer service representative handling high-value wire transfers and notary services." ;
+    dis:name "Branch Specialist" .
+
+# ---------- Entities ----------
+b:bankaccount a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Customer deposit account, current balance, available balance, and routing numbers." ;
+    dis:name "BankAccount" .
+
+b:transaction a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Posted or pending transaction debit/credit records." ;
+    dis:name "Transaction" .
+
+b:creditcard a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Credit card account, card status (active, frozen, replaced), and credit limit." ;
+    dis:name "CreditCard" .
+
+b:fraudalert a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Suspected unauthorized debit or transaction dispute." ;
+    dis:name "FraudAlert" .
+
+b:wiretransfer a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Outbound wire or ACH transfer request." ;
+    dis:name "WireTransfer" .
+
+# ---------- Systems Layer ----------
+b:core-banking-api a dis:Application ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:authMethod dis:OAUTH2 ;
+    dis:baseUrl "https://core.example.bank/api/v2" ;
+    dis:description "Core ledger banking platform providing real-time balances and transaction history." ;
+    dis:name "Core Banking API" .
+
+b:get-account-balance a dis:Endpoint ;
+    dis:hostedBy b:core-banking-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/accounts/balance" ;
+    dis:mutates false ;
+    dis:description "Returns verified account balance details for authenticated customer." ;
+    dis:name "Get account balance" .
+
+b:get-recent-transactions a dis:Endpoint ;
+    dis:hostedBy b:core-banking-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/accounts/transactions" ;
+    dis:mutates false ;
+    dis:description "Returns last 30 days of posted and pending account transactions." ;
+    dis:name "Get recent transactions" .
+
+b:post-lock-card a dis:Endpoint ;
+    dis:hostedBy b:core-banking-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/cards/lock" ;
+    dis:mutates true ;
+    dis:description "Immediately updates credit or debit card status to temporary frozen state." ;
+    dis:name "Lock payment card" .
+
+b:fn-read-balance a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint b:get-account-balance ;
+    dis:readsEntity b:bankaccount ;
+    dis:inputFields "account_id,auth_token" ;
+    dis:outputFields "account_id,account_type,current_balance,available_balance" ;
+    dis:description "Retrieves current and available balance for an authenticated bank account." ;
+    dis:name "Read account balance" .
+
+b:fn-read-transactions a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint b:get-recent-transactions ;
+    dis:readsEntity b:transaction ;
+    dis:inputFields "account_id,days,auth_token" ;
+    dis:outputFields "account_id,transactions_list,total_count" ;
+    dis:description "Retrieves recent transactions for an authenticated bank account." ;
+    dis:name "Read recent transactions" .
+
+b:fn-lock-card a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint b:post-lock-card ;
+    dis:readsEntity b:creditcard ;
+    dis:inputFields "card_last_four,lock_reason,auth_token" ;
+    dis:outputFields "card_last_four,status,lock_timestamp" ;
+    dis:description "Applies an instant freeze lock to a card to prevent unauthorized debits." ;
+    dis:name "Lock card function" .
+
+# ---------- Agentic Triplets ----------
+b:t1-read-account-balance a dis:AgenticTriplet ;
+    dis:actingRole b:banking-assistant ;
+    dis:boundFunction b:fn-read-balance ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity b:bankaccount ;
+    dis:description "Authenticated customer asks for account balance." ;
+    dis:name "T1 read account balance" .
+
+b:t2-read-transactions a dis:AgenticTriplet ;
+    dis:actingRole b:banking-assistant ;
+    dis:boundFunction b:fn-read-transactions ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity b:transaction ;
+    dis:description "Authenticated customer inquires about recent debits or deposits." ;
+    dis:name "T2 read transactions" .
+
+b:t3-lock-card a dis:AgenticTriplet ;
+    dis:actingRole b:banking-assistant ;
+    dis:boundFunction b:fn-lock-card ;
+    dis:stance dis:ACT ;
+    dis:mode dis:UPDATE ;
+    dis:targetEntity b:creditcard ;
+    dis:description "Customer requests an emergency lock on a lost or stolen card." ;
+    dis:name "T3 lock card" .
+
+b:t4-escalate-fraud-alert a dis:AgenticTriplet ;
+    dis:actingRole b:banking-assistant ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity b:fraudalert ;
+    dis:description "Transfers caller reporting unauthorized activity to human fraud investigation." ;
+    dis:name "T4 escalate fraud alert" .
+
+b:t5-route-to-branch a dis:AgenticTriplet ;
+    dis:actingRole b:banking-assistant ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity b:wiretransfer ;
+    dis:description "Transfers large outbound wire transfers to in-branch wire specialists." ;
+    dis:name "T5 route to branch" .
+
+# ---------- Utterance Policies (Financial & Regulatory Governance) ----------
+b:p1-reg-e-dispute-disclosure a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:OBLIGATION ;
+    dis:requirement "Any utterance referencing disputed electronic fund transfers must state Regulation E 60-day dispute rights and provisional credit terms." ;
+    dis:description "CFPB Regulation E statutory consumer disclosure requirement." ;
+    dis:name "P1 Reg E dispute disclosure" ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:boundValue b:regulation-e-disclosure-statement ;
+    dis:appliesToTriplet b:t4-escalate-fraud-alert ;
+    dis:onViolation dis:REFUSE .
+
+b:p2-investment-advice-prohibition a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "The automated assistant must not recommend stocks, ETFs, mutual funds, or offer wealth investment advice. Inquiries must route to a registered wealth advisor." ;
+    dis:description "FINRA / SEC regulatory compliance boundary." ;
+    dis:name "P2 investment advice prohibition" ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:appliesToRole b:banking-assistant ;
+    dis:onViolation dis:ESCALATE .
+
+b:p3-pci-dss-masked-pan a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "The assistant must never utter or display full 16-digit Primary Account Numbers (PAN) or 3-digit CVV security codes. Only the last four digits may be spoken." ;
+    dis:description "PCI-DSS cardholder data protection standard." ;
+    dis:name "P3 PCI DSS masked PAN" ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:appliesToTriplet b:t3-lock-card ;
+    dis:onViolation dis:REFUSE .
+
+b:p4-unauthenticated-balance-refusal a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "Account balance figures must never be uttered without prior multi-factor authentication or confirmed customer verification." ;
+    dis:description "GLBA and financial privacy safeguarding rule." ;
+    dis:name "P4 unauthenticated balance refusal" ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:appliesToTriplet b:t1-read-account-balance ;
+    dis:onViolation dis:REFUSE .
+
+b:p5-greeting-security-notice a dis:UtterancePolicy ;
+    dis:enforcement dis:INSTRUCTED ;
+    dis:policyType dis:LIFECYCLE ;
+    dis:requirement "Opening greeting informs customer that session calls may be recorded for quality and security, and prompts for secure verification." ;
+    dis:description "Standard regulatory and service disclosure in greeting phase." ;
+    dis:name "P5 greeting security notice" ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:lifecyclePhase dis:GREETING ;
+    dis:onViolation dis:LOG_ONLY .
+
+# ---------- Entity-Mode Matrices ----------
+b:emm-bankaccount a dis:EntityModeMatrix ;
+    dis:matrixEntity b:bankaccount ;
+    dis:supportedMode dis:READ ;
+    dis:description "Bank accounts are read for balance queries; balance updates only occur via core ledger transactions." ;
+    dis:name "bankaccount supports READ" .
+
+b:emm-transaction a dis:EntityModeMatrix ;
+    dis:matrixEntity b:transaction ;
+    dis:supportedMode dis:READ ;
+    dis:description "Transactions are read-only historical ledger records." ;
+    dis:name "transaction supports READ" .
+
+b:emm-creditcard a dis:EntityModeMatrix ;
+    dis:matrixEntity b:creditcard ;
+    dis:supportedMode dis:READ ;
+    dis:supportedMode dis:UPDATE ;
+    dis:description "Cards can be inspected and updated for temporary freeze/lock." ;
+    dis:name "creditcard supports READ, UPDATE" .
+
+b:emm-fraudalert a dis:EntityModeMatrix ;
+    dis:matrixEntity b:fraudalert ;
+    dis:supportedMode dis:INITIATE ;
+    dis:description "Fraud alerts are initiated to transfer to security analysts." ;
+    dis:name "fraudalert supports INITIATE" .
+
+b:emm-wiretransfer a dis:EntityModeMatrix ;
+    dis:matrixEntity b:wiretransfer ;
+    dis:supportedMode dis:INITIATE ;
+    dis:description "High-value wires are handed off to authorized branch personnel." ;
+    dis:name "wiretransfer supports INITIATE" .
+
+# ---------- Access Gate Matrices ----------
+b:gate-accountholder-bankaccount a dis:AccessGateMatrix ;
+    dis:matrixRole b:accountholder ;
+    dis:matrixEntity b:bankaccount ;
+    dis:allowedMode dis:READ ;
+    dis:description "Authenticated accountholder reads their balance." ;
+    dis:name "accountholder -> bankaccount: READ" .
+
+b:gate-accountholder-transaction a dis:AccessGateMatrix ;
+    dis:matrixRole b:accountholder ;
+    dis:matrixEntity b:transaction ;
+    dis:allowedMode dis:READ ;
+    dis:description "Authenticated accountholder reads their transaction history." ;
+    dis:name "accountholder -> transaction: READ" .
+
+b:gate-banking-assistant-bankaccount a dis:AccessGateMatrix ;
+    dis:matrixRole b:banking-assistant ;
+    dis:matrixEntity b:bankaccount ;
+    dis:allowedMode dis:READ ;
+    dis:description "Assistant queries balance on customer behalf." ;
+    dis:name "banking-assistant -> bankaccount: READ" .
+
+b:gate-banking-assistant-transaction a dis:AccessGateMatrix ;
+    dis:matrixRole b:banking-assistant ;
+    dis:matrixEntity b:transaction ;
+    dis:allowedMode dis:READ ;
+    dis:description "Assistant queries transactions on customer behalf." ;
+    dis:name "banking-assistant -> transaction: READ" .
+
+b:gate-banking-assistant-creditcard a dis:AccessGateMatrix ;
+    dis:matrixRole b:banking-assistant ;
+    dis:matrixEntity b:creditcard ;
+    dis:allowedMode dis:UPDATE ;
+    dis:description "Assistant can apply instant freeze lock to customer credit card." ;
+    dis:name "banking-assistant -> creditcard: UPDATE" .
+
+b:gate-banking-assistant-fraudalert a dis:AccessGateMatrix ;
+    dis:matrixRole b:banking-assistant ;
+    dis:matrixEntity b:fraudalert ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "Assistant initiates escalation to fraud department." ;
+    dis:name "banking-assistant -> fraudalert: INITIATE" .
+
+b:gate-banking-assistant-wiretransfer a dis:AccessGateMatrix ;
+    dis:matrixRole b:banking-assistant ;
+    dis:matrixEntity b:wiretransfer ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "Assistant initiates transfer of wire inquiries to branch specialists." ;
+    dis:name "banking-assistant -> wiretransfer: INITIATE" .
+
+b:gate-fraud-analyst-fraudalert a dis:AccessGateMatrix ;
+    dis:matrixRole b:fraud-analyst ;
+    dis:matrixEntity b:fraudalert ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:RESPOND ;
+    dis:description "Fraud analysts have full authority to adjudicate fraud investigations." ;
+    dis:name "fraud-analyst -> fraudalert: READ, RESPOND" .
+
+# ---------- Entity Instances ----------
+b:card-vanguard-visa-signature a dis:EntityInstance ;
+    dis:instanceOf b:creditcard ;
+    dis:spokenForm "Vanguard Prime Visa Signature" ;
+    dis:confusableWith b:card-vanguard-visa-platinum ;
+    dis:systemKey "card-prod-visa-sig" ;
+    dis:name "Vanguard Prime Visa Signature" .
+
+b:card-vanguard-visa-platinum a dis:EntityInstance ;
+    dis:instanceOf b:creditcard ;
+    dis:spokenForm "Vanguard Rewards Visa Platinum" ;
+    dis:systemKey "card-prod-visa-plat" ;
+    dis:name "Vanguard Rewards Visa Platinum" .

@@ -18,7 +18,7 @@ from conftest import DIS, D, add_node
 
 
 def test_tagdefinition_complete_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.tag_channel, DIS.TagDefinition,
         name=Literal("Channel"), description=Literal("How the inquiry arrived."),
@@ -30,7 +30,7 @@ def test_tagdefinition_complete_conforms(dossier, validate):
 
 
 def test_tagdefinition_missing_allowedvalue_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.tag_channel, DIS.TagDefinition,
         name=Literal("Channel"), description=Literal("How the inquiry arrived."),
@@ -54,14 +54,14 @@ PRIVACY_OK = dict(
 
 
 def test_privacymanifest_complete_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(g, D.privacy_product, DIS.PrivacyManifest, **PRIVACY_OK)
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_privacymanifest_missing_datacategory_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     props = dict(PRIVACY_OK)
     props["dataCategory"] = None
     add_node(g, D.privacy_product, DIS.PrivacyManifest, **props)
@@ -71,7 +71,7 @@ def test_privacymanifest_missing_datacategory_rejected(dossier, validate):
 
 
 def test_privacymanifest_governsattribute_without_leading_slash_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     props = dict(PRIVACY_OK)
     props["governsAttribute"] = Literal("product/owner")
     add_node(g, D.privacy_product, DIS.PrivacyManifest, **props)
@@ -84,7 +84,7 @@ def test_privacymanifest_governsattribute_without_leading_slash_rejected(dossier
 
 
 def test_telemetryconfiguration_complete_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.telemetry_default, DIS.TelemetryConfiguration,
         name=Literal("Default telemetry"), description=Literal("Baseline observability."),
@@ -95,7 +95,7 @@ def test_telemetryconfiguration_complete_conforms(dossier, validate):
 
 
 def test_telemetryconfiguration_missing_name_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.telemetry_default, DIS.TelemetryConfiguration,
         description=Literal("Baseline observability."),
@@ -109,8 +109,8 @@ def test_telemetryconfiguration_missing_name_rejected(dossier, validate):
 # ---------- MarketplaceEntry ----------
 
 MARKETPLACE_OK = dict(
-    name=Literal("Kronos Candies listing"),
-    description=Literal("Publishes the Kronos Candies dossier."),
+    name=Literal("Retail Support listing"),
+    description=Literal("Publishes the retail support dossier."),
     listsDossier=D[""],
     publisherName=Literal("Ravenhelm"),
     pricingModel=DIS.FREE,
@@ -119,14 +119,14 @@ MARKETPLACE_OK = dict(
 
 
 def test_marketplaceentry_complete_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(g, D.listing, DIS.MarketplaceEntry, **MARKETPLACE_OK)
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_marketplaceentry_missing_pricingmodel_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     props = dict(MARKETPLACE_OK)
     props["pricingModel"] = None
     add_node(g, D.listing, DIS.MarketplaceEntry, **props)
@@ -136,7 +136,7 @@ def test_marketplaceentry_missing_pricingmodel_rejected(dossier, validate):
 
 
 def test_marketplaceentry_documentationurl_http_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     props = dict(MARKETPLACE_OK)
     props["documentationUrl"] = Literal("http://example.test/docs")
     add_node(g, D.listing, DIS.MarketplaceEntry, **props)
@@ -158,14 +158,14 @@ CHANGE_OK = dict(
 
 
 def test_changemanagementrecord_complete_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(g, D.change_1, DIS.ChangeManagementRecord, **CHANGE_OK)
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_changemanagementrecord_missing_toversion_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     props = dict(CHANGE_OK)
     props["toVersion"] = None
     add_node(g, D.change_1, DIS.ChangeManagementRecord, **props)
@@ -175,7 +175,7 @@ def test_changemanagementrecord_missing_toversion_rejected(dossier, validate):
 
 
 def test_approved_change_without_approver_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     props = dict(CHANGE_OK)
     props["changeStatus"] = DIS.APPROVED
     add_node(g, D.change_1, DIS.ChangeManagementRecord, **props)
@@ -185,7 +185,7 @@ def test_approved_change_without_approver_rejected(dossier, validate):
 
 
 def test_approved_change_with_approver_accepted(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     props = dict(CHANGE_OK)
     props["changeStatus"] = DIS.APPROVED
     props["approver"] = Literal("qa-regulatory")
@@ -198,7 +198,7 @@ def test_approved_change_with_approver_accepted(dossier, validate):
 
 
 def test_valueengineeringprofile_complete_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.vep_baseline, DIS.ValueEngineeringProfile,
         name=Literal("AS-IS baseline"), description=Literal("Current manual handling cost."),
@@ -209,7 +209,7 @@ def test_valueengineeringprofile_complete_conforms(dossier, validate):
 
 
 def test_valueengineeringprofile_missing_description_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.vep_baseline, DIS.ValueEngineeringProfile,
         name=Literal("AS-IS baseline"),
@@ -224,7 +224,7 @@ def test_valueengineeringprofile_missing_description_rejected(dossier, validate)
 
 
 def test_dossiercomparison_complete_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.comparison_1, DIS.DossierComparison,
         name=Literal("Discovery vs Design"), description=Literal("What the redesign changes."),
@@ -235,7 +235,7 @@ def test_dossiercomparison_complete_conforms(dossier, validate):
 
 
 def test_dossiercomparison_missing_comparesdesign_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.comparison_1, DIS.DossierComparison,
         name=Literal("Discovery vs Design"), description=Literal("What the redesign changes."),
@@ -247,7 +247,7 @@ def test_dossiercomparison_missing_comparesdesign_rejected(dossier, validate):
 
 
 def test_dossiercomparison_with_itself_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.comparison_self, DIS.DossierComparison,
         name=Literal("Self comparison"), description=Literal("A modelling mistake."),
@@ -265,7 +265,7 @@ def test_dossiercomparison_with_itself_rejected(dossier, validate):
 
 
 def test_knowledgedocument_complete_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(
         g, D.doc_faq, DIS.KnowledgeDocument,
         name=Literal("Allergen FAQ"), description=Literal("Reference document for support agents."),
@@ -275,7 +275,7 @@ def test_knowledgedocument_complete_conforms(dossier, validate):
 
 
 def test_knowledgedocument_missing_name_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     add_node(g, D.doc_faq, DIS.KnowledgeDocument, description=Literal("Reference document."))
     report = validate(g, inference="none")
     assert not report.conforms
@@ -285,14 +285,14 @@ def test_knowledgedocument_missing_name_rejected(dossier, validate):
 # ---------- dossier metadata ----------
 
 
-def test_dossier_metadata_on_kronos_candies_conforms(dossier, validate):
-    g = dossier("kronos-candies")
+def test_dossier_metadata_on_retail_conforms(dossier, validate):
+    g = dossier("retail")
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_dossier_metadata_bad_dossiertype_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     root = D[""]
     g.remove((root, DIS.dossierType, None))
     g.add((root, DIS.dossierType, DIS.NOT_A_REAL_TYPE))
@@ -302,7 +302,7 @@ def test_dossier_metadata_bad_dossiertype_rejected(dossier, validate):
 
 
 def test_dossier_metadata_bad_dossierstatus_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     root = D[""]
     g.remove((root, DIS.dossierStatus, None))
     g.add((root, DIS.dossierStatus, DIS.NOT_A_REAL_STATUS))
