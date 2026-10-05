@@ -3,12 +3,12 @@ import fs from 'node:fs';
 import oxigraph from 'oxigraph';
 
 const DIS = 'https://schemas.domainintelligenceschema.org/dis/1.7.0/';
-const BASES = { kronos: 'https://dossier.example/kronos/', dadjoke: 'https://dossier.example/dadjoke/' };
+const BASES = { retail: 'https://dossier.ravenhelm.dev/retail/', dadjoke: 'https://dossier.example/dadjoke/' };
 
 const store = new oxigraph.Store();
 const load = (f, base) => store.load(fs.readFileSync(f, 'utf8'), { format: 'text/turtle', base_iri: base });
 load('vocabulary/dis.ttl', DIS);
-load('fixtures/kronos.ttl', BASES.kronos);
+load('fixtures/retail.ttl', BASES.retail);
 load('../turtle/dadjoke.ttl', BASES.dadjoke);
 
 const views = {};

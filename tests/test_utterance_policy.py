@@ -20,7 +20,7 @@ def _policy(g, iri, **overrides):
 
 
 def test_obligation_without_bound_value_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, policyType=DIS.OBLIGATION, boundValue=None)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -28,14 +28,14 @@ def test_obligation_without_bound_value_rejected(dossier, validate):
 
 
 def test_obligation_with_one_bound_value_accepted(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, policyType=DIS.OBLIGATION, boundValue=D.some_value)
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_lifecycle_without_phase_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, policyType=DIS.LIFECYCLE)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -43,14 +43,14 @@ def test_lifecycle_without_phase_rejected(dossier, validate):
 
 
 def test_lifecycle_with_phase_accepted(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, policyType=DIS.LIFECYCLE, lifecyclePhase=DIS.GREETING)
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_medical_instructed_warns_but_conforms_with_allow_warnings(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, enforcement=DIS.INSTRUCTED, liabilityClass=DIS.MEDICAL)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -62,7 +62,7 @@ def test_medical_instructed_warns_but_conforms_with_allow_warnings(dossier, vali
 
 
 def test_missing_enforcement_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, enforcement=None)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -70,7 +70,7 @@ def test_missing_enforcement_rejected(dossier, validate):
 
 
 def test_enforcement_magic_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, enforcement=DIS.MAGIC)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -78,7 +78,7 @@ def test_enforcement_magic_rejected(dossier, validate):
 
 
 def test_missing_requirement_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, requirement=None)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -89,7 +89,7 @@ def test_liability_class_pii_wrong_class_rejected(dossier, validate):
     """dis:PII is a real IRI in the vocab, but it's a DataCategory, not a
     LiabilityClass -- VocabularyBoundShape's sh:class must catch it even
     though it isn't sh:in-listed at all."""
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, liabilityClass=DIS.PII)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -97,7 +97,7 @@ def test_liability_class_pii_wrong_class_rejected(dossier, validate):
 
 
 def test_bound_value_literal_rejected_wrong_nodekind(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, policyType=DIS.OBLIGATION, boundValue=Literal("a literal"))
     report = validate(g, inference="none")
     assert not report.conforms
@@ -105,7 +105,7 @@ def test_bound_value_literal_rejected_wrong_nodekind(dossier, validate):
 
 
 def test_two_lifecycle_phases_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(
         g,
         D.px,
@@ -118,15 +118,15 @@ def test_two_lifecycle_phases_rejected(dossier, validate):
 
 
 def test_applies_to_triplet_pointing_at_role_rejected(dossier, validate):
-    g = dossier("kronos-candies")
-    _policy(g, D.px, appliesToTriplet=D["kronos-support-agent"])
+    g = dossier("retail")
+    _policy(g, D.px, appliesToTriplet=D["retail-support-agent"])
     report = validate(g, inference="none")
     assert not report.conforms
     assert any(r.focus == "px" and r.path == "appliesToTriplet" for r in report.violations())
 
 
 def test_applies_to_role_pointing_at_entity_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _policy(g, D.px, appliesToRole=D.product)
     report = validate(g, inference="none")
     assert not report.conforms

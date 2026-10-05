@@ -60,7 +60,7 @@ asked for and can be forgotten under context pressure.
 
 ## 3. What it deliberately excludes
 
-**The words.** *"Hi, I'm the Kronos Candies assistant"* is copy — it belongs to the target
+**The words.** *"Hi, I'm the retail support assistant"* is copy — it belongs to the target
 profile, varies by channel and language, and would make DIS non-portable. The **rule**
 (*"the greeting must name scope and must not invite open-ended requests"*) is what travels.
 
@@ -114,11 +114,11 @@ Everything below was executed, not asserted.
 
 | Check | Result |
 |---|---|
-| Vocabulary parses | ✅ 235 triples with the Kronos fixture loaded |
+| Vocabulary parses | ✅ 235 triples with the retail fixture loaded |
 | CUE vets clean | ✅ |
 | `OBLIGATION` without `boundValueRefs` rejected by `cue vet -c` | ✅ `bad.boundValueRefs.0: incomplete value` |
 | JSON Schema generated from CUE | ✅ 17 properties · 6 required · 6 enum defs |
-| Kronos fixture validates against SHACL | ✅ `Conforms: True` |
+| Retail fixture validates against SHACL | ✅ `Conforms: True` |
 | Deformed fixture rejected | ✅ 3 violations — wrong target class, invented mode, obligation binding nothing |
 | SPARQL audit — enforcement vs liability | ✅ 3 policies ranked |
 | SPARQL gap finder — ungoverned triplets | ✅ empty on a fully-governed dossier |
@@ -164,7 +164,7 @@ vocabulary/dis.ttl                     RDF vocabulary — classes, 7 modes, 2 st
 cue/UtterancePolicy.cue                canonical source (+ #UtterancePolicyStrict)
 schemas/UtterancePolicy.schema.json    generated
 shapes/dis-shapes.ttl                  SHACL — triplet shape, policy shape, vocabulary conformance
-fixtures/kronos.ttl                    3 policies across OBLIGATION / PROHIBITION / LIFECYCLE
+fixtures/retail.ttl                    5 policies across OBLIGATION / PROHIBITION / LIFECYCLE
 ../fixtures/deformed.ttl               3 deliberate deformities
 queries/01..04.rq                      views + audits
 demo/                                  Oxigraph → SPARQL → Cytoscape, 2 views

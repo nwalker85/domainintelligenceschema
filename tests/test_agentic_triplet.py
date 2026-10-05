@@ -1,23 +1,23 @@
 """AgenticTripletShape: the closed grammar (§4.1). Uses a role/entity/mode
-combo with a full EMM+gate already in kronos-candies (kronos-support-agent /
+combo with a full EMM+gate already in retail (retail-support-agent /
 product / READ) so the matrix shapes never interfere with these tests."""
 import pytest
 from rdflib import Literal
 
 from conftest import DIS, D, add_triplet
 
-ROLE = D["kronos-support-agent"]
+ROLE = D["retail-support-agent"]
 ENTITY = D.product  # READ is both EMM-supported and gate-granted for this role
 MODE = DIS.READ
 
 MODES_WITH_MATRIX_COVERAGE = {
-    DIS.READ: (D["kronos-support-agent"], D.product),
-    DIS.INITIATE: (D["kronos-support-agent"], D.routingdestination),
+    DIS.READ: (D["retail-support-agent"], D.product),
+    DIS.INITIATE: (D["retail-support-agent"], D.routingdestination),
 }
 
 
 def test_closed_shape_rejects_extra_property_with_that_path(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     add_triplet(g, t, ROLE, ENTITY, MODE)
     g.add((t, DIS.foo, Literal("x")))
@@ -27,7 +27,7 @@ def test_closed_shape_rejects_extra_property_with_that_path(dossier, validate):
 
 
 def test_stance_maybe_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     add_triplet(g, t, ROLE, ENTITY, MODE, stance=DIS.MAYBE)
     report = validate(g, inference="none")
@@ -36,7 +36,7 @@ def test_stance_maybe_rejected(dossier, validate):
 
 
 def test_actingrole_pointing_at_entity_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     add_triplet(g, t, ENTITY, ENTITY, MODE)
     report = validate(g, inference="none")
@@ -45,7 +45,7 @@ def test_actingrole_pointing_at_entity_rejected(dossier, validate):
 
 
 def test_targetentity_pointing_at_role_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     add_triplet(g, t, ROLE, ROLE, MODE)
     report = validate(g, inference="none")
@@ -62,7 +62,7 @@ def test_each_of_the_seven_modes_accepted_when_matrices_are_stripped(dossier, va
     closed set of seven, not about matrix authority."""
     from rdflib import RDF
 
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     for cls in (DIS.EntityModeMatrix, DIS.AccessGateMatrix):
         for s in list(g.subjects(RDF.type, cls)):
             for t in list(g.triples((s, None, None))):
@@ -74,7 +74,7 @@ def test_each_of_the_seven_modes_accepted_when_matrices_are_stripped(dossier, va
 
 
 def test_mode_yeet_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     add_triplet(g, t, ROLE, ENTITY, DIS.YEET)
     report = validate(g, inference="none")
@@ -83,7 +83,7 @@ def test_mode_yeet_rejected(dossier, validate):
 
 
 def test_second_name_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     add_triplet(g, t, ROLE, ENTITY, MODE)
     g.add((t, DIS.name, Literal("a second name")))
@@ -93,7 +93,7 @@ def test_second_name_rejected(dossier, validate):
 
 
 def test_second_description_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     add_triplet(g, t, ROLE, ENTITY, MODE)
     g.add((t, DIS.description, Literal("a second description")))
@@ -105,7 +105,7 @@ def test_second_description_rejected(dossier, validate):
 def test_missing_description_rejected(dossier, validate):
     from rdflib import RDF
 
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     g.add((t, RDF.type, DIS.AgenticTriplet))
     g.add((t, DIS.actingRole, ROLE))
@@ -119,7 +119,7 @@ def test_missing_description_rejected(dossier, validate):
 
 
 def test_boundfunction_pointing_at_endpoint_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     t = D.tx
     add_triplet(g, t, ROLE, ENTITY, MODE, boundFunction=D["get-product-attribute"])
     report = validate(g, inference="none")

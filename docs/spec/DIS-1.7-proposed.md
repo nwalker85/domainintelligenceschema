@@ -41,7 +41,7 @@ model as the permissions**, and only an enumerated cross-product produces them.
 Specified in full in
 [`DIS-1.7-UtterancePolicy.md`](../drafts/DIS-1.7-UtterancePolicy.md)
 (this repo: `cue/v1.7.0/UtterancePolicy.cue`, `schemas/v1.7.0/UtterancePolicy.schema.json`,
-`queries/v1.7.0/`, `fixtures/v1.7.0/kronos.ttl` + `deformed.ttl`). Summarised
+`queries/v1.7.0/`, `fixtures/v1.7.0/retail.ttl` + `deformed.ttl`). Summarised
 here so this document stands alone.
 
 **Required:** `policyId` · `name` · `description` · `policyType` ·
@@ -338,7 +338,7 @@ is a style guide.**
 
 ## 8. Worked example
 
-[`kronos-candies.ttl`](https://forgejo.ravenhelm.dev/nate/dis-dossiers/src/branch/main/dossiers/kronos-candies.ttl)
+[`retail.ttl`](../../fixtures/v1.7.0/retail.ttl)
 — 400 lines, conforming:
 
 | | |
@@ -381,5 +381,5 @@ Carried forward from the UtterancePolicy proposal, unresolved in 1.7:
 | [`shapes/v1.7.0/dis-shapes.ttl`](../../shapes/v1.7.0/dis-shapes.ttl) | SHACL — 352 lines, including the two `sh:sparql` grammar shapes |
 | [`cue/v1.7.0/UtterancePolicy.cue`](../../cue/v1.7.0/UtterancePolicy.cue), [`schemas/v1.7.0/UtterancePolicy.schema.json`](../../schemas/v1.7.0/UtterancePolicy.schema.json) | UtterancePolicy CUE canonical source and generated JSON Schema |
 | [`queries/v1.7.0/`](../../queries/v1.7.0/) | SPARQL audits — full-graph, medical-liability, structural-audit, ungoverned-triplets |
-| [`fixtures/v1.7.0/kronos-candies.ttl`](../../fixtures/v1.7.0/kronos-candies.ttl) | the worked example (§8) |
+| [`fixtures/v1.7.0/`](../../fixtures/v1.7.0/) | Reference dossiers across Retail, Healthcare, BFSI, and ITSD/HR (`retail.ttl`, `healthcare.ttl`, `bfsi.ttl`, `itsd-hr.ttl`) |
 | [`fixtures/v1.7.0/deformed.ttl`](../../fixtures/v1.7.0/deformed.ttl) | the negative fixture — confirms the shapes reject, not just accept |

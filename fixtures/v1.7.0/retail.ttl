@@ -1,0 +1,467 @@
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix d:   <https://dossier.ravenhelm.dev/retail/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://dossier.ravenhelm.dev/retail/> a owl:Ontology ;
+    dct:title "Apex Retail Customer Support" ;
+    dis:dossierType dis:DESIGN ;
+    dis:dossierStatus dis:DRAFT ;
+    owl:versionInfo "1.0.0" .
+
+# ---------- Roles (7) ----------
+d:customer a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Customer inquiring about catalog products, order tracking, and returns." ;
+    dis:name "Customer" .
+
+d:retail-support-agent a dis:Role ;
+    dis:roleType "agent" ;
+    dis:description "Automated customer support assistant answering catalog questions and looking up orders." ;
+    dis:name "Retail Support Agent" .
+
+d:store-associate a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "In-store staff member handling local store inventory and pickup." ;
+    dis:name "Store Associate" .
+
+d:returns-specialist a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Customer service authority for return exceptions, refunds, and damaged merchandise claims." ;
+    dis:name "Returns Specialist" .
+
+d:fraud-prevention a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Security team holding authority over payment disputes and unauthorized purchases." ;
+    dis:name "Fraud Prevention" .
+
+d:hazardous-materials-officer a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Compliance officer for battery, aerosol, and chemical shipping regulations." ;
+    dis:name "Hazardous Materials Officer" .
+
+d:human-support-agent a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "General human agent fallback escalation queue." ;
+    dis:name "Human Support Agent" .
+
+# ---------- Entities (6) ----------
+d:product a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "A retail catalog SKU item available for purchase." ;
+    dis:name "Product" .
+
+d:productattribute a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Published product specifications, dimensions, materials, and warranty information." ;
+    dis:name "ProductAttribute" .
+
+d:order a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Customer purchase order containing items, shipment tracking, and delivery status." ;
+    dis:name "Order" .
+
+d:returnrequest a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Return authorization request, return eligibility status, and return label." ;
+    dis:name "ReturnRequest" .
+
+d:inquiry a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "An inbound customer support session, channel, intent, and message context." ;
+    dis:name "Inquiry" .
+
+d:routingdestination a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Target queue for human handoff or specialized departmental escalation." ;
+    dis:name "RoutingDestination" .
+
+# ---------- Systems Layer (Application, Endpoints, Functions) ----------
+d:retail-catalog-api a dis:Application ;
+    dis:applicationType dis:MOCK ;
+    dis:authMethod dis:NONE ;
+    dis:baseUrl "https://api.example.retail/v1" ;
+    dis:description "Mock gateway providing product specifications, order tracking, and return status." ;
+    dis:name "Retail Catalog API" .
+
+d:get-product-attribute a dis:Endpoint ;
+    dis:hostedBy d:retail-catalog-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/product/attribute" ;
+    dis:mutates false ;
+    dis:description "Retrieves published technical specs and attributes for a catalog product." ;
+    dis:name "Get product attribute" .
+
+d:get-order-status a dis:Endpoint ;
+    dis:hostedBy d:retail-catalog-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/order/status" ;
+    dis:mutates false ;
+    dis:description "Retrieves order status, carrier tracking number, and estimated arrival." ;
+    dis:name "Get order status" .
+
+d:get-return-eligibility a dis:Endpoint ;
+    dis:hostedBy d:retail-catalog-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/return/eligibility" ;
+    dis:mutates false ;
+    dis:description "Checks return window validity, condition requirements, and return eligibility." ;
+    dis:name "Get return eligibility" .
+
+d:fn-read-product-attribute a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint d:get-product-attribute ;
+    dis:readsEntity d:productattribute ;
+    dis:inputFields "product_sku,attribute_name" ;
+    dis:outputFields "product_sku,attribute_name,value,status" ;
+    dis:description "Fetches specifications for a specific catalog item." ;
+    dis:name "Read product attribute" .
+
+d:fn-read-order-status a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint d:get-order-status ;
+    dis:readsEntity d:order ;
+    dis:inputFields "order_id,postal_code" ;
+    dis:outputFields "order_id,status,tracking_number,estimated_delivery" ;
+    dis:description "Fetches current shipment progress for an order." ;
+    dis:name "Read order status" .
+
+d:fn-read-return-eligibility a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint d:get-return-eligibility ;
+    dis:readsEntity d:returnrequest ;
+    dis:inputFields "order_id,product_sku" ;
+    dis:outputFields "order_id,product_sku,eligible,days_remaining,policy_summary" ;
+    dis:description "Fetches return eligibility details and return window for an order line item." ;
+    dis:name "Read return eligibility" .
+
+# ---------- Agentic Triplets (6) ----------
+d:t1-read-product-attribute a dis:AgenticTriplet ;
+    dis:actingRole d:retail-support-agent ;
+    dis:boundFunction d:fn-read-product-attribute ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity d:productattribute ;
+    dis:description "Customer asks for specifications, dimensions, or compatibility of a product." ;
+    dis:name "T1 read product attribute" .
+
+d:t2-read-order-status a dis:AgenticTriplet ;
+    dis:actingRole d:retail-support-agent ;
+    dis:boundFunction d:fn-read-order-status ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity d:order ;
+    dis:description "Customer inquires about delivery status or tracking for an existing order." ;
+    dis:name "T2 read order status" .
+
+d:t3-read-return-eligibility a dis:AgenticTriplet ;
+    dis:actingRole d:retail-support-agent ;
+    dis:boundFunction d:fn-read-return-eligibility ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity d:returnrequest ;
+    dis:description "Customer checks if an item can be returned under the return policy." ;
+    dis:name "T3 read return eligibility" .
+
+d:t4-route-to-human-support a dis:AgenticTriplet ;
+    dis:actingRole d:retail-support-agent ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity d:routingdestination ;
+    dis:description "Escalates unresolved or complex customer requests to the general human queue." ;
+    dis:name "T4 route to human support" .
+
+d:t5-route-to-store-associate a dis:AgenticTriplet ;
+    dis:actingRole d:retail-support-agent ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity d:routingdestination ;
+    dis:description "Routes questions regarding same-day local store inventory to store associates." ;
+    dis:name "T5 route to store associate" .
+
+d:t6-deflect-to-website a dis:AgenticTriplet ;
+    dis:actingRole d:retail-support-agent ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity d:routingdestination ;
+    dis:description "Deflects out-of-scope queries (e.g. corporate governance, press) to the public website." ;
+    dis:name "T6 deflect to website" .
+
+# ---------- Utterance Policies (5) ----------
+d:p1-return-window-disclosure a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:OBLIGATION ;
+    dis:requirement "Any utterance disclosing return eligibility must state the 30-day return window and original packaging requirement." ;
+    dis:description "Return eligibility statements must accompany the policy window disclosure." ;
+    dis:name "P1 return window disclosure" ;
+    dis:onViolation dis:REFUSE ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:boundValue d:standard-return-policy-disclosure ;
+    dis:appliesToEntity d:returnrequest ;
+    dis:appliesToTriplet d:t3-read-return-eligibility .
+
+d:p2-no-payment-capture a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "The agent must not solicit or capture credit card numbers, CVVs, or full bank credentials in conversational utterances." ;
+    dis:description "PCI-DSS compliance: payment data must only be collected through secure checkout frames." ;
+    dis:name "P2 no payment capture" ;
+    dis:appliesToRole d:retail-support-agent ;
+    dis:onViolation dis:ESCALATE ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:appliesToTriplet d:t2-read-order-status .
+
+d:p3-lithium-battery-shipping-warning a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "Damaged or recalled lithium-ion battery products must not be returned via standard postal parcel; must route to hazardous materials compliance." ;
+    dis:description "DOT hazardous materials shipping safety compliance." ;
+    dis:name "P3 lithium battery shipping warning" ;
+    dis:onViolation dis:ESCALATE ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:appliesToEntity d:product ;
+    dis:appliesToTriplet d:t3-read-return-eligibility .
+
+d:p4-bounded-knowledge a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "No unverified price matching, inventory speculation, or cross-vendor comparisons. Outside knowledge deflects to website or escalates." ;
+    dis:description "Agent knowledge is strictly bounded to published catalog attributes." ;
+    dis:name "P4 bounded knowledge" ;
+    dis:onViolation dis:REFUSE ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:appliesToTriplet d:t1-read-product-attribute , d:t6-deflect-to-website .
+
+d:p5-greeting-states-scope a dis:UtterancePolicy ;
+    dis:enforcement dis:INSTRUCTED ;
+    dis:policyType dis:LIFECYCLE ;
+    dis:requirement "The opening utterance must identify the retail assistant and state its scope (product specs, order lookup, return policies)." ;
+    dis:description "Clear capability framing prevents customer confusion and misrouted inquiries." ;
+    dis:name "P5 greeting states scope" ;
+    dis:onViolation dis:LOG_ONLY ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:lifecyclePhase dis:GREETING .
+
+# ---------- Entity-Mode Matrices (6) ----------
+d:emm-product a dis:EntityModeMatrix ;
+    dis:matrixEntity d:product ;
+    dis:supportedMode dis:READ ;
+    dis:description "Catalog product definitions are read-only." ;
+    dis:name "product supports READ" .
+
+d:emm-productattribute a dis:EntityModeMatrix ;
+    dis:matrixEntity d:productattribute ;
+    dis:supportedMode dis:READ ;
+    dis:description "Published attributes and specifications are read-only." ;
+    dis:name "productattribute supports READ" .
+
+d:emm-order a dis:EntityModeMatrix ;
+    dis:matrixEntity d:order ;
+    dis:supportedMode dis:READ ;
+    dis:description "Customer orders can be retrieved and tracked; customer-service modifications happen through specialized workflows." ;
+    dis:name "order supports READ" .
+
+d:emm-returnrequest a dis:EntityModeMatrix ;
+    dis:matrixEntity d:returnrequest ;
+    dis:supportedMode dis:READ ;
+    dis:description "Return eligibility is queried by the customer and agent." ;
+    dis:name "returnrequest supports READ" .
+
+d:emm-inquiry a dis:EntityModeMatrix ;
+    dis:matrixEntity d:inquiry ;
+    dis:supportedMode dis:CREATE ;
+    dis:supportedMode dis:READ ;
+    dis:description "Customer initiates an inquiry on contact; the agent reads it to parse intent." ;
+    dis:name "inquiry supports CREATE, READ" .
+
+d:emm-routingdestination a dis:EntityModeMatrix ;
+    dis:matrixEntity d:routingdestination ;
+    dis:supportedMode dis:INITIATE ;
+    dis:description "Routing destinations are invoked to transfer callers to specialist queues." ;
+    dis:name "routingdestination supports INITIATE" .
+
+# ---------- Access Gate Matrices (18) ----------
+d:gate-customer-product a dis:AccessGateMatrix ;
+    dis:matrixRole d:customer ;
+    dis:matrixEntity d:product ;
+    dis:allowedMode dis:READ ;
+    dis:description "Customers may view public product listings." ;
+    dis:name "customer -> product: READ" .
+
+d:gate-customer-productattribute a dis:AccessGateMatrix ;
+    dis:matrixRole d:customer ;
+    dis:matrixEntity d:productattribute ;
+    dis:allowedMode dis:READ ;
+    dis:description "Customers may view published product attributes." ;
+    dis:name "customer -> productattribute: READ" .
+
+d:gate-customer-order a dis:AccessGateMatrix ;
+    dis:matrixRole d:customer ;
+    dis:matrixEntity d:order ;
+    dis:allowedMode dis:READ ;
+    dis:description "Customers may view their order status." ;
+    dis:name "customer -> order: READ" .
+
+d:gate-customer-returnrequest a dis:AccessGateMatrix ;
+    dis:matrixRole d:customer ;
+    dis:matrixEntity d:returnrequest ;
+    dis:allowedMode dis:READ ;
+    dis:description "Customers may check return eligibility." ;
+    dis:name "customer -> returnrequest: READ" .
+
+d:gate-customer-inquiry a dis:AccessGateMatrix ;
+    dis:matrixRole d:customer ;
+    dis:matrixEntity d:inquiry ;
+    dis:allowedMode dis:CREATE ;
+    dis:description "Customers create inquiries by starting a session." ;
+    dis:name "customer -> inquiry: CREATE" .
+
+d:gate-customer-routingdestination a dis:AccessGateMatrix ;
+    dis:matrixRole d:customer ;
+    dis:matrixEntity d:routingdestination ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "Customers may request transfer to human support queues." ;
+    dis:name "customer -> routingdestination: INITIATE" .
+
+d:gate-store-associate-routingdestination a dis:AccessGateMatrix ;
+    dis:matrixRole d:store-associate ;
+    dis:matrixEntity d:routingdestination ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "Store associates can transfer customers back to central support." ;
+    dis:name "store-associate -> routingdestination: INITIATE" .
+
+d:gate-store-associate-product a dis:AccessGateMatrix ;
+    dis:matrixRole d:store-associate ;
+    dis:matrixEntity d:product ;
+    dis:allowedMode dis:READ ;
+    dis:description "Store associates read catalog product info." ;
+    dis:name "store-associate -> product: READ" .
+
+d:gate-retail-support-agent-product a dis:AccessGateMatrix ;
+    dis:matrixRole d:retail-support-agent ;
+    dis:matrixEntity d:product ;
+    dis:allowedMode dis:READ ;
+    dis:description "The agent reads product catalog information." ;
+    dis:name "retail-support-agent -> product: READ" .
+
+d:gate-retail-support-agent-productattribute a dis:AccessGateMatrix ;
+    dis:matrixRole d:retail-support-agent ;
+    dis:matrixEntity d:productattribute ;
+    dis:allowedMode dis:READ ;
+    dis:description "The agent reads published product attributes." ;
+    dis:name "retail-support-agent -> productattribute: READ" .
+
+d:gate-retail-support-agent-order a dis:AccessGateMatrix ;
+    dis:matrixRole d:retail-support-agent ;
+    dis:matrixEntity d:order ;
+    dis:allowedMode dis:READ ;
+    dis:description "The agent reads order delivery and tracking details." ;
+    dis:name "retail-support-agent -> order: READ" .
+
+d:gate-retail-support-agent-returnrequest a dis:AccessGateMatrix ;
+    dis:matrixRole d:retail-support-agent ;
+    dis:matrixEntity d:returnrequest ;
+    dis:allowedMode dis:READ ;
+    dis:description "The agent reads return eligibility status." ;
+    dis:name "retail-support-agent -> returnrequest: READ" .
+
+d:gate-retail-support-agent-inquiry a dis:AccessGateMatrix ;
+    dis:matrixRole d:retail-support-agent ;
+    dis:matrixEntity d:inquiry ;
+    dis:allowedMode dis:READ ;
+    dis:description "The agent reads the inquiry to process customer intent." ;
+    dis:name "retail-support-agent -> inquiry: READ" .
+
+d:gate-retail-support-agent-routingdestination a dis:AccessGateMatrix ;
+    dis:matrixRole d:retail-support-agent ;
+    dis:matrixEntity d:routingdestination ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "The agent initiates escalations to specialist queues." ;
+    dis:name "retail-support-agent -> routingdestination: INITIATE" .
+
+d:gate-returns-specialist-returnrequest a dis:AccessGateMatrix ;
+    dis:matrixRole d:returns-specialist ;
+    dis:matrixEntity d:returnrequest ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:RESPOND ;
+    dis:description "Returns specialist has authority to review and adjudicate return requests." ;
+    dis:name "returns-specialist -> returnrequest: READ, RESPOND" .
+
+d:gate-fraud-prevention-order a dis:AccessGateMatrix ;
+    dis:matrixRole d:fraud-prevention ;
+    dis:matrixEntity d:order ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:RESPOND ;
+    dis:description "Fraud prevention team investigates payment and billing disputes." ;
+    dis:name "fraud-prevention -> order: READ, RESPOND" .
+
+d:gate-hazardous-materials-officer-product a dis:AccessGateMatrix ;
+    dis:matrixRole d:hazardous-materials-officer ;
+    dis:matrixEntity d:product ;
+    dis:allowedMode dis:READ ;
+    dis:description "Hazmat compliance officer reviews battery and hazardous shipping safety." ;
+    dis:name "hazardous-materials-officer -> product: READ" .
+
+d:gate-human-support-agent-inquiry a dis:AccessGateMatrix ;
+    dis:matrixRole d:human-support-agent ;
+    dis:matrixEntity d:inquiry ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:RESPOND ;
+    dis:description "Human fallback agents resolve complex or unhandled inquiries." ;
+    dis:name "human-support-agent -> inquiry: READ, RESPOND" .
+
+# ---------- Entity Instances (9 SKUs) ----------
+d:p-wireless-earbuds a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex Wireless Earbuds" ;
+    dis:systemKey "sku-audio-eb100" ;
+    dis:name "Apex Wireless Earbuds" .
+
+d:p-wireless-earbuds-pro a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex Wireless Earbuds Pro" ;
+    dis:confusableWith d:p-wireless-earbuds ;
+    dis:systemKey "sku-audio-eb200" ;
+    dis:name "Apex Wireless Earbuds Pro" .
+
+d:p-anc-over-ear-headphones a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex ANC Over-Ear Headphones" ;
+    dis:systemKey "sku-audio-hp500" ;
+    dis:name "Apex ANC Over-Ear Headphones" .
+
+d:p-mechanical-keyboard a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex Mechanical Keyboard" ;
+    dis:confusableWith d:p-ergonomic-keyboard ;
+    dis:systemKey "sku-kb-mech-87" ;
+    dis:name "Apex Mechanical Keyboard" .
+
+d:p-ergonomic-keyboard a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex Ergonomic Split Keyboard" ;
+    dis:systemKey "sku-kb-ergo-split" ;
+    dis:name "Apex Ergonomic Split Keyboard" .
+
+d:p-usb-c-charging-hub a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex 7-in-1 USB-C Hub" ;
+    dis:confusableWith d:p-usb-c-travel-adapter ;
+    dis:systemKey "sku-pwr-hub-7in1" ;
+    dis:name "Apex 7-in-1 USB-C Hub" .
+
+d:p-usb-c-travel-adapter a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex USB-C Travel Power Adapter" ;
+    dis:systemKey "sku-pwr-adapt-65w" ;
+    dis:name "Apex USB-C Travel Power Adapter" .
+
+d:p-laptop-sleeve-14 a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex Protective Laptop Sleeve 14 inch" ;
+    dis:confusableWith d:p-laptop-sleeve-16 ;
+    dis:systemKey "sku-acc-sleeve-14" ;
+    dis:name "Apex Protective Laptop Sleeve 14 inch" .
+
+d:p-laptop-sleeve-16 a dis:EntityInstance ;
+    dis:instanceOf d:product ;
+    dis:spokenForm "Apex Protective Laptop Sleeve 16 inch" ;
+    dis:systemKey "sku-acc-sleeve-16" ;
+    dis:name "Apex Protective Laptop Sleeve 16 inch" .

@@ -32,7 +32,7 @@ proposal. No tag or release exists yet; nothing here is published.
   rather than becoming its own class, since it's the same concept).
 
 ### Fixed (pre-release, found by the conformance suite)
-- **Gap 1** — `kronos.ttl`/`dadjoke.ttl` did not conform: ported both to the
+- **Gap 1** — early fixtures / `dadjoke.ttl` did not conform: ported to the
   Systems layer (an `Application` and `Endpoint` each, `dis:name`/
   `dis:callsEndpoint`/`dis:readsEntity`/`dis:inputFields`/`dis:outputFields`
   on each `FunctionCatalogEntry`, `dis:mutates` moved onto the Endpoint).
@@ -57,7 +57,7 @@ proposal. No tag or release exists yet; nothing here is published.
 - **Gap 6** — `dis:FullView` now shows every class targeted by a
   `dis:paletteConstruct true` shape. Added `dis:SystemsView` and
   `dis:GrammarView`.
-- **Gap 7** — `kronos-candies.ttl`/`dadjoke.ttl` used
+- **Gap 7** — early draft fixtures / `dadjoke.ttl` used
   `dis:Dossier`/`dis:domainName`/`dis:disSpecificationRef`, none of which
   dis.ttl declares; replaced with the vocabulary's own
   `owl:Ontology`/`dis:dossierType`/`dis:dossierStatus`/`owl:versionInfo`
@@ -107,8 +107,8 @@ proposal. No tag or release exists yet; nothing here is published.
   `gateCondition` is retained as an optional field for genuinely dynamic conditions.
 
 ### Validated
-- The 400-line Kronos Candies worked example (`fixtures/v1.7.0/kronos-candies.ttl`)
-  conforms cleanly against the merged vocabulary and shapes.
+- The four unencumbered reference industry dossiers (`retail.ttl`, `healthcare.ttl`,
+  `bfsi.ttl`, `itsd-hr.ttl`) and `dadjoke.ttl` conform cleanly against the merged vocabulary and shapes.
 - The negative fixture (`fixtures/v1.7.0/deformed.ttl`) is correctly rejected.
 
 ## [1.6.0+ref-fix] - 2026-06-12

@@ -1,0 +1,302 @@
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix i:   <https://dossier.ravenhelm.dev/itsd-hr/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<https://dossier.ravenhelm.dev/itsd-hr/> a owl:Ontology ;
+    dct:title "Enterprise Employee IT Service Desk & HR Portal" ;
+    dis:dossierType dis:DESIGN ;
+    dis:dossierStatus dis:DRAFT ;
+    owl:versionInfo "1.0.0" .
+
+# ---------- Roles ----------
+i:employee a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Corporate employee requesting hardware, IT support, or checking PTO balances." ;
+    dis:name "Employee" .
+
+i:workplace-navigator a dis:Role ;
+    dis:roleType "agent" ;
+    dis:description "Internal workplace assistant answering IT status and HR policy questions." ;
+    dis:name "Workplace Navigator Agent" .
+
+i:it-support-engineer a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "IT technician handling hardware repairs, laptop swaps, and VPN troubleshooting." ;
+    dis:name "IT Support Engineer" .
+
+i:hr-business-partner a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "HR specialist holding sole authority over workplace grievances, accommodations, and benefits exceptions." ;
+    dis:name "HR Business Partner" .
+
+i:it-security-lead a dis:Role ;
+    dis:roleType "human" ;
+    dis:description "Information security lead approving privileged access and secure hardware." ;
+    dis:name "IT Security Lead" .
+
+# ---------- Entities ----------
+i:serviceticket a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "ITSM incident or service request ticket, state, assignee, and resolution notes." ;
+    dis:name "ServiceTicket" .
+
+i:ptobalance a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Employee paid time off ledger: accrued vacation, floating holidays, and rollover hours." ;
+    dis:name "PtoBalance" .
+
+i:hardwareasset a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Corporate IT hardware catalog: standard developer laptops, monitors, and peripherals." ;
+    dis:name "HardwareAsset" .
+
+i:corporatepolicy a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Published corporate HR and IT policies, handbook sections, and standard operating procedures." ;
+    dis:name "CorporatePolicy" .
+
+i:escalationqueue a dis:Entity ;
+    dis:entityType "data" ;
+    dis:description "Specialist routing queues for HR employee relations or urgent tier-2 IT desks." ;
+    dis:name "EscalationQueue" .
+
+# ---------- Systems Layer ----------
+i:enterprise-gateway-api a dis:Application ;
+    dis:applicationType dis:SAAS_PLATFORM ;
+    dis:authMethod dis:BEARER ;
+    dis:baseUrl "https://gateway.example.corp/api/v1" ;
+    dis:description "Corporate enterprise service bus integrating ServiceNow and Workday HCM." ;
+    dis:name "Enterprise Gateway API" .
+
+i:get-ticket-status a dis:Endpoint ;
+    dis:hostedBy i:enterprise-gateway-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/itsm/ticket-status" ;
+    dis:mutates false ;
+    dis:description "Queries current status of open ITSM service tickets." ;
+    dis:name "Get ticket status" .
+
+i:get-pto-balance a dis:Endpoint ;
+    dis:hostedBy i:enterprise-gateway-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/hcm/pto-balance" ;
+    dis:mutates false ;
+    dis:description "Fetches accrued and available PTO hours from HCM system." ;
+    dis:name "Get PTO balance" .
+
+i:post-create-hardware-request a dis:Endpoint ;
+    dis:hostedBy i:enterprise-gateway-api ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/itsm/request-hardware" ;
+    dis:mutates true ;
+    dis:description "Submits a new standard hardware provisioning ticket." ;
+    dis:name "Request hardware" .
+
+i:fn-read-ticket-status a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint i:get-ticket-status ;
+    dis:readsEntity i:serviceticket ;
+    dis:inputFields "employee_id,ticket_id" ;
+    dis:outputFields "ticket_id,category,state,assignee,updated_at" ;
+    dis:description "Retrieves status of an existing IT incident or service request." ;
+    dis:name "Read ticket status" .
+
+i:fn-read-pto-balance a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint i:get-pto-balance ;
+    dis:readsEntity i:ptobalance ;
+    dis:inputFields "employee_id" ;
+    dis:outputFields "employee_id,vacation_hours,floating_holiday_hours,rollover_hours" ;
+    dis:description "Retrieves paid time off balance for an authenticated employee." ;
+    dis:name "Read PTO balance" .
+
+i:fn-request-hardware a dis:FunctionCatalogEntry ;
+    dis:callsEndpoint i:post-create-hardware-request ;
+    dis:readsEntity i:hardwareasset ;
+    dis:inputFields "employee_id,asset_sku,shipping_address" ;
+    dis:outputFields "ticket_id,asset_sku,approval_status,tracking_id" ;
+    dis:description "Submits standard equipment fulfillment request." ;
+    dis:name "Submit hardware request" .
+
+# ---------- Agentic Triplets ----------
+i:t1-read-ticket-status a dis:AgenticTriplet ;
+    dis:actingRole i:workplace-navigator ;
+    dis:boundFunction i:fn-read-ticket-status ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity i:serviceticket ;
+    dis:description "Employee asks for status update on their open IT ticket." ;
+    dis:name "T1 read ticket status" .
+
+i:t2-read-pto-balance a dis:AgenticTriplet ;
+    dis:actingRole i:workplace-navigator ;
+    dis:boundFunction i:fn-read-pto-balance ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity i:ptobalance ;
+    dis:description "Employee checks available vacation hours." ;
+    dis:name "T2 read PTO balance" .
+
+i:t3-request-hardware a dis:AgenticTriplet ;
+    dis:actingRole i:workplace-navigator ;
+    dis:boundFunction i:fn-request-hardware ;
+    dis:stance dis:ACT ;
+    dis:mode dis:CREATE ;
+    dis:targetEntity i:serviceticket ;
+    dis:description "Employee submits standard peripheral or accessory request." ;
+    dis:name "T3 request hardware" .
+
+i:t4-escalate-hr-grievance a dis:AgenticTriplet ;
+    dis:actingRole i:workplace-navigator ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity i:escalationqueue ;
+    dis:description "Immediately transfers workplace grievance or sensitive HR matter to HRBP." ;
+    dis:name "T4 escalate HR grievance" .
+
+i:t5-route-to-it-engineer a dis:AgenticTriplet ;
+    dis:actingRole i:workplace-navigator ;
+    dis:stance dis:ACT ;
+    dis:mode dis:INITIATE ;
+    dis:targetEntity i:escalationqueue ;
+    dis:description "Transfers complex hardware outage or network failure to tier-2 engineer." ;
+    dis:name "T5 route to IT engineer" .
+
+# ---------- Utterance Policies (Internal Corporate Governance) ----------
+i:p1-hr-grievance-confidentiality a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "The automated assistant must not intake, summarize, or offer opinions on employee grievances, harassment complaints, or performance reviews. All such topics must route immediately to a human HR Business Partner." ;
+    dis:description "Confidential employee relations protection policy." ;
+    dis:name "P1 HR grievance confidentiality" ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:appliesToTriplet i:t4-escalate-hr-grievance ;
+    dis:onViolation dis:ESCALATE .
+
+i:p2-pto-rollover-disclosure a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:OBLIGATION ;
+    dis:requirement "Any utterance disclosing vacation balances must carry the standard policy reminder that a maximum of 40 hours may roll over across calendar years." ;
+    dis:description "Employee benefits policy disclosure requirement." ;
+    dis:name "P2 PTO rollover disclosure" ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:boundValue i:pto-rollover-policy-citation ;
+    dis:appliesToTriplet i:t2-read-pto-balance ;
+    dis:onViolation dis:REFUSE .
+
+i:p3-security-clearance-hardware a dis:UtterancePolicy ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:policyType dis:PROHIBITION ;
+    dis:requirement "Hardware requests for cryptographic keys, production server credentials, or specialized non-standard laptops cannot be automated; must escalate to IT Security Lead." ;
+    dis:description "Information security compliance boundary." ;
+    dis:name "P3 security clearance hardware" ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:appliesToTriplet i:t3-request-hardware ;
+    dis:onViolation dis:ESCALATE .
+
+i:p4-greeting-identity a dis:UtterancePolicy ;
+    dis:enforcement dis:INSTRUCTED ;
+    dis:policyType dis:LIFECYCLE ;
+    dis:requirement "Opening greeting introduces the workplace assistant and lists support areas: IT ticket updates, PTO balance lookups, and standard peripheral requests." ;
+    dis:description "Clear workplace scope statement." ;
+    dis:name "P4 greeting identity" ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:lifecyclePhase dis:GREETING ;
+    dis:onViolation dis:LOG_ONLY .
+
+# ---------- Entity-Mode Matrices ----------
+i:emm-serviceticket a dis:EntityModeMatrix ;
+    dis:matrixEntity i:serviceticket ;
+    dis:supportedMode dis:CREATE ;
+    dis:supportedMode dis:READ ;
+    dis:description "Service tickets can be queried and new standard requests can be created." ;
+    dis:name "serviceticket supports CREATE, READ" .
+
+i:emm-ptobalance a dis:EntityModeMatrix ;
+    dis:matrixEntity i:ptobalance ;
+    dis:supportedMode dis:READ ;
+    dis:description "PTO balance is read-only; leave approvals are managed in Workday." ;
+    dis:name "ptobalance supports READ" .
+
+i:emm-hardwareasset a dis:EntityModeMatrix ;
+    dis:matrixEntity i:hardwareasset ;
+    dis:supportedMode dis:READ ;
+    dis:description "Hardware catalog items are read-only." ;
+    dis:name "hardwareasset supports READ" .
+
+i:emm-corporatepolicy a dis:EntityModeMatrix ;
+    dis:matrixEntity i:corporatepolicy ;
+    dis:supportedMode dis:READ ;
+    dis:description "Corporate policies are published reference data." ;
+    dis:name "corporatepolicy supports READ" .
+
+i:emm-escalationqueue a dis:EntityModeMatrix ;
+    dis:matrixEntity i:escalationqueue ;
+    dis:supportedMode dis:INITIATE ;
+    dis:description "Escalation queues are invocation targets for handoffs." ;
+    dis:name "escalationqueue supports INITIATE" .
+
+# ---------- Access Gate Matrices ----------
+i:gate-employee-serviceticket a dis:AccessGateMatrix ;
+    dis:matrixRole i:employee ;
+    dis:matrixEntity i:serviceticket ;
+    dis:allowedMode dis:CREATE ;
+    dis:allowedMode dis:READ ;
+    dis:description "Employees can create tickets and read their ticket status." ;
+    dis:name "employee -> serviceticket: CREATE, READ" .
+
+i:gate-employee-ptobalance a dis:AccessGateMatrix ;
+    dis:matrixRole i:employee ;
+    dis:matrixEntity i:ptobalance ;
+    dis:allowedMode dis:READ ;
+    dis:description "Employees can read their PTO balance." ;
+    dis:name "employee -> ptobalance: READ" .
+
+i:gate-workplace-navigator-serviceticket a dis:AccessGateMatrix ;
+    dis:matrixRole i:workplace-navigator ;
+    dis:matrixEntity i:serviceticket ;
+    dis:allowedMode dis:CREATE ;
+    dis:allowedMode dis:READ ;
+    dis:description "Navigator assistant reads ticket status and creates standard hardware tickets." ;
+    dis:name "workplace-navigator -> serviceticket: CREATE, READ" .
+
+i:gate-workplace-navigator-ptobalance a dis:AccessGateMatrix ;
+    dis:matrixRole i:workplace-navigator ;
+    dis:matrixEntity i:ptobalance ;
+    dis:allowedMode dis:READ ;
+    dis:description "Navigator assistant reads PTO balance for authenticated employee." ;
+    dis:name "workplace-navigator -> ptobalance: READ" .
+
+i:gate-workplace-navigator-escalationqueue a dis:AccessGateMatrix ;
+    dis:matrixRole i:workplace-navigator ;
+    dis:matrixEntity i:escalationqueue ;
+    dis:allowedMode dis:INITIATE ;
+    dis:description "Navigator assistant initiates transfers to human specialist queues." ;
+    dis:name "workplace-navigator -> escalationqueue: INITIATE" .
+
+i:gate-hr-business-partner-escalationqueue a dis:AccessGateMatrix ;
+    dis:matrixRole i:hr-business-partner ;
+    dis:matrixEntity i:escalationqueue ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:RESPOND ;
+    dis:description "HR Business Partners manage and respond to employee grievance escalations." ;
+    dis:name "hr-business-partner -> escalationqueue: READ, RESPOND" .
+
+# ---------- Entity Instances ----------
+i:hw-developer-laptop-16 a dis:EntityInstance ;
+    dis:instanceOf i:hardwareasset ;
+    dis:spokenForm "Standard 16-inch Developer Laptop" ;
+    dis:confusableWith i:hw-developer-laptop-14 ;
+    dis:systemKey "hw-sku-mac-16" ;
+    dis:name "Standard 16-inch Developer Laptop" .
+
+i:hw-developer-laptop-14 a dis:EntityInstance ;
+    dis:instanceOf i:hardwareasset ;
+    dis:spokenForm "Standard 14-inch Developer Laptop" ;
+    dis:systemKey "hw-sku-mac-14" ;
+    dis:name "Standard 14-inch Developer Laptop" .
+
+i:hw-ultrasharp-monitor-27 a dis:EntityInstance ;
+    dis:instanceOf i:hardwareasset ;
+    dis:spokenForm "27-inch 4K Desktop Monitor" ;
+    dis:systemKey "hw-sku-mon-27" ;
+    dis:name "27-inch 4K Desktop Monitor" .

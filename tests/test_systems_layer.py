@@ -24,7 +24,7 @@ def _app(g, iri, **overrides):
 ENDPOINT_OK = dict(
     name=Literal("ep"),
     description=Literal("desc"),
-    hostedBy=D["kronos-product-api"],
+    hostedBy=D["retail-catalog-api"],
     httpMethod=DIS.POST,
     urlPath=Literal("/thing"),
     mutates=Literal(False),
@@ -57,7 +57,7 @@ def _fce(g, iri, **overrides):
 
 
 def test_application_baseurl_http_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _app(g, D.appx, baseUrl=Literal("http://example.test"))
     report = validate(g, inference="none")
     assert not report.conforms
@@ -65,14 +65,14 @@ def test_application_baseurl_http_rejected(dossier, validate):
 
 
 def test_application_baseurl_https_accepted(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _app(g, D.appx)
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_application_missing_applicationtype_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _app(g, D.appx, applicationType=None)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -80,7 +80,7 @@ def test_application_missing_applicationtype_rejected(dossier, validate):
 
 
 def test_mock_and_system_of_record_together_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _app(g, D.appx, applicationType=[DIS.MOCK, DIS.SYSTEM_OF_RECORD])
     report = validate(g, inference="none")
     assert not report.conforms
@@ -91,7 +91,7 @@ def test_mock_and_system_of_record_together_rejected(dossier, validate):
 
 
 def test_endpoint_missing_hostedby_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, hostedBy=None)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -99,7 +99,7 @@ def test_endpoint_missing_hostedby_rejected(dossier, validate):
 
 
 def test_endpoint_hostedby_pointing_at_entity_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, hostedBy=D.product)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -107,7 +107,7 @@ def test_endpoint_hostedby_pointing_at_entity_rejected(dossier, validate):
 
 
 def test_endpoint_urlpath_without_leading_slash_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, urlPath=Literal("product"))
     report = validate(g, inference="none")
     assert not report.conforms
@@ -115,14 +115,14 @@ def test_endpoint_urlpath_without_leading_slash_rejected(dossier, validate):
 
 
 def test_endpoint_urlpath_with_leading_slash_accepted(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, urlPath=Literal("/product"))
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_endpoint_httpmethod_delete_rejected_not_in_closed_set(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, httpMethod=DIS.DELETE)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -130,14 +130,14 @@ def test_endpoint_httpmethod_delete_rejected_not_in_closed_set(dossier, validate
 
 
 def test_endpoint_httpmethod_http_delete_accepted(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, httpMethod=DIS.HTTP_DELETE)
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_endpoint_httpmethod_options_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, httpMethod=DIS.OPTIONS)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -145,7 +145,7 @@ def test_endpoint_httpmethod_options_rejected(dossier, validate):
 
 
 def test_endpoint_mutates_string_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, mutates=Literal("yes"))
     report = validate(g, inference="none")
     assert not report.conforms
@@ -153,14 +153,14 @@ def test_endpoint_mutates_string_rejected(dossier, validate):
 
 
 def test_post_with_mutates_false_accepted_declared_never_inferred(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, httpMethod=DIS.POST, mutates=Literal(False))
     report = validate(g, inference="none")
     assert report.conforms, report.results
 
 
 def test_get_with_mutates_true_accepted_declared_never_inferred(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, httpMethod=DIS.GET, mutates=Literal(True))
     report = validate(g, inference="none")
     assert report.conforms, report.results
@@ -170,7 +170,7 @@ def test_get_with_mutates_true_accepted_declared_never_inferred(dossier, validat
 
 
 def test_fce_missing_callsendpoint_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _fce(g, D.fcex, callsEndpoint=None)
     report = validate(g, inference="none")
     assert not report.conforms
@@ -178,16 +178,16 @@ def test_fce_missing_callsendpoint_rejected(dossier, validate):
 
 
 def test_fce_callsendpoint_pointing_at_application_rejected(dossier, validate):
-    g = dossier("kronos-candies")
-    _fce(g, D.fcex, callsEndpoint=D["kronos-product-api"])
+    g = dossier("retail")
+    _fce(g, D.fcex, callsEndpoint=D["retail-catalog-api"])
     report = validate(g, inference="none")
     assert not report.conforms
     assert any(r.focus == "fcex" and r.path == "callsEndpoint" for r in report.violations())
 
 
 def test_fce_readsentity_pointing_at_role_rejected(dossier, validate):
-    g = dossier("kronos-candies")
-    _fce(g, D.fcex, readsEntity=D["kronos-support-agent"])
+    g = dossier("retail")
+    _fce(g, D.fcex, readsEntity=D["retail-support-agent"])
     report = validate(g, inference="none")
     assert not report.conforms
     assert any(r.focus == "fcex" and r.path == "readsEntity" for r in report.violations())
@@ -197,35 +197,35 @@ def test_fce_readsentity_pointing_at_role_rejected(dossier, validate):
 
 
 def test_gap3_application_missing_baseurl_is_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _app(g, D.appx, baseUrl=None)
     report = validate(g, inference="none")
     assert not report.conforms
 
 
 def test_gap3_endpoint_missing_mutates_is_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _endpoint(g, D.epx, mutates=None)
     report = validate(g, inference="none")
     assert not report.conforms
 
 
 def test_gap3_fce_missing_readsentity_is_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _fce(g, D.fcex, readsEntity=None)
     report = validate(g, inference="none")
     assert not report.conforms
 
 
 def test_gap3_fce_missing_inputfields_is_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _fce(g, D.fcex, inputFields=None)
     report = validate(g, inference="none")
     assert not report.conforms
 
 
 def test_gap3_fce_missing_outputfields_is_rejected(dossier, validate):
-    g = dossier("kronos-candies")
+    g = dossier("retail")
     _fce(g, D.fcex, outputFields=None)
     report = validate(g, inference="none")
     assert not report.conforms
