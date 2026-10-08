@@ -60,7 +60,7 @@ def test_structural_policies_liability_classes_match_the_03_query_facts(dossier)
     assert g.value(p5, DIS.liabilityClass) == DIS.STANDARD
 
 
-@pytest.mark.parametrize("name", ["retail", "healthcare", "bfsi", "itsd-hr", "dadjoke"])
+@pytest.mark.parametrize("name", ["retail", "healthcare", "bfsi", "itsd-hr", "itsd", "hr", "dadjoke"])
 def test_every_reference_dossier_conforms(repo, validate, vocab, name):
     from rdflib import Graph
 
@@ -72,7 +72,7 @@ def test_every_reference_dossier_conforms(repo, validate, vocab, name):
     assert report.conforms
 
 
-@pytest.mark.parametrize("name", ["retail", "healthcare", "bfsi", "itsd-hr"])
+@pytest.mark.parametrize("name", ["retail", "healthcare", "bfsi", "itsd-hr", "itsd", "hr"])
 def test_gap7_every_class_used_in_reference_dossiers_is_declared_in_vocab(dossier, vocab, name):
     g = dossier(name)
     used = {c for c in g.objects(None, RDF.type) if str(c).startswith(str(DIS))}

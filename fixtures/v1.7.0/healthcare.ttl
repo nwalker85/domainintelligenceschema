@@ -1,175 +1,354 @@
 @prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
 @prefix h:   <https://dossier.ravenhelm.dev/healthcare/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <https://dossier.ravenhelm.dev/healthcare/> a owl:Ontology ;
-    dct:title "Aegis Health Patient Care & Scheduling Navigation" ;
+    owl:versionInfo "1.8.0" ;
     dis:dossierType dis:DESIGN ;
-    dis:dossierStatus dis:DRAFT ;
-    owl:versionInfo "1.0.0" .
+    dis:dossierStatus dis:APPROVED ;
+    rdfs:label "Healthcare Revenue Cycle Management & Patient Access Dossier" ;
+    rdfs:comment "Decomposed patient access, appointment scheduling, proxy consent, and prescription refill operations across Epic Cadence, Cerner Millennium, and Surescripts." .
 
-# ---------- Roles ----------
-h:patient a dis:Role ;
-    dis:roleType "human" ;
-    dis:description "Patient or caregiver seeking clinic scheduling or facility information." ;
-    dis:name "Patient" .
+# =============================================================================
+# 1. SYSTEMS LAYER (Systems of Record)
+# =============================================================================
 
-h:care-navigator a dis:Role ;
-    dis:roleType "agent" ;
-    dis:description "Automated navigation assistant handling appointment bookings, clinic hours, and triage routing." ;
-    dis:name "Care Navigator Agent" .
+h:epic-cadence-mychart a dis:Application ;
+    dis:name "Epic Cadence & MyChart API" ;
+    dis:description "Enterprise scheduling, digital front door, and FHIR R4 appointment management engine." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_PUBLIC ;
+    dis:baseUrl "https://epic-gateway.healthsystem.local/api/FHIR/R4" ;
+    dis:authMethod dis:OAUTH2 .
 
-h:licensed-clinician a dis:Role ;
-    dis:roleType "human" ;
-    dis:description "Registered nurse or physician holding sole authority for medical evaluation and triage." ;
-    dis:name "Licensed Clinician" .
+h:cerner-millennium-ehr a dis:Application ;
+    dis:name "Cerner Millennium EHR" ;
+    dis:description "Master Patient Index (MPI), demographic intake, and clinical charting system." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_PUBLIC ;
+    dis:baseUrl "https://cerner-fhir.healthsystem.local/r4" ;
+    dis:authMethod dis:BEARER .
 
-h:clinic-receptionist a dis:Role ;
-    dis:roleType "human" ;
-    dis:description "Clinic front desk staff handling in-person check-in and local rescheduling." ;
-    dis:name "Clinic Receptionist" .
+h:surescripts-network a dis:Application ;
+    dis:name "Surescripts E-Prescribing Gateway" ;
+    dis:description "National electronic prescription routing, pharmacy benefit verification, and electronic refill authorization network." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_PUBLIC ;
+    dis:baseUrl "https://surescripts-gateway.healthsystem.local/v2" ;
+    dis:authMethod dis:OAUTH2 .
 
-h:privacy-officer a dis:Role ;
-    dis:roleType "human" ;
-    dis:description "HIPAA compliance officer overseeing patient health information disclosure." ;
-    dis:name "Privacy Officer" .
+# --- Endpoints ---
 
-# ---------- Entities ----------
-h:appointment a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Patient clinical appointment slot, time, clinician, and booking status." ;
-    dis:name "Appointment" .
-
-h:cliniclocation a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Outpatient clinic facilities, address, operating hours, and specialty departments." ;
-    dis:name "ClinicLocation" .
-
-h:patientrecord a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Protected Health Information (PHI) patient profile and identity record." ;
-    dis:name "PatientRecord" .
-
-h:symptomreport a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Inbound patient symptom description or chief complaint." ;
-    dis:name "SymptomReport" .
-
-h:emergencyqueue a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Emergency medical dispatch (911) or urgent crisis transfer queue." ;
-    dis:name "EmergencyQueue" .
-
-# ---------- Systems Layer ----------
-h:ehr-scheduling-api a dis:Application ;
-    dis:applicationType dis:SAAS_PLATFORM ;
-    dis:authMethod dis:OAUTH2 ;
-    dis:baseUrl "https://ehr.example.health/fhir/v4" ;
-    dis:description "FHIR-compliant electronic health record scheduling and location service." ;
-    dis:name "EHR Scheduling Gateway" .
-
-h:get-clinic-hours a dis:Endpoint ;
-    dis:hostedBy h:ehr-scheduling-api ;
+h:ep-epic-confirm-appointment a dis:Endpoint ;
+    dis:name "Epic Confirm Appointment" ;
+    dis:description "Transitions appointment status to CONFIRMED in Epic Cadence." ;
+    dis:hostedBy h:epic-cadence-mychart ;
+    dis:transport dis:TRANSPORT_HTTPS ;
     dis:httpMethod dis:POST ;
-    dis:urlPath "/Location/hours" ;
-    dis:mutates false ;
-    dis:description "Retrieves public clinic facility hours and available care specialties." ;
-    dis:name "Get clinic hours" .
+    dis:urlPath "/Appointment/{id}/$confirm" ;
+    dis:mutates true .
 
-h:get-appointment-status a dis:Endpoint ;
-    dis:hostedBy h:ehr-scheduling-api ;
+h:ep-epic-cancel-appointment a dis:Endpoint ;
+    dis:name "Epic Cancel Appointment" ;
+    dis:description "Releases provider slot, applies cancellation reason, and notifies patient access in Epic Cadence." ;
+    dis:hostedBy h:epic-cadence-mychart ;
+    dis:transport dis:TRANSPORT_HTTPS ;
     dis:httpMethod dis:POST ;
-    dis:urlPath "/Appointment/status" ;
-    dis:mutates false ;
-    dis:description "Queries upcoming confirmed clinical appointments for a verified patient." ;
-    dis:name "Get appointment status" .
+    dis:urlPath "/Appointment/{id}/$cancel" ;
+    dis:mutates true .
 
-h:post-cancel-appointment a dis:Endpoint ;
-    dis:hostedBy h:ehr-scheduling-api ;
+h:ep-epic-reschedule-appointment a dis:Endpoint ;
+    dis:name "Epic Reschedule Appointment" ;
+    dis:description "Cancels current slot and books target provider slot in one transaction." ;
+    dis:hostedBy h:epic-cadence-mychart ;
+    dis:transport dis:TRANSPORT_HTTPS ;
     dis:httpMethod dis:POST ;
-    dis:urlPath "/Appointment/cancel" ;
-    dis:mutates true ;
-    dis:description "Cancels an existing appointment slot in the EHR." ;
-    dis:name "Cancel appointment" .
+    dis:urlPath "/Appointment/{id}/$reschedule" ;
+    dis:mutates true .
 
-h:fn-read-clinic-hours a dis:FunctionCatalogEntry ;
-    dis:callsEndpoint h:get-clinic-hours ;
-    dis:readsEntity h:cliniclocation ;
-    dis:inputFields "facility_id" ;
-    dis:outputFields "facility_id,facility_name,operating_hours,specialties" ;
-    dis:description "Retrieves operating hours and department information for a clinic." ;
-    dis:name "Read clinic hours" .
+h:ep-cerner-patient-lookup a dis:Endpoint ;
+    dis:name "Cerner Patient Demographic Lookup" ;
+    dis:description "Searches Master Patient Index (MPI) by MRN, name, DOB, and SSN last-4." ;
+    dis:hostedBy h:cerner-millennium-ehr ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/Patient/{id}" ;
+    dis:mutates false .
 
-h:fn-read-appointment-status a dis:FunctionCatalogEntry ;
-    dis:callsEndpoint h:get-appointment-status ;
-    dis:readsEntity h:appointment ;
-    dis:inputFields "patient_id,date_of_birth,appointment_id" ;
-    dis:outputFields "appointment_id,clinician_name,start_time,location_name,status" ;
-    dis:description "Retrieves confirmed appointment details for a patient." ;
-    dis:name "Read appointment status" .
+h:ep-surescripts-request-refill a dis:Endpoint ;
+    dis:name "Surescripts Submit Refill Request" ;
+    dis:description "Submits clinical renewal request to physician inbox via Surescripts electronic routing." ;
+    dis:hostedBy h:surescripts-network ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/RefillRequest" ;
+    dis:mutates true .
+
+h:ep-epic-get-proxy-consent a dis:Endpoint ;
+    dis:name "Epic Proxy Consent Lookup" ;
+    dis:description "Retrieves HIPAA caregiver proxy authorization and adolescent access tier." ;
+    dis:hostedBy h:epic-cadence-mychart ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/Consent?category=proxy-access" ;
+    dis:mutates false .
+
+# --- Functions ---
+
+h:fn-confirm-appointment a dis:FunctionCatalogEntry ;
+    dis:name "Confirm Appointment Entry" ;
+    dis:description "Executes appointment confirmation in Epic Cadence." ;
+    dis:callsEndpoint h:ep-epic-confirm-appointment ;
+    dis:readsEntity h:clinical-appointment ;
+    dis:writesEntity h:clinical-appointment ;
+    dis:inputFields "appointment_id,patient_mrn,confirmation_method" ;
+    dis:outputFields "appointment_id,status,confirmed_timestamp" .
 
 h:fn-cancel-appointment a dis:FunctionCatalogEntry ;
-    dis:callsEndpoint h:post-cancel-appointment ;
-    dis:readsEntity h:appointment ;
-    dis:writesEntity h:appointment ;
-    dis:inputFields "patient_id,appointment_id,reason" ;
-    dis:outputFields "appointment_id,status,cancellation_timestamp" ;
-    dis:description "Executes cancellation of a booked appointment in EHR." ;
-    dis:name "Cancel appointment entry" .
+    dis:name "Cancel Appointment Entry" ;
+    dis:description "Executes cancellation in Epic Cadence." ;
+    dis:callsEndpoint h:ep-epic-cancel-appointment ;
+    dis:readsEntity h:clinical-appointment ;
+    dis:writesEntity h:clinical-appointment ;
+    dis:inputFields "appointment_id,patient_mrn,cancellation_reason_code" ;
+    dis:outputFields "appointment_id,status,cancellation_timestamp" .
 
-# ---------- Agentic Triplets ----------
-h:t1-read-clinic-hours a dis:AgenticTriplet ;
-    dis:actingRole h:care-navigator ;
-    dis:boundFunction h:fn-read-clinic-hours ;
+h:fn-reschedule-appointment a dis:FunctionCatalogEntry ;
+    dis:name "Reschedule Appointment Entry" ;
+    dis:description "Re-allocates provider slot in Epic Cadence." ;
+    dis:callsEndpoint h:ep-epic-reschedule-appointment ;
+    dis:readsEntity h:clinical-appointment ;
+    dis:writesEntity h:clinical-appointment ;
+    dis:inputFields "appointment_id,patient_mrn,new_slot_id,provider_id" ;
+    dis:outputFields "appointment_id,new_start_time,new_location,status" .
+
+h:fn-lookup-patient a dis:FunctionCatalogEntry ;
+    dis:name "Lookup Patient Account" ;
+    dis:description "Fetches demographic and MPI record from Cerner Millennium." ;
+    dis:callsEndpoint h:ep-cerner-patient-lookup ;
+    dis:readsEntity h:patient-account ;
+    dis:inputFields "patient_id,date_of_birth" ;
+    dis:outputFields "patient_id,mrn,guarantor_id,active_pcp,coverage_status" .
+
+h:fn-submit-refill a dis:FunctionCatalogEntry ;
+    dis:name "Submit Refill Request" ;
+    dis:description "Submits medication refill to Surescripts network." ;
+    dis:callsEndpoint h:ep-surescripts-request-refill ;
+    dis:readsEntity h:prescription-medication ;
+    dis:writesEntity h:medication-refill-request ;
+    dis:inputFields "patient_mrn,prescription_number,ndc_code,pharmacy_ncpdp" ;
+    dis:outputFields "refill_request_id,status,transmission_receipt" .
+
+h:fn-verify-proxy a dis:FunctionCatalogEntry ;
+    dis:name "Verify Proxy Authorization" ;
+    dis:description "Checks caregiver proxy legal consent in Epic MyChart." ;
+    dis:callsEndpoint h:ep-epic-get-proxy-consent ;
+    dis:readsEntity h:caregiver-proxy-consent ;
+    dis:inputFields "patient_mrn,proxy_user_id" ;
+    dis:outputFields "consent_id,status,proxy_relationship,access_tier,expiration_date" .
+
+# =============================================================================
+# 2. ROLES & ENTITIES
+# =============================================================================
+
+h:existing-patient a dis:Role ;
+    dis:roleType "human" ;
+    dis:name "Existing Patient" ;
+    dis:description "Patient with verified Master Patient Index (MRN) and active clinical record." .
+
+h:caregiver-proxy a dis:Role ;
+    dis:roleType "human" ;
+    dis:name "Caregiver Proxy" ;
+    dis:description "Family member, guardian, or healthcare power of attorney acting on behalf of patient." .
+
+h:rcm-navigator-agent a dis:Role ;
+    dis:roleType "agent" ;
+    dis:name "RCM Patient Access Navigator" ;
+    dis:description "AI conversational agent facilitating scheduling, intake, and refill triage." .
+
+# --- Entities ---
+
+h:clinical-appointment a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Clinical Appointment" ;
+    dis:description "Scheduled provider slot in Epic Cadence." .
+
+h:patient-account a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Patient Account" ;
+    dis:description "Cerner demographic, guarantor, and insurance coverage profile." .
+
+h:prescription-medication a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Prescription Medication" ;
+    dis:description "Active medication therapy record with NDC code, dosage, and prescriber." .
+
+h:medication-refill-request a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Medication Refill Request" ;
+    dis:description "Surescripts renewal transaction sent to prescribing physician." .
+
+h:caregiver-proxy-consent a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Caregiver Proxy Consent" ;
+    dis:description "Documented legal authorization granting third-party access to patient record." .
+
+h:symptom-triage-escalation a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Symptom Triage Escalation" ;
+    dis:description "Direct handoff payload to on-call triage RN or emergency department." .
+
+# =============================================================================
+# 3. CLOSED POPULATIONS (Common Chronic & Mental Health Medications)
+# =============================================================================
+
+h:med-lisinopril a dis:EntityInstance ;
+    dis:instanceOf h:prescription-medication ;
+    dis:spokenForm "lisinopril", "prinivil", "zestril" ;
+    dis:systemKey "RX-29046" ;
+    dis:name "Lisinopril 10mg" ;
+    dis:description "ACE inhibitor for hypertension, diabetic nephropathy, and heart failure." .
+
+h:med-metformin a dis:EntityInstance ;
+    dis:instanceOf h:prescription-medication ;
+    dis:spokenForm "metformin", "glucophage" ;
+    dis:systemKey "RX-6809" ;
+    dis:name "Metformin 500mg" ;
+    dis:description "Biguanide oral antihyperglycemic agent for Type 2 diabetes mellitus." .
+
+h:med-sertraline a dis:EntityInstance ;
+    dis:instanceOf h:prescription-medication ;
+    dis:spokenForm "sertraline", "zoloft" ;
+    dis:systemKey "RX-36437" ;
+    dis:name "Sertraline 50mg" ;
+    dis:description "Selective serotonin reuptake inhibitor (SSRI) for major depression and panic disorder." .
+
+h:med-escitalopram a dis:EntityInstance ;
+    dis:instanceOf h:prescription-medication ;
+    dis:spokenForm "escitalopram", "lexapro" ;
+    dis:systemKey "RX-32937" ;
+    dis:name "Escitalopram 10mg" ;
+    dis:description "SSRI antidepressant for generalized anxiety disorder (GAD) and depression." .
+
+h:med-fluoxetine a dis:EntityInstance ;
+    dis:instanceOf h:prescription-medication ;
+    dis:spokenForm "fluoxetine", "prozac" ;
+    dis:systemKey "RX-310385" ;
+    dis:name "Fluoxetine 20mg" ;
+    dis:description "SSRI for major depressive disorder and obsessive-compulsive disorder." .
+
+h:med-bupropion a dis:EntityInstance ;
+    dis:instanceOf h:prescription-medication ;
+    dis:spokenForm "bupropion", "wellbutrin" ;
+    dis:systemKey "RX-835603" ;
+    dis:name "Bupropion XL 150mg" ;
+    dis:description "Norepinephrine/dopamine-reuptake inhibitor (NDRI) for depression and smoking cessation." .
+
+# =============================================================================
+# 4. AGENTIC TRIPLETS
+# =============================================================================
+
+h:t1-confirm-appointment a dis:AgenticTriplet ;
+    dis:actingRole h:rcm-navigator-agent ;
+    dis:boundFunction h:fn-confirm-appointment ;
     dis:stance dis:REACT ;
-    dis:mode dis:READ ;
-    dis:targetEntity h:cliniclocation ;
-    dis:description "Caller asks for clinic hours or available locations." ;
-    dis:name "T1 read clinic hours" .
+    dis:mode dis:UPDATE ;
+    dis:targetEntity h:clinical-appointment ;
+    dis:name "Confirm appointment" ;
+    dis:description "Patient confirms attendance for scheduled clinical encounter in Epic Cadence." .
 
-h:t2-read-appointment-status a dis:AgenticTriplet ;
-    dis:actingRole h:care-navigator ;
-    dis:boundFunction h:fn-read-appointment-status ;
-    dis:stance dis:REACT ;
-    dis:mode dis:READ ;
-    dis:targetEntity h:appointment ;
-    dis:description "Patient checks time or doctor for an existing appointment." ;
-    dis:name "T2 read appointment status" .
-
-h:t3-cancel-appointment a dis:AgenticTriplet ;
-    dis:actingRole h:care-navigator ;
+h:t2-cancel-appointment a dis:AgenticTriplet ;
+    dis:actingRole h:rcm-navigator-agent ;
     dis:boundFunction h:fn-cancel-appointment ;
     dis:stance dis:ACT ;
     dis:mode dis:UPDATE ;
-    dis:targetEntity h:appointment ;
-    dis:description "Patient requests cancellation of a scheduled appointment." ;
-    dis:name "T3 cancel appointment" .
+    dis:targetEntity h:clinical-appointment ;
+    dis:name "Cancel appointment" ;
+    dis:description "Patient cancels appointment; releases provider slot in Epic." .
+
+h:t3-reschedule-appointment a dis:AgenticTriplet ;
+    dis:actingRole h:rcm-navigator-agent ;
+    dis:boundFunction h:fn-reschedule-appointment ;
+    dis:stance dis:ACT ;
+    dis:mode dis:UPDATE ;
+    dis:targetEntity h:clinical-appointment ;
+    dis:name "Reschedule appointment" ;
+    dis:description "Patient reallocates slot to alternative provider or time." .
 
 h:t4-escalate-symptom-triage a dis:AgenticTriplet ;
-    dis:actingRole h:care-navigator ;
+    dis:actingRole h:rcm-navigator-agent ;
+    dis:bindingStatus dis:MANUAL_PROCEDURE ;
+    dis:unboundReason "Warm telephony transfer to registered triage nurse queue" ;
     dis:stance dis:ACT ;
     dis:mode dis:INITIATE ;
-    dis:targetEntity h:symptomreport ;
-    dis:description "Routes symptom reports to a licensed clinical triage nurse." ;
-    dis:name "T4 escalate symptom triage" .
+    dis:targetEntity h:symptom-triage-escalation ;
+    dis:name "T4 escalate symptom triage" ;
+    dis:description "Routes acute clinical symptoms or symptom reports to an RN triage nurse." .
 
 h:t5-dispatch-emergency-crisis a dis:AgenticTriplet ;
-    dis:actingRole h:care-navigator ;
+    dis:actingRole h:rcm-navigator-agent ;
+    dis:bindingStatus dis:MANUAL_PROCEDURE ;
+    dis:unboundReason "Emergency crisis deflection to 911 / emergency services" ;
     dis:stance dis:ACT ;
     dis:mode dis:INITIATE ;
-    dis:targetEntity h:emergencyqueue ;
-    dis:description "Directs patient experiencing life-threatening emergency to 911/emergency services." ;
-    dis:name "T5 dispatch emergency crisis" .
+    dis:targetEntity h:symptom-triage-escalation ;
+    dis:name "T5 dispatch emergency crisis" ;
+    dis:description "Directs patient experiencing life-threatening emergency or crisis to 911 services." .
 
-# ---------- Utterance Policies (Medical Liability Boundary) ----------
+h:t6-lookup-patient-account a dis:AgenticTriplet ;
+    dis:actingRole h:rcm-navigator-agent ;
+    dis:boundFunction h:fn-lookup-patient ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity h:patient-account ;
+    dis:name "Lookup patient account" ;
+    dis:description "Verifies existing patient coverage and MPI status in Cerner." .
+
+h:t7-request-prescription-refill a dis:AgenticTriplet ;
+    dis:actingRole h:rcm-navigator-agent ;
+    dis:boundFunction h:fn-submit-refill ;
+    dis:stance dis:ACT ;
+    dis:mode dis:CREATE ;
+    dis:targetEntity h:medication-refill-request ;
+    dis:name "Submit refill request" ;
+    dis:description "Submits refill request through Surescripts network." .
+
+h:t8-verify-caregiver-proxy a dis:AgenticTriplet ;
+    dis:actingRole h:rcm-navigator-agent ;
+    dis:boundFunction h:fn-verify-proxy ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity h:caregiver-proxy-consent ;
+    dis:name "Verify caregiver proxy consent" ;
+    dis:description "Verifies legal proxy relationship before disclosing appointment or med data." .
+
+# =============================================================================
+# 5. GOVERNANCE & UTTERANCE POLICIES
+# =============================================================================
+
+h:notice-cancellation-policy a dis:EntityInstance ;
+    dis:name "24-Hour Appointment Cancellation Policy Notice" ;
+    dis:description "Mandatory notice of 24-hour advance notice to avoid late cancellation fee." ;
+    dis:spokenForm "Please note that appointments cancelled within 24 hours are subject to a late cancellation fee." ;
+    dis:instanceOf h:clinical-appointment ;
+    dis:systemKey "RCM-NOTICE-CANCEL-24H" .
+
+h:notice-hipaa-proxy a dis:EntityInstance ;
+    dis:name "HIPAA Caregiver Proxy Consent Notice" ;
+    dis:description "Notice confirming verified caregiver proxy designation on file." ;
+    dis:spokenForm "Proxy consent verified on file under HIPAA regulations." ;
+    dis:instanceOf h:caregiver-proxy-consent ;
+    dis:systemKey "HIPAA-PROXY-NOTICE-01" .
+
 h:p1-clinical-advice-prohibition a dis:UtterancePolicy ;
     dis:enforcement dis:STRUCTURAL ;
     dis:policyType dis:PROHIBITION ;
     dis:requirement "The care navigator must not offer medical diagnoses, treatment recommendations, or drug dosage advice. Any symptom query must escalate directly to a licensed clinician." ;
     dis:description "Strict separation of duty: medical assessment belongs exclusively to licensed clinical staff." ;
     dis:name "P1 clinical advice prohibition" ;
-    dis:appliesToRole h:care-navigator ;
+    dis:appliesToRole h:rcm-navigator-agent ;
     dis:appliesToTriplet h:t4-escalate-symptom-triage ;
     dis:liabilityClass dis:MEDICAL ;
     dis:onViolation dis:ESCALATE .
@@ -180,7 +359,7 @@ h:p2-emergency-symptom-escalation a dis:UtterancePolicy ;
     dis:requirement "Upon detection of acute distress, chest pain, or severe difficulty breathing, the agent must halt automated flow and direct the caller to call 911 or visit the nearest emergency department." ;
     dis:description "Emergency safety protocol: life safety conditions preempt scheduling workflows." ;
     dis:name "P2 emergency symptom escalation" ;
-    dis:appliesToRole h:care-navigator ;
+    dis:appliesToRole h:rcm-navigator-agent ;
     dis:appliesToTriplet h:t5-dispatch-emergency-crisis ;
     dis:liabilityClass dis:MEDICAL ;
     dis:onViolation dis:ESCALATE .
@@ -188,13 +367,13 @@ h:p2-emergency-symptom-escalation a dis:UtterancePolicy ;
 h:p3-hipaa-phi-notice a dis:UtterancePolicy ;
     dis:enforcement dis:STRUCTURAL ;
     dis:policyType dis:OBLIGATION ;
-    dis:requirement "Any utterance disclosing patient appointment details must be preceded by verified identity and carry the HIPAA privacy disclosure statement." ;
+    dis:requirement "When a caller acts on behalf of a patient, verified proxy consent must be bound before appointment or medication details are disclosed." ;
     dis:description "Federal HIPAA Privacy Rule compliance." ;
     dis:name "P3 HIPAA PHI notice" ;
     dis:liabilityClass dis:REGULATORY ;
-    dis:boundValue h:hipaa-privacy-notice-disclosure ;
-    dis:appliesToEntity h:patientrecord ;
-    dis:appliesToTriplet h:t2-read-appointment-status ;
+    dis:boundValue h:notice-hipaa-proxy ;
+    dis:appliesToEntity h:caregiver-proxy-consent ;
+    dis:appliesToTriplet h:t8-verify-caregiver-proxy ;
     dis:onViolation dis:REFUSE .
 
 h:p4-cancellation-notice a dis:UtterancePolicy ;
@@ -204,8 +383,8 @@ h:p4-cancellation-notice a dis:UtterancePolicy ;
     dis:description "Financial and administrative clinic policy notification." ;
     dis:name "P4 cancellation notice" ;
     dis:liabilityClass dis:STANDARD ;
-    dis:boundValue h:cancellation-policy-statement ;
-    dis:appliesToTriplet h:t3-cancel-appointment ;
+    dis:boundValue h:notice-cancellation-policy ;
+    dis:appliesToTriplet h:t2-cancel-appointment ;
     dis:onViolation dis:REFUSE .
 
 h:p5-greeting-scope a dis:UtterancePolicy ;
@@ -218,108 +397,108 @@ h:p5-greeting-scope a dis:UtterancePolicy ;
     dis:lifecyclePhase dis:GREETING ;
     dis:onViolation dis:LOG_ONLY .
 
-# ---------- Entity-Mode Matrices ----------
+h:p6-controlled-substances-prohibition a dis:UtterancePolicy ;
+    dis:name "Prohibit automated controlled substance refills" ;
+    dis:description "Enforces DEA Schedule II-V prohibitions against conversational automated refills." ;
+    dis:policyType dis:PROHIBITION ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:onViolation dis:REFUSE ;
+    dis:requirement "The agent must never process automated refills for opioids, benzodiazepines, or stimulants. Must deflect to prescribing physician clinic." ;
+    dis:appliesToTriplet h:t7-request-prescription-refill ;
+    dis:appliesToEntity h:medication-refill-request .
+
+h:p7-refill-disclosure-limit a dis:UtterancePolicy ;
+    dis:name "Refill status disclosure limit" ;
+    dis:description "Limits verbal confirmation to medication name, days supply, and target pharmacy; suppresses internal diagnosis codes." ;
+    dis:policyType dis:DISCLOSURE_LIMIT ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:onViolation dis:REDACT ;
+    dis:requirement "Verbal confirmation discloses medication name, strength, and receiving pharmacy. Excludes ICD-10 indication codes." ;
+    dis:appliesToTriplet h:t7-request-prescription-refill ;
+    dis:appliesToEntity h:medication-refill-request .
+
+# =============================================================================
+# 6. GRAMMAR MATRICES (Denials are the Model)
+# =============================================================================
+
 h:emm-appointment a dis:EntityModeMatrix ;
-    dis:matrixEntity h:appointment ;
-    dis:supportedMode dis:READ ;
-    dis:supportedMode dis:UPDATE ;
-    dis:description "Appointments may be read for verification and updated for cancellation." ;
-    dis:name "appointment supports READ, UPDATE" .
+    dis:matrixEntity h:clinical-appointment ;
+    dis:supportedMode dis:READ , dis:UPDATE ;
+    dis:name "Appointment supports READ, UPDATE" ;
+    dis:description "Appointments are confirmed, rescheduled, or cancelled (UPDATE). Cannot be deleted from EHR audit trail." .
 
-h:emm-cliniclocation a dis:EntityModeMatrix ;
-    dis:matrixEntity h:cliniclocation ;
+h:emm-patient a dis:EntityModeMatrix ;
+    dis:matrixEntity h:patient-account ;
     dis:supportedMode dis:READ ;
-    dis:description "Clinic locations and hours are public read-only information." ;
-    dis:name "cliniclocation supports READ" .
+    dis:name "Patient account supports READ" ;
+    dis:description "Demographic lookup only. Patient creation is reserved for backoffice registrar." .
 
-h:emm-patientrecord a dis:EntityModeMatrix ;
-    dis:matrixEntity h:patientrecord ;
+h:emm-medication a dis:EntityModeMatrix ;
+    dis:matrixEntity h:prescription-medication ;
     dis:supportedMode dis:READ ;
-    dis:description "Patient records are read under verified HIPAA consent." ;
-    dis:name "patientrecord supports READ" .
+    dis:name "Medication supports READ" ;
+    dis:description "Medication catalog is read-only." .
 
-h:emm-symptomreport a dis:EntityModeMatrix ;
-    dis:matrixEntity h:symptomreport ;
-    dis:supportedMode dis:CREATE ;
+h:emm-refill a dis:EntityModeMatrix ;
+    dis:matrixEntity h:medication-refill-request ;
+    dis:supportedMode dis:CREATE , dis:READ ;
+    dis:name "Refill request supports CREATE, READ" ;
+    dis:description "Submitted renewal requests are immutable once sent to Surescripts." .
+
+h:emm-consent a dis:EntityModeMatrix ;
+    dis:matrixEntity h:caregiver-proxy-consent ;
+    dis:supportedMode dis:READ ;
+    dis:name "Proxy consent supports READ" ;
+    dis:description "HIPAA consent documentation is read-only in access workflows." .
+
+h:emm-triage a dis:EntityModeMatrix ;
+    dis:matrixEntity h:symptom-triage-escalation ;
     dis:supportedMode dis:INITIATE ;
-    dis:description "Symptom reports are captured and handed off to human clinical triage." ;
-    dis:name "symptomreport supports CREATE, INITIATE" .
+    dis:name "Triage supports INITIATE" ;
+    dis:description "Conversational handoff to human clinical nurse." .
 
-h:emm-emergencyqueue a dis:EntityModeMatrix ;
-    dis:matrixEntity h:emergencyqueue ;
-    dis:supportedMode dis:INITIATE ;
-    dis:description "Emergency queue exists solely as an escalation handoff target." ;
-    dis:name "emergencyqueue supports INITIATE" .
+# --- Access Gates ---
 
-# ---------- Access Gate Matrices ----------
-h:gate-patient-cliniclocation a dis:AccessGateMatrix ;
-    dis:matrixRole h:patient ;
-    dis:matrixEntity h:cliniclocation ;
+h:gate-navigator-appointment a dis:AccessGateMatrix ;
+    dis:matrixRole h:rcm-navigator-agent ;
+    dis:matrixEntity h:clinical-appointment ;
+    dis:allowedMode dis:READ , dis:UPDATE ;
+    dis:name "Navigator appointment gate" ;
+    dis:description "Navigator may update appointment status via confirmed/cancel/reschedule functions." .
+
+h:gate-navigator-patient a dis:AccessGateMatrix ;
+    dis:matrixRole h:rcm-navigator-agent ;
+    dis:matrixEntity h:patient-account ;
     dis:allowedMode dis:READ ;
-    dis:description "Patients can read public clinic information." ;
-    dis:name "patient -> cliniclocation: READ" .
+    dis:name "Navigator patient lookup gate" ;
+    dis:description "Navigator reads demographic record for verification." .
 
-h:gate-patient-appointment a dis:AccessGateMatrix ;
-    dis:matrixRole h:patient ;
-    dis:matrixEntity h:appointment ;
+h:gate-navigator-med a dis:AccessGateMatrix ;
+    dis:matrixRole h:rcm-navigator-agent ;
+    dis:matrixEntity h:prescription-medication ;
     dis:allowedMode dis:READ ;
-    dis:allowedMode dis:UPDATE ;
-    dis:description "Patients can check or cancel their own appointments." ;
-    dis:name "patient -> appointment: READ, UPDATE" .
+    dis:name "Navigator med catalog gate" ;
+    dis:description "Navigator inspects active prescriptions." .
 
-h:gate-care-navigator-cliniclocation a dis:AccessGateMatrix ;
-    dis:matrixRole h:care-navigator ;
-    dis:matrixEntity h:cliniclocation ;
+h:gate-navigator-refill a dis:AccessGateMatrix ;
+    dis:matrixRole h:rcm-navigator-agent ;
+    dis:matrixEntity h:medication-refill-request ;
+    dis:allowedMode dis:CREATE , dis:READ ;
+    dis:name "Navigator refill submission gate" ;
+    dis:description "Navigator submits electronic refill request." .
+
+h:gate-navigator-consent a dis:AccessGateMatrix ;
+    dis:matrixRole h:rcm-navigator-agent ;
+    dis:matrixEntity h:caregiver-proxy-consent ;
     dis:allowedMode dis:READ ;
-    dis:description "Care navigator reads facility directories." ;
-    dis:name "care-navigator -> cliniclocation: READ" .
+    dis:name "Navigator proxy consent gate" ;
+    dis:description "Navigator inspects proxy consent authorization." .
 
-h:gate-care-navigator-appointment a dis:AccessGateMatrix ;
-    dis:matrixRole h:care-navigator ;
-    dis:matrixEntity h:appointment ;
-    dis:allowedMode dis:READ ;
-    dis:allowedMode dis:UPDATE ;
-    dis:description "Care navigator looks up and cancels appointments." ;
-    dis:name "care-navigator -> appointment: READ, UPDATE" .
-
-h:gate-care-navigator-symptomreport a dis:AccessGateMatrix ;
-    dis:matrixRole h:care-navigator ;
-    dis:matrixEntity h:symptomreport ;
+h:gate-navigator-triage a dis:AccessGateMatrix ;
+    dis:matrixRole h:rcm-navigator-agent ;
+    dis:matrixEntity h:symptom-triage-escalation ;
     dis:allowedMode dis:INITIATE ;
-    dis:description "Care navigator initiates escalation of symptom reports to nurses." ;
-    dis:name "care-navigator -> symptomreport: INITIATE" .
-
-h:gate-care-navigator-emergencyqueue a dis:AccessGateMatrix ;
-    dis:matrixRole h:care-navigator ;
-    dis:matrixEntity h:emergencyqueue ;
-    dis:allowedMode dis:INITIATE ;
-    dis:description "Care navigator initiates handoff to emergency dispatch." ;
-    dis:name "care-navigator -> emergencyqueue: INITIATE" .
-
-h:gate-clinician-symptomreport a dis:AccessGateMatrix ;
-    dis:matrixRole h:licensed-clinician ;
-    dis:matrixEntity h:symptomreport ;
-    dis:allowedMode dis:READ ;
-    dis:allowedMode dis:RESPOND ;
-    dis:description "Only licensed clinicians have authority to evaluate symptoms and respond with clinical guidance." ;
-    dis:name "licensed-clinician -> symptomreport: READ, RESPOND" .
-
-# ---------- Entity Instances ----------
-h:loc-metro-family-health a dis:EntityInstance ;
-    dis:instanceOf h:cliniclocation ;
-    dis:spokenForm "Metro Family Health Pavilion" ;
-    dis:confusableWith h:loc-metro-pediatric-clinic ;
-    dis:systemKey "clinic-loc-101" ;
-    dis:name "Metro Family Health Pavilion" .
-
-h:loc-metro-pediatric-clinic a dis:EntityInstance ;
-    dis:instanceOf h:cliniclocation ;
-    dis:spokenForm "Metro Pediatric Care Clinic" ;
-    dis:systemKey "clinic-loc-102" ;
-    dis:name "Metro Pediatric Care Clinic" .
-
-h:loc-downtown-urgent-care a dis:EntityInstance ;
-    dis:instanceOf h:cliniclocation ;
-    dis:spokenForm "Downtown Urgent Care Center" ;
-    dis:systemKey "clinic-loc-201" ;
-    dis:name "Downtown Urgent Care Center" .
+    dis:name "Navigator triage handoff gate" ;
+    dis:description "Navigator initiates emergency / clinical triage transfer." .

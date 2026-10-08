@@ -1,0 +1,470 @@
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix hr:  <https://dossier.ravenhelm.dev/hr/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://dossier.ravenhelm.dev/hr/> a owl:Ontology ;
+    owl:versionInfo "1.8.0" ;
+    dis:dossierType dis:DESIGN ;
+    dis:dossierStatus dis:APPROVED ;
+    rdfs:label "Human Resources (HCM) Multi-Population & Policy Governance Dossier" ;
+    rdfs:comment "Enterprise Human Capital Management dossier spanning Workday HCM, SAP SuccessFactors, and Oracle PeopleSoft Time & Labor. Emphasizes policy enforcement across complex employee populations: full-time vs part-time, exempt salary vs non-exempt hourly, people leaders vs individual contributors, 1099 contractors, cross-building facilities, and multi-jurisdiction labor compliance (US-CA, US-TX, Germany)." .
+
+# =============================================================================
+# 1. SYSTEMS LAYER (Workday HCM, SAP SuccessFactors, Oracle PeopleSoft)
+# =============================================================================
+
+hr:workday-hcm a dis:Application ;
+    dis:name "Workday Human Capital Management" ;
+    dis:description "Primary enterprise System of Record for worker demographics, supervisory hierarchies, benefits administration, and time-off tracking." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_INTERNAL ;
+    dis:baseUrl "https://wd5-impl-services1.workday.com/ccx/service/v40.0" ;
+    dis:authMethod dis:OAUTH2 .
+
+hr:sap-successfactors a dis:Application ;
+    dis:name "SAP SuccessFactors Employee Central" ;
+    dis:description "Global human resource system managing job grading, compensation bands, merit cycles, and multinational statutory labor agreements." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_INTERNAL ;
+    dis:baseUrl "https://api.successfactors.eu/odata/v2" ;
+    dis:authMethod dis:BEARER .
+
+hr:oracle-peoplesoft-time a dis:Application ;
+    dis:name "Oracle PeopleSoft Time and Labor" ;
+    dis:description "Workforce management engine recording non-exempt hourly punches, FLSA overtime calculations, and mandatory meal break audits." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_INTERNAL ;
+    dis:baseUrl "https://peoplesoft.corp.internal/psft/v1" ;
+    dis:authMethod dis:OAUTH2 .
+
+# --- Endpoints ---
+
+hr:ep-workday-get-profile a dis:Endpoint ;
+    dis:name "Workday Worker Profile API" ;
+    dis:description "Retrieves employee demographic attributes: employment status, exemption type, manager status, facility building, state, and country." ;
+    dis:hostedBy hr:workday-hcm ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/workers/{id}/demographics" ;
+    dis:mutates false .
+
+hr:ep-workday-get-pto a dis:Endpoint ;
+    dis:name "Workday Absence Management API" ;
+    dis:description "Fetches accrued vacation, floating holidays, and statutory sick leave balances." ;
+    dis:hostedBy hr:workday-hcm ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/workers/{id}/timeOffBalances" ;
+    dis:mutates false .
+
+hr:ep-workday-get-benefits a dis:Endpoint ;
+    dis:name "Workday Benefits Enrollment API" ;
+    dis:description "Queries employee medical, dental, vision, life insurance, and 401(k) election records." ;
+    dis:hostedBy hr:workday-hcm ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/workers/{id}/benefits" ;
+    dis:mutates false .
+
+hr:ep-sf-get-comp-band a dis:Endpoint ;
+    dis:name "SAP SuccessFactors Compensation Band API" ;
+    dis:description "Retrieves salary grade midpoints, quartile ranges, and equity bands for specific job codes." ;
+    dis:hostedBy hr:sap-successfactors ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/PerPersonalCompensation('{job_grade}')" ;
+    dis:mutates false .
+
+hr:ep-sf-update-comp-proposal a dis:Endpoint ;
+    dis:name "SAP SuccessFactors Merit Adjustment API" ;
+    dis:description "Submits manager-proposed compensation or promotional salary adjustment for direct reports during merit cycles." ;
+    dis:hostedBy hr:sap-successfactors ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/EmpCompensationReview/SubmitAdjustment" ;
+    dis:mutates true ;
+    dis:writesEntity hr:compensation-band .
+
+hr:ep-peoplesoft-get-timecard a dis:Endpoint ;
+    dis:name "Oracle PeopleSoft Timecard Query" ;
+    dis:description "Retrieves daily clock-in/out timestamps, meal break durations, and FLSA overtime tallies for hourly workers." ;
+    dis:hostedBy hr:oracle-peoplesoft-time ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/timecards/{worker_id}/period" ;
+    dis:mutates false .
+
+hr:ep-peoplesoft-log-punch a dis:Endpoint ;
+    dis:name "Oracle PeopleSoft Log Time Punch" ;
+    dis:description "Records clock-in, lunch meal break start/end, and shift clock-out punches." ;
+    dis:hostedBy hr:oracle-peoplesoft-time ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/timecards/{worker_id}/punch" ;
+    dis:mutates true ;
+    dis:writesEntity hr:timecard-punch .
+
+# --- Function Catalog ---
+
+hr:fn-get-profile a dis:FunctionCatalogEntry ;
+    dis:name "Get Worker Profile" ;
+    dis:description "Retrieves comprehensive demographic, organizational, and geographic identity data from Workday." ;
+    dis:callsEndpoint hr:ep-workday-get-profile ;
+    dis:readsEntity hr:worker-profile ;
+    dis:inputFields "worker_id" ;
+    dis:outputFields "worker_id, worker_type, full_part_time, flsa_status, is_people_leader, building_id, state_code, country_code" .
+
+hr:fn-get-pto a dis:FunctionCatalogEntry ;
+    dis:name "Get PTO Balances" ;
+    dis:description "Queries Workday for available paid time off hours and accrual rates." ;
+    dis:callsEndpoint hr:ep-workday-get-pto ;
+    dis:readsEntity hr:pto-policy ;
+    dis:inputFields "worker_id, year" ;
+    dis:outputFields "worker_id, vacation_balance, floating_holiday_balance, sick_leave_hours" .
+
+hr:fn-get-benefits a dis:FunctionCatalogEntry ;
+    dis:name "Get Benefits Summary" ;
+    dis:description "Queries Workday for current benefit plan enrollments and provider coverage tiers." ;
+    dis:callsEndpoint hr:ep-workday-get-benefits ;
+    dis:readsEntity hr:benefits-enrollment ;
+    dis:inputFields "worker_id" ;
+    dis:outputFields "worker_id, health_plan, dental_plan, 401k_contribution_pct, eligibility_status" .
+
+hr:fn-get-comp-band a dis:FunctionCatalogEntry ;
+    dis:name "Get Compensation Band" ;
+    dis:description "Reads salary grades and salary band ranges from SAP SuccessFactors." ;
+    dis:callsEndpoint hr:ep-sf-get-comp-band ;
+    dis:readsEntity hr:compensation-band ;
+    dis:inputFields "job_grade, country_code" ;
+    dis:outputFields "job_grade, min_salary, mid_salary, max_salary, target_bonus_pct" .
+
+hr:fn-update-comp-proposal a dis:FunctionCatalogEntry ;
+    dis:name "Submit Compensation Adjustment" ;
+    dis:description "Posts salary merit or promotion adjustments to SAP SuccessFactors." ;
+    dis:callsEndpoint hr:ep-sf-update-comp-proposal ;
+    dis:readsEntity hr:compensation-band ;
+    dis:writesEntity hr:compensation-band ;
+    dis:inputFields "manager_id, direct_report_id, proposed_salary, effective_date, justification" ;
+    dis:outputFields "transaction_id, status, approval_chain" .
+
+hr:fn-get-timecard a dis:FunctionCatalogEntry ;
+    dis:name "Get Timecard Summary" ;
+    dis:description "Reads recorded time punches and overtime hours from Oracle PeopleSoft." ;
+    dis:callsEndpoint hr:ep-peoplesoft-get-timecard ;
+    dis:readsEntity hr:timecard-punch ;
+    dis:inputFields "worker_id, pay_period_id" ;
+    dis:outputFields "worker_id, regular_hours, overtime_hours, unverified_punches" .
+
+hr:fn-log-punch a dis:FunctionCatalogEntry ;
+    dis:name "Log Time Punch" ;
+    dis:description "Records clock-in or meal break punch into Oracle PeopleSoft." ;
+    dis:callsEndpoint hr:ep-peoplesoft-log-punch ;
+    dis:readsEntity hr:timecard-punch ;
+    dis:writesEntity hr:timecard-punch ;
+    dis:inputFields "worker_id, punch_type, punch_time, building_badge_id" ;
+    dis:outputFields "punch_id, confirmed_timestamp, hours_worked_today" .
+
+# =============================================================================
+# 2. ENTITIES LAYER
+# =============================================================================
+
+hr:worker-profile a dis:Entity ;
+    dis:name "Worker Demographic Profile" ;
+    dis:description "Workday demographic record classifying worker type, full/part-time schedule, FLSA exemption, manager level, building, state, and country." ;
+    dis:entityType "data" .
+
+hr:pto-policy a dis:Entity ;
+    dis:name "Paid Time Off & Leave Policy" ;
+    dis:description "Accrual rules, carryover ceilings, and balances for vacation, statutory leave, and personal time." ;
+    dis:entityType "data" .
+
+hr:benefits-enrollment a dis:Entity ;
+    dis:name "Employee Benefits Enrollment" ;
+    dis:description "Healthcare, dental, retirement, and wellness benefit package elections and eligibility." ;
+    dis:entityType "data" .
+
+hr:compensation-band a dis:Entity ;
+    dis:name "Compensation Band & Merit Record" ;
+    dis:description "Salary tier, market benchmark ranges, target incentives, and manager-initiated merit proposals." ;
+    dis:entityType "data" .
+
+hr:timecard-punch a dis:Entity ;
+    dis:name "Non-Exempt Timecard Punch" ;
+    dis:description "Clock events, daily hour logs, and mandatory meal break compliance records for hourly workers." ;
+    dis:entityType "data" .
+
+# =============================================================================
+# 3. ROLES LAYER (User Populations & Assistant)
+# =============================================================================
+
+hr:hr-virtual-assistant a dis:Role ;
+    dis:name "Enterprise HR Virtual Assistant" ;
+    dis:description "Conversational AI assistant answering human resource policy inquiries and executing self-service workflows across global populations." ;
+    dis:roleType "agent" .
+
+hr:salaried-exempt-employee a dis:Role ;
+    dis:name "Salaried Exempt Employee (US-CA)" ;
+    dis:description "Full-time salaried individual contributor residing in California and working at the Bay Area campus." ;
+    dis:roleType "human" .
+
+hr:hourly-nonexempt-worker a dis:Role ;
+    dis:name "Hourly Non-Exempt Worker (US-TX)" ;
+    dis:description "Hourly non-exempt worker at the Austin operations center subject to timecard logging and overtime rules." ;
+    dis:roleType "human" .
+
+hr:people-leader-manager a dis:Role ;
+    dis:name "People Leader / Supervisory Manager" ;
+    dis:description "Executive or people manager with direct reports holding authority to review compensation grades and propose adjustments." ;
+    dis:roleType "human" .
+
+hr:contingent-contractor a dis:Role ;
+    dis:name "Contingent 1099 Contractor" ;
+    dis:description "Third-party staff augmentation contractor ineligible for corporate healthcare, retirement, or company equity." ;
+    dis:roleType "human" .
+
+hr:munich-employee-de a dis:Role ;
+    dis:name "Munich Campus Employee (Germany)" ;
+    dis:description "Full-time employee based at the Munich campus under jurisdiction of the German Works Council (Betriebsrat)." ;
+    dis:roleType "human" .
+
+# =============================================================================
+# 4. AGENTIC TRIPLETS LAYER
+# =============================================================================
+
+hr:t1-read-worker-profile a dis:AgenticTriplet ;
+    dis:name "Read Worker Profile" ;
+    dis:description "Assistant queries Workday to evaluate worker demographic traits for population-gated information routing." ;
+    dis:actingRole hr:hr-virtual-assistant ;
+    dis:targetEntity hr:worker-profile ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:boundFunction hr:fn-get-profile .
+
+hr:t2-read-pto-policy a dis:AgenticTriplet ;
+    dis:name "Read PTO Balances and Policy" ;
+    dis:description "Assistant fetches PTO balances and leave rules tailored to the worker's population parameters." ;
+    dis:actingRole hr:hr-virtual-assistant ;
+    dis:targetEntity hr:pto-policy ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:boundFunction hr:fn-get-pto .
+
+hr:t3-read-benefits a dis:AgenticTriplet ;
+    dis:name "Read Benefits Summary" ;
+    dis:description "Assistant queries employee medical and retirement election summaries." ;
+    dis:actingRole hr:hr-virtual-assistant ;
+    dis:targetEntity hr:benefits-enrollment ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:boundFunction hr:fn-get-benefits .
+
+hr:t4-read-comp-band a dis:AgenticTriplet ;
+    dis:name "Review Compensation Band" ;
+    dis:description "Assistant displays salary grade ranges for a people leader reviewing direct-report leveling." ;
+    dis:actingRole hr:hr-virtual-assistant ;
+    dis:targetEntity hr:compensation-band ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:boundFunction hr:fn-get-comp-band .
+
+hr:t5-submit-comp-adjustment a dis:AgenticTriplet ;
+    dis:name "Submit Compensation Merit Adjustment" ;
+    dis:description "Assistant facilitates manager submission of salary adjustments to SAP SuccessFactors." ;
+    dis:actingRole hr:hr-virtual-assistant ;
+    dis:targetEntity hr:compensation-band ;
+    dis:stance dis:ACT ;
+    dis:mode dis:UPDATE ;
+    dis:boundFunction hr:fn-update-comp-proposal .
+
+hr:t6-read-timecard a dis:AgenticTriplet ;
+    dis:name "Read Non-Exempt Timecard" ;
+    dis:description "Assistant retrieves clock logs and meal break records for hourly workers." ;
+    dis:actingRole hr:hr-virtual-assistant ;
+    dis:targetEntity hr:timecard-punch ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:boundFunction hr:fn-get-timecard .
+
+hr:t7-log-time-punch a dis:AgenticTriplet ;
+    dis:name "Log Time Clock Punch" ;
+    dis:description "Assistant records shift punch or meal break event in Oracle PeopleSoft." ;
+    dis:actingRole hr:hr-virtual-assistant ;
+    dis:targetEntity hr:timecard-punch ;
+    dis:stance dis:ACT ;
+    dis:mode dis:CREATE ;
+    dis:boundFunction hr:fn-log-punch .
+
+# =============================================================================
+# 5. MATRICES (EntityModeMatrix & AccessGateMatrix)
+# =============================================================================
+
+# --- EntityModeMatrix ---
+
+hr:emm-worker-profile a dis:EntityModeMatrix ;
+    dis:name "Worker Profile Entity Modes" ;
+    dis:description "Worker demographic profiles are read-only for conversational lookups." ;
+    dis:matrixEntity hr:worker-profile ;
+    dis:supportedMode dis:READ .
+
+hr:emm-pto-policy a dis:EntityModeMatrix ;
+    dis:name "PTO Policy Entity Modes" ;
+    dis:description "PTO policies and balances are read-only via virtual assistant." ;
+    dis:matrixEntity hr:pto-policy ;
+    dis:supportedMode dis:READ .
+
+hr:emm-benefits-enrollment a dis:EntityModeMatrix ;
+    dis:name "Benefits Enrollment Entity Modes" ;
+    dis:description "Benefits enrollment status is queryable." ;
+    dis:matrixEntity hr:benefits-enrollment ;
+    dis:supportedMode dis:READ .
+
+hr:emm-compensation-band a dis:EntityModeMatrix ;
+    dis:name "Compensation Band Entity Modes" ;
+    dis:description "Compensation bands can be queried and updated via merit proposals." ;
+    dis:matrixEntity hr:compensation-band ;
+    dis:supportedMode dis:READ ;
+    dis:supportedMode dis:UPDATE .
+
+hr:emm-timecard-punch a dis:EntityModeMatrix ;
+    dis:name "Timecard Punch Entity Modes" ;
+    dis:description "Hourly timecards can be read and new punches created." ;
+    dis:matrixEntity hr:timecard-punch ;
+    dis:supportedMode dis:READ ;
+    dis:supportedMode dis:CREATE .
+
+# --- AccessGateMatrix ---
+
+hr:gate-assistant-worker-profile a dis:AccessGateMatrix ;
+    dis:name "Assistant Gate: Worker Profile" ;
+    dis:description "HR assistant is authorized to inspect worker demographics for policy routing." ;
+    dis:matrixRole hr:hr-virtual-assistant ;
+    dis:matrixEntity hr:worker-profile ;
+    dis:allowedMode dis:READ ;
+    dis:allowedFunction hr:fn-get-profile .
+
+hr:gate-assistant-pto a dis:AccessGateMatrix ;
+    dis:name "Assistant Gate: PTO Policy" ;
+    dis:description "HR assistant is authorized to read PTO balances." ;
+    dis:matrixRole hr:hr-virtual-assistant ;
+    dis:matrixEntity hr:pto-policy ;
+    dis:allowedMode dis:READ ;
+    dis:allowedFunction hr:fn-get-pto .
+
+hr:gate-assistant-benefits a dis:AccessGateMatrix ;
+    dis:name "Assistant Gate: Benefits Enrollment" ;
+    dis:description "HR assistant is authorized to read benefits enrollments." ;
+    dis:matrixRole hr:hr-virtual-assistant ;
+    dis:matrixEntity hr:benefits-enrollment ;
+    dis:allowedMode dis:READ ;
+    dis:allowedFunction hr:fn-get-benefits .
+
+hr:gate-assistant-comp-band a dis:AccessGateMatrix ;
+    dis:name "Assistant Gate: Compensation Bands" ;
+    dis:description "HR assistant is authorized to query and update compensation bands." ;
+    dis:matrixRole hr:hr-virtual-assistant ;
+    dis:matrixEntity hr:compensation-band ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:UPDATE ;
+    dis:allowedFunction hr:fn-get-comp-band ;
+    dis:allowedFunction hr:fn-update-comp-proposal .
+
+hr:gate-assistant-timecard a dis:AccessGateMatrix ;
+    dis:name "Assistant Gate: Timecards" ;
+    dis:description "HR assistant is authorized to read timecards and log shift punches." ;
+    dis:matrixRole hr:hr-virtual-assistant ;
+    dis:matrixEntity hr:timecard-punch ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:CREATE ;
+    dis:allowedFunction hr:fn-get-timecard ;
+    dis:allowedFunction hr:fn-log-punch .
+
+# =============================================================================
+# 6. POLICY-BOUND NOTICES (Entity Instances)
+# =============================================================================
+
+hr:notice-contractor-ineligible a dis:EntityInstance ;
+    dis:name "Contingent Worker Exclusion Notice" ;
+    dis:description "Mandatory notice that 1099 contractors are ineligible for employee benefit programs." ;
+    dis:spokenForm "Contingent workers are not eligible for employee benefit plans under company policy." ;
+    dis:instanceOf hr:benefits-enrollment ;
+    dis:systemKey "HR-NOTICE-CONT-01" .
+
+hr:notice-ca-wage-transparency a dis:EntityInstance ;
+    dis:name "California Wage Transparency Disclosure" ;
+    dis:description "Statutory California SB 1162 pay scale transparency and paid family leave notice." ;
+    dis:spokenForm "Pursuant to California law, the pay scale and family leave rights are provided upon request." ;
+    dis:instanceOf hr:compensation-band ;
+    dis:systemKey "HR-NOTICE-CA-SB1162" .
+
+hr:notice-nonexempt-meal-break a dis:EntityInstance ;
+    dis:name "FLSA & State Mandatory Meal Break Notice" ;
+    dis:description "Notice obligating non-exempt hourly employees to record a 30-minute uninterrupted meal break before hour 5." ;
+    dis:spokenForm "Non-exempt employees must take and log an uninterrupted 30-minute meal break before completing five hours of work." ;
+    dis:instanceOf hr:timecard-punch ;
+    dis:systemKey "HR-NOTICE-MEAL-01" .
+
+hr:notice-munich-works-council a dis:EntityInstance ;
+    dis:name "German Works Council (Betriebsrat) Co-Determination Notice" ;
+    dis:description "Notice regarding collective bargaining and works council agreements governing the Munich campus." ;
+    dis:spokenForm "This policy is subject to the co-determination agreement with the Munich Works Council." ;
+    dis:instanceOf hr:pto-policy ;
+    dis:systemKey "HR-NOTICE-DE-BR-01" .
+
+# =============================================================================
+# 7. UTTERANCE POLICIES (Complex Population Filtering & Labor Law Governance)
+# =============================================================================
+
+hr:pol-contractor-benefit-exclusion a dis:UtterancePolicy ;
+    dis:name "Policy: Strict Contingent Worker Benefit Exclusion" ;
+    dis:description "Prohibits providing health, retirement, or equity benefit enrollments to 1099 contingent contractors." ;
+    dis:requirement "The automated assistant must never disclose employee benefit package enrollment forms or offer healthcare/401(k) election assistance to contingent 1099 contractors; inquiries must be refused with reference to the vendor services agreement." ;
+    dis:policyType dis:PROHIBITION ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:onViolation dis:REFUSE ;
+    dis:appliesToTriplet hr:t3-read-benefits .
+
+hr:pol-manager-comp-review-boundary a dis:UtterancePolicy ;
+    dis:name "Policy: People Leader Privilege on Compensation Ranges" ;
+    dis:description "Prohibits disclosure of compensation band midpoints and promotional adjustment tools to individual contributors." ;
+    dis:requirement "Only authenticated people leaders with active direct reports may access compensation band tables and merit adjustment submission tools; individual contributors querying peer bands must be refused." ;
+    dis:policyType dis:PROHIBITION ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:onViolation dis:REFUSE ;
+    dis:appliesToTriplet hr:t4-read-comp-band .
+
+hr:pol-ca-wage-transparency a dis:UtterancePolicy ;
+    dis:name "Policy: California Pay Scale Transparency Obligation" ;
+    dis:description "Obligates disclosing pay scale ranges when compensation discussions involve California employees." ;
+    dis:requirement "Whenever compensation bands are discussed with or on behalf of California-based workers (US-CA), the assistant is obligated to cite the official pay scale transparency notice." ;
+    dis:policyType dis:OBLIGATION ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:boundValue hr:notice-ca-wage-transparency ;
+    dis:onViolation dis:REFUSE ;
+    dis:appliesToTriplet hr:t5-submit-comp-adjustment .
+
+hr:pol-nonexempt-meal-break-compliance a dis:UtterancePolicy ;
+    dis:name "Policy: Hourly Worker Mandatory Meal Break Reminder" ;
+    dis:description "Obligates delivery of statutory meal break reminder when hourly employees record timecard punches." ;
+    dis:requirement "Any timecard logging interaction for non-exempt hourly employees must carry the mandatory 30-minute uninterrupted meal break reminder." ;
+    dis:policyType dis:OBLIGATION ;
+    dis:enforcement dis:INSTRUCTED ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:boundValue hr:notice-nonexempt-meal-break ;
+    dis:onViolation dis:REFUSE ;
+    dis:appliesToTriplet hr:t7-log-time-punch .
+
+hr:pol-munich-works-council-agreement a dis:UtterancePolicy ;
+    dis:name "Policy: German Works Council (Betriebsrat) Leave Governance" ;
+    dis:description "Obligates citing Works Council co-determination agreement when presenting PTO and leave policies to German personnel." ;
+    dis:requirement "Any discussion of vacation entitlements, parental leaves, or statutory holidays for employees at the Munich, Germany campus must cite the active Betriebsrat agreement." ;
+    dis:policyType dis:OBLIGATION ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:boundValue hr:notice-munich-works-council ;
+    dis:onViolation dis:REFUSE ;
+    dis:appliesToTriplet hr:t2-read-pto-policy .
