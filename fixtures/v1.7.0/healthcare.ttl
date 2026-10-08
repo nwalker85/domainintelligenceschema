@@ -31,6 +31,14 @@ h:cerner-millennium-ehr a dis:Application ;
     dis:baseUrl "https://cerner-fhir.healthsystem.local/r4" ;
     dis:authMethod dis:BEARER .
 
+h:meditech-expanse-ehr a dis:Application ;
+    dis:name "MEDITECH Expanse EHR" ;
+    dis:description "Enterprise acute and ambulatory EHR platform providing REST scheduling APIs for community hospital networks." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_PUBLIC ;
+    dis:baseUrl "https://meditech-rest.healthsystem.local/v1" ;
+    dis:authMethod dis:OAUTH2 .
+
 h:surescripts-network a dis:Application ;
     dis:name "Surescripts E-Prescribing Gateway" ;
     dis:description "National electronic prescription routing, pharmacy benefit verification, and electronic refill authorization network." ;
@@ -86,6 +94,26 @@ h:ep-surescripts-request-refill a dis:Endpoint ;
     dis:urlPath "/RefillRequest" ;
     dis:mutates true .
 
+h:ep-cerner-cancel-appointment a dis:Endpoint ;
+    dis:name "Cerner Millennium Cancel Appointment" ;
+    dis:description "Submits cancellation transaction to Cerner Millennium scheduling engine." ;
+    dis:hostedBy h:cerner-millennium-ehr ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/Appointment/{id}/$cancel" ;
+    dis:mutates true ;
+    dis:writesEntity h:clinical-appointment .
+
+h:ep-meditech-cancel-appointment a dis:Endpoint ;
+    dis:name "MEDITECH Expanse Cancel Appointment" ;
+    dis:description "Releases appointment booking in MEDITECH Expanse scheduling registry." ;
+    dis:hostedBy h:meditech-expanse-ehr ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/scheduling/appointments/{id}/cancel" ;
+    dis:mutates true ;
+    dis:writesEntity h:clinical-appointment .
+
 h:ep-epic-get-proxy-consent a dis:Endpoint ;
     dis:name "Epic Proxy Consent Lookup" ;
     dis:description "Retrieves HIPAA caregiver proxy authorization and adolescent access tier." ;
@@ -107,13 +135,31 @@ h:fn-confirm-appointment a dis:FunctionCatalogEntry ;
     dis:outputFields "appointment_id,status,confirmed_timestamp" .
 
 h:fn-cancel-appointment a dis:FunctionCatalogEntry ;
-    dis:name "Cancel Appointment Entry" ;
-    dis:description "Executes cancellation in Epic Cadence." ;
+    dis:name "Cancel Appointment Entry (Epic Cadence)" ;
+    dis:description "Executes appointment cancellation against Epic Systems substrate." ;
     dis:callsEndpoint h:ep-epic-cancel-appointment ;
     dis:readsEntity h:clinical-appointment ;
     dis:writesEntity h:clinical-appointment ;
     dis:inputFields "appointment_id,patient_mrn,cancellation_reason_code" ;
     dis:outputFields "appointment_id,status,cancellation_timestamp" .
+
+h:fn-cerner-cancel-appointment a dis:FunctionCatalogEntry ;
+    dis:name "Cancel Appointment Entry (Cerner Millennium)" ;
+    dis:description "Executes appointment cancellation against Cerner Millennium substrate." ;
+    dis:callsEndpoint h:ep-cerner-cancel-appointment ;
+    dis:readsEntity h:clinical-appointment ;
+    dis:writesEntity h:clinical-appointment ;
+    dis:inputFields "appointment_id,patient_mrn,reason" ;
+    dis:outputFields "appointment_id,status,cancelled_at" .
+
+h:fn-meditech-cancel-appointment a dis:FunctionCatalogEntry ;
+    dis:name "Cancel Appointment Entry (MEDITECH Expanse)" ;
+    dis:description "Executes appointment cancellation against MEDITECH Expanse substrate." ;
+    dis:callsEndpoint h:ep-meditech-cancel-appointment ;
+    dis:readsEntity h:clinical-appointment ;
+    dis:writesEntity h:clinical-appointment ;
+    dis:inputFields "appointment_id,patient_mrn,reason" ;
+    dis:outputFields "appointment_id,status,cancelled_at" .
 
 h:fn-reschedule-appointment a dis:FunctionCatalogEntry ;
     dis:name "Reschedule Appointment Entry" ;
@@ -466,7 +512,12 @@ h:gate-navigator-appointment a dis:AccessGateMatrix ;
     dis:matrixEntity h:clinical-appointment ;
     dis:allowedMode dis:READ , dis:UPDATE ;
     dis:name "Navigator appointment gate" ;
-    dis:description "Navigator may update appointment status via confirmed/cancel/reschedule functions." .
+    dis:description "Navigator may update appointment status via confirmed/cancel/reschedule functions across Epic, Cerner, and MEDITECH substrates." ;
+    dis:allowedFunction h:fn-confirm-appointment ;
+    dis:allowedFunction h:fn-cancel-appointment ;
+    dis:allowedFunction h:fn-cerner-cancel-appointment ;
+    dis:allowedFunction h:fn-meditech-cancel-appointment ;
+    dis:allowedFunction h:fn-reschedule-appointment .
 
 h:gate-navigator-patient a dis:AccessGateMatrix ;
     dis:matrixRole h:rcm-navigator-agent ;
