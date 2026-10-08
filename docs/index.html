@@ -3,345 +3,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domain Intelligence Schema - Documentation</title>
-    <meta name="description" content="Open, platform-agnostic standard for modeling enterprise agentic AI — DIS v1.6.0 documentation.">
-    <link rel="canonical" href="https://schemas.domainintelligenceschema.org/docs/">
+    <title>DIS Documentation — Domain Intelligence Schema v1.8.0</title>
+    <meta name="description" content="Technical documentation, grammar specification, and reference guide for the Domain Intelligence Schema (DIS) v1.8.0.">
+    <link rel="canonical" href="https://domainintelligenceschema.org/docs/">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #030305;
+            --surface: rgba(14, 18, 30, 0.7);
+            --surface-hover: rgba(22, 28, 46, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #E6EAF2;
+            --text-muted: #8E98AB;
+            --blue-accent: #1E67FF;
+            --emerald: #17C97B;
+            --gold: #D2A93B;
+            --purple: #A88CFA;
+            --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
-            color: #E6EAF2;
-            max-width: 1200px;
+            color: var(--text-main);
+            background: var(--bg);
+            padding: 0 1.5rem 4rem;
+        }
+
+        .container {
+            max-width: 1140px;
             margin: 0 auto;
-            padding: 2rem;
-            background: #030305;
         }
+
+        /* Top Nav */
         header {
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.08) 0%, rgba(47, 214, 255, 0.04) 45%, rgba(168, 140, 250, 0.06) 100%), #030305;
-            color: #E6EAF2;
-            padding: 3rem 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(255,255,255,0.06);
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; color: #E6EAF2; }
-        .subtitle { font-size: 1.2rem; opacity: 0.95; line-height: 1.8; color: #B6BDCB; }
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .nav-logo-mark {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--blue-accent), var(--emerald));
+            border-radius: 5px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #FFFFFF; }
+
+        /* Doc Hero */
+        .doc-hero {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
         .version-badge {
             display: inline-block;
-            background: #0E1018;
-            border: 1px solid rgba(30, 103, 255, 0.3);
-            padding: 0.4rem 1rem;
+            background: rgba(30, 103, 255, 0.15);
+            border: 1px solid rgba(30, 103, 255, 0.35);
+            padding: 0.3rem 0.8rem;
             border-radius: 999px;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-            font-weight: 600;
+            font-size: 0.78rem;
+            font-weight: 700;
             color: #7FB3FF;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1rem;
         }
-        main {
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
-            padding: 2.5rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.06);
-            backdrop-filter: blur(12px);
+        .doc-hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.75rem;
         }
-        h2 {
-            color: #7FB3FF;
-            margin: 2.5rem 0 1.5rem 0;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid rgba(26, 29, 36, 0.5);
-            font-weight: 600;
+        .doc-hero p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            line-height: 1.7;
         }
-        .intro {
-            line-height: 1.8;
-            margin-bottom: 2.5rem;
-            color: #B6BDCB;
+
+        /* Content Sections */
+        .doc-section {
+            margin-bottom: 3.5rem;
         }
-        .intro p {
+        .doc-section h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 1rem;
+            color: #FFFFFF;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-section p {
+            color: #C5CEE0;
             margin-bottom: 1.25rem;
+            line-height: 1.75;
         }
-        .intro strong {
-            color: #7FB3FF;
-            font-weight: 600;
-        }
-        .schema-grid {
+
+        /* Grammar Grid */
+        .grammar-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 1.25rem;
             margin-top: 1.5rem;
         }
-        .schema-card {
-            border: 1px solid rgba(255,255,255,0.06);
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 1.25rem;
-            transition: all 0.2s ease;
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
-            backdrop-filter: blur(12px);
-            cursor: pointer;
-        }
-        .schema-card:hover {
-            border-color: rgba(255,255,255,0.12);
-            transform: translateY(-2px);
-        }
-        .schema-card a {
-            text-decoration: none;
-            color: #E6EAF2;
-            display: block;
-        }
-        .schema-card h3 {
-            color: #7FB3FF;
-            font-size: 1.15rem;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        .schema-card .description {
-            font-size: 0.9rem;
-            color: #6B7280;
-            line-height: 1.5;
-        }
-        .resources {
-            background: rgba(10, 12, 20, 0.3);
-            padding: 2rem;
-            border-radius: 12px;
-            margin-top: 3rem;
-        }
-        .resources ul {
-            list-style: none;
-            padding: 0;
-            display: grid;
-            gap: 1rem;
-        }
-        .resources li {
-            padding: 1rem;
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
-            border-radius: 6px;
-            border-left: 3px solid #1E67FF;
+            padding: 1.5rem;
             transition: all 0.2s;
         }
-        .resources li:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            transform: translateX(4px);
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--surface-hover);
         }
-        .resources a {
-            color: #7FB3FF;
-            text-decoration: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
+        .card-tag {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--emerald);
+            background: rgba(23, 201, 123, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 0.75rem;
         }
-        .resources a:hover {
-            color: #E6EAF2;
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #FFFFFF;
         }
-        .resources a::before {
-            content: "\2192";
-            margin-right: 0.75rem;
-            font-weight: bold;
+        .card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+            line-height: 1.6;
         }
-        footer {
-            text-align: center;
-            margin-top: 4rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(26, 29, 36, 0.5);
-            color: #6B7280;
-            font-size: 0.9rem;
-        }
-        footer a {
-            color: #7FB3FF;
-            text-decoration: none;
-        }
-        footer a:hover {
-            text-decoration: underline;
+
+        /* Code Blocks */
+        pre {
+            background: #060810;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #C5CEE0;
+            margin: 1.25rem 0;
         }
         code {
-            background: rgba(6, 8, 16, 0.5);
-            padding: 0.2rem 0.5rem;
-            border-radius: 3px;
-            font-family: 'SFMono-Regular', Consolas, monospace;
-            font-size: 0.9em;
+            font-family: var(--font-mono);
+            background: rgba(255, 255, 255, 0.06);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
             color: #7FB3FF;
         }
+
+        /* Dossiers Table */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        td { color: #C5CEE0; }
+        tr:last-child td { border-bottom: none; }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        footer a { color: #7FB3FF; text-decoration: none; }
     </style>
 </head>
 <body>
-    <header>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-            <a href="https://domainintelligenceschema.org" style="color: #B6BDCB; text-decoration: none; font-weight: 500; font-size: 0.9rem;" onmouseover="this.style.color='#E6EAF2'" onmouseout="this.style.color='#B6BDCB'">&larr; domainintelligenceschema.org</a>
-            <a href="https://github.com/nwalker85/domainintelligenceschema" style="color: #B6BDCB; text-decoration: none; font-weight: 500; font-size: 0.9rem;" onmouseover="this.style.color='#E6EAF2'" onmouseout="this.style.color='#B6BDCB'">GitHub &rarr;</a>
+
+    <div class="container">
+        <!-- Top Nav -->
+        <header>
+            <a href="/" class="nav-brand">
+                <span class="nav-logo-mark"></span>
+                Domain Intelligence Schema
+            </a>
+            <div class="nav-links">
+                <a href="/">Overview</a>
+                <a href="/docs/spec/DIS-1.8.md">Spec Proposal</a>
+                <a href="https://github.com/nwalker85/domainintelligenceschema">GitHub</a>
+            </div>
+        </header>
+
+        <!-- Doc Hero -->
+        <div class="doc-hero">
+            <span class="version-badge">Specification Documentation &middot; v1.8.0</span>
+            <h1>Technical Reference &amp; Formal Grammar</h1>
+            <p>
+                The Domain Intelligence Schema (DIS) is an open, platform-agnostic standard for enterprise agentic systems. 
+                Rooted in W3C RDF and SHACL knowledge graphs, DIS provides formal mathematical guardrails, attributed causality, 
+                and substrate-independent execution across any input channel or legacy backend.
+            </p>
         </div>
-        <h1>Domain Intelligence Schema</h1>
-        <div class="subtitle">Open standard. Platform-agnostic.<br>A declarative grammar for modeling enterprise agentic AI &mdash; apply to any runtime.</div>
-        <div class="version-badge">v1.6.0 Documentation</div>
-    </header>
 
-    <main>
-        <section class="intro">
-            <h2>About DIS</h2>
-            <p>The Domain Intelligence Schema (DIS) is a declarative framework for modeling and deploying agentic AI systems in enterprise environments. Think of it as the <strong>BNF for business units</strong> — a formal grammar (not taxonomy) for composing valid domain models.</p>
-            <p>DIS captures domain structure (entities, roles, applications), behavioral rules (AgenticTriplets), execution bindings (functions, endpoints), and governance (RBAC, privacy, telemetry) in an <strong>open, platform-agnostic format</strong>. Write the domain once. Apply it to any runtime. The schema is the standard; compilers and playbooks are separate.</p>
-            <p>The framework enforces exactly 7 atomic modes of interaction (CREATE, READ, UPDATE, DELETE, INITIATE, RESPOND, NOTIFY) that drive proper entity discovery and prevent scope creep while maintaining expressiveness.</p>
-        </section>
-
-        <section>
-            <h2>Schema Documentation</h2>
-            <div class="schema-grid">
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/AccessGateMatrix.md">
-                        <h3>AccessGateMatrix</h3>
-                        <div class="description">RBAC rules — which roles perform which operations on which entities</div>
-                    </a>
+        <!-- 1. The Core Architecture -->
+        <section class="doc-section">
+            <h2>1. Architecture &amp; The Semantic Stack</h2>
+            <p>
+                Traditional agent frameworks treat domain knowledge as prompt injections or unstructured tool schemas. 
+                DIS moves domain authority into a <strong>formal, validating semantic knowledge graph</strong>.
+            </p>
+            <div class="grammar-grid">
+                <div class="card">
+                    <span class="card-tag">W3C RDF / Turtle</span>
+                    <h3>Knowledge Graph Substrate</h3>
+                    <p>Every entity, role, mode, and execution binding is formally defined as an attributed triple in a closed semantic graph.</p>
                 </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/AgenticTriplet.md">
-                        <h3>AgenticTriplet</h3>
-                        <div class="description">Core behavioral unit: Entity + Mode + Role</div>
-                    </a>
+                <div class="card">
+                    <span class="card-tag">W3C SHACL</span>
+                    <h3>Structural &amp; Behavioral Gates</h3>
+                    <p>Shapes Constraint Language (SHACL) acts as the execution firewall. If an agent proposes an invalid triplet or breaks segregation of duties, the shape validator rejects it deterministically.</p>
                 </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/Application.md">
-                        <h3>Application</h3>
-                        <div class="description">Software systems where domain logic executes</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/ChangeManagementRecord.md">
-                        <h3>ChangeManagementRecord</h3>
-                        <div class="description">ITIL change tracking and audit trails</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/CommonEnums.md">
-                        <h3>CommonEnums</h3>
-                        <div class="description">Centralized vocabulary of 31 controlled enums</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/DISDossier.md">
-                        <h3>DISDossier</h3>
-                        <div class="description">Root container — the complete deployable domain model</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/DossierComparison.md">
-                        <h3>DossierComparison</h3>
-                        <div class="description">Delta analysis between AS-IS and TO-BE dossiers</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/Endpoint.md">
-                        <h3>Endpoint</h3>
-                        <div class="description">API interfaces and integration points</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/Entity.md">
-                        <h3>Entity</h3>
-                        <div class="description">AI agents and core data objects — the central nouns</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/EntityModeMatrix.md">
-                        <h3>EntityModeMatrix</h3>
-                        <div class="description">Maps which modes each entity supports</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/FunctionCatalogEntry.md">
-                        <h3>FunctionCatalogEntry</h3>
-                        <div class="description">Reusable function templates for execution bindings</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/KnowledgeDocument.md">
-                        <h3>KnowledgeDocument</h3>
-                        <div class="description">RAG artifacts linked to agent behaviors</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/MarketplaceEntry.md">
-                        <h3>MarketplaceEntry</h3>
-                        <div class="description">Publishing metadata for dossier distribution</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/ModeOfInteractionRegistryEntry.md">
-                        <h3>ModeOfInteractionRegistryEntry</h3>
-                        <div class="description">Registry metadata for the 7 canonical modes</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/Modes.md">
-                        <h3>Modes</h3>
-                        <div class="description">Operational states and behavioral contexts</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/PrivacyManifest.md">
-                        <h3>PrivacyManifest</h3>
-                        <div class="description">GDPR/CCPA compliance and data handling policies</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/RelationshipMatrix.md">
-                        <h3>RelationshipMatrix</h3>
-                        <div class="description">Semantic connections between constructs</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/Role.md">
-                        <h3>Role</h3>
-                        <div class="description">Behavioral capacities assignable to entities</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/TagDefinition.md">
-                        <h3>TagDefinition</h3>
-                        <div class="description">Reusable metadata tags for categorization</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/TelemetryConfiguration.md">
-                        <h3>TelemetryConfiguration</h3>
-                        <div class="description">Observability and instrumentation specs</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/TripletFunctionMatrixEntry.md">
-                        <h3>TripletFunctionMatrixEntry</h3>
-                        <div class="description">Execution bindings connecting grammar to APIs</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/ValidationRule.md">
-                        <h3>ValidationRule</h3>
-                        <div class="description">JMESPath validation rules for data governance</div>
-                    </a>
-                </div>
-                <div class="schema-card">
-                    <a href="viewer.html?doc=schemas/ValueEngineeringProfile.md">
-                        <h3>ValueEngineeringProfile</h3>
-                        <div class="description">ROI metrics and financial justification</div>
-                    </a>
+                <div class="card">
+                    <span class="card-tag">SPARQL</span>
+                    <h3>Causal Audit Queries</h3>
+                    <p>Four standardized SPARQL queries audit full causal lineages, medical liability boundaries, ungoverned triplets, and structural integrity without runtime dependencies.</p>
                 </div>
             </div>
         </section>
 
-        <section class="resources">
-            <h2>Additional Resources</h2>
-            <ul>
-                <li><a href="https://github.com/nwalker85/domainintelligenceschema">GitHub Repository</a></li>
-                <li><a href="https://schemas.domainintelligenceschema.org/dis/1.6.0/">JSON Schema CDN</a></li>
-                <li><a href="https://schemas.domainintelligenceschema.org/dis/1.6.0/index.json">Schema Index (JSON)</a></li>
-            </ul>
+        <!-- 2. The Governed Triplet -->
+        <section class="doc-section">
+            <h2>2. The Governed Agentic Triplet</h2>
+            <p>
+                At the heart of DIS is the <strong>Agentic Triplet</strong>: the atomic unit of agent capability. 
+                An agent cannot invoke an arbitrary function with ambient authority. It must execute as an authorized:
+            </p>
+            <p style="text-align: center; font-size: 1.25rem; font-weight: 700; color: #FFFFFF; margin: 1.5rem 0;">
+                <code>ROLE</code> (Who Acts) &times; <code>ENTITY</code> (What Noun) &times; <code>MODE</code> (Which Verb)
+            </p>
+            <p>
+                <strong>The 7 Canonical Modes</strong>:
+                <code>CREATE</code>, <code>READ</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>INITIATE</code>, <code>RESPOND</code>, and <code>NOTIFY</code>.
+                By constraining operations to these atomic verbs, DIS prevents hallucinated scope and forces explicit discovery of domain boundaries.
+            </p>
         </section>
-    </main>
 
-    <footer>
-        <p><strong>Domain Intelligence Schema v1.6.0</strong> | <a href="https://github.com/nwalker85/domainintelligenceschema/blob/main/LICENSE">Apache License 2.0</a></p>
-        <p>Hosted on Google Cloud Platform | Managed by Quant</p>
-        <p><code>https://schemas.domainintelligenceschema.org/</code></p>
-    </footer>
+        <!-- 3. DIS 1.8 Grammar Extensions -->
+        <section class="doc-section">
+            <h2>3. DIS 1.8 Grammar Extensions (G1 &ndash; G5)</h2>
+            <p>
+                Version 1.8 expands the semantic grammar to address the physical reality of multi-agent execution, epistemic drift, and legacy enterprise backends:
+            </p>
+
+            <div class="grammar-grid">
+                <div class="card">
+                    <span class="card-tag">G1 &middot; KNOW vs BE</span>
+                    <h3>Epistemic Observation vs Ground Truth</h3>
+                    <p>Unverified external claims are modeled as <code>dis:Observation</code>, carrying observer identity and epistemic confidence. Ground truth remains immutable.</p>
+                </div>
+                <div class="card">
+                    <span class="card-tag">G2 &middot; HAVE &amp; Varar</span>
+                    <h3>Bounded Capability Leases</h3>
+                    <p>Replaces ambient credentials with single-task <code>dis:CapabilityLease</code> mandate tokens with mathematical non-escalation invariants.</p>
+                </div>
+                <div class="card">
+                    <span class="card-tag">G3 &middot; Mortalities</span>
+                    <h3>Thermodynamic Decay Curves</h3>
+                    <p>Temporal observations decay via explicit half-life curves (<code>decayHalfLifeSeconds</code>). Stale data triggers mandatory re-verification before state mutation.</p>
+                </div>
+                <div class="card">
+                    <span class="card-tag">G4 &middot; Consensus</span>
+                    <h3>Disagreement Matrices</h3>
+                    <p>Multi-agent epistemic arbitration rules specifying consensus thresholds, dissenting votes, and human-in-the-loop arbitration when observations conflict.</p>
+                </div>
+                <div class="card">
+                    <span class="card-tag">G5 &middot; Substrates</span>
+                    <h3>Multi-Vendor Interchangeability</h3>
+                    <p>Demonstrates that governed business logic compiles identically into competing legacy backends (e.g., Epic vs. Cerner vs. MEDITECH) with zero model rework.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Reference Dossiers -->
+        <section class="doc-section">
+            <h2>4. Enterprise Reference Dossiers</h2>
+            <p>
+                DIS 1.8 provides four fully realized, production-grade reference dossiers with zero mocked shortcuts:
+            </p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Industry</th>
+                            <th>Dossier File</th>
+                            <th>Primary Substrates</th>
+                            <th>Key Invariant Proved</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Healthcare</strong></td>
+                            <td><code>fixtures/v1.7.0/healthcare.ttl</code></td>
+                            <td>Epic Systems, Cerner, MEDITECH</td>
+                            <td>DEA Schedule II formulary gate, NPI provider attestation, EHR interchangeability.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Banking &amp; Insurance</strong></td>
+                            <td><code>fixtures/v1.7.0/bfsi.ttl</code></td>
+                            <td>FIS Core, Fiserv DNA, Guidewire</td>
+                            <td>Authenticated vs. unauthenticated segregation of duties, GLBA compliance receipts.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ITSM &amp; Cyber</strong></td>
+                            <td><code>fixtures/v1.7.0/itsd.ttl</code></td>
+                            <td>ServiceNow, SailPoint, SAP HANA EAM</td>
+                            <td>Non-escalating privilege grants, 4-hour temporal leases, backoffice offboarding daemons.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Human Capital</strong></td>
+                            <td><code>fixtures/v1.7.0/hr.ttl</code></td>
+                            <td>Workday HCM, SuccessFactors, PeopleSoft</td>
+                            <td>Multi-population policy filtering, strict privacy manifests, SOX compliance.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 5. Conformance & Validation -->
+        <section class="doc-section">
+            <h2>5. Conformance Testing Suite</h2>
+            <p>
+                Every DIS release is verified against an automated conformance test suite combining <code>pytest</code>, <code>rdflib</code>, and <code>pyshacl</code>:
+            </p>
+            <pre><code>$ uv run pytest
+============================= test session starts ==============================
+rootdir: /Users/nate/src/github.com/nwalker85/domainintelligenceschema
+collected 196 items
+
+tests/test_dis_18_grammar.py ................................            [ 16%]
+tests/test_grammar_matrices.py .........................                 [ 29%]
+tests/test_queries.py .................................                  [ 46%]
+tests/test_utterance_policy.py ....................                      [ 56%]
+tests/test_v16_compat.py ........................                        [ 68%]
+tests/test_validation_recipe.py .....................................   [ 87%]
+tests/test_vocabulary_integrity.py .........................             [100%]
+
+============================= 196 passed in 65.2s ==============================</code></pre>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p><strong>Domain Intelligence Schema v1.8.0</strong> &middot; Apache License 2.0</p>
+            <p><a href="/">Home</a> &middot; <a href="https://github.com/nwalker85/domainintelligenceschema">GitHub</a> &middot; <a href="https://nwalker.cc">Nathan Walker</a></p>
+        </footer>
+    </div>
+
 </body>
 </html>
