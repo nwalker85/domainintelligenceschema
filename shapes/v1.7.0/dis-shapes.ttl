@@ -56,7 +56,9 @@ dis:AgenticTripletShape a sh:NodeShape ;
                   sh:minCount 1 ; sh:maxCount 1 ;
                   sh:in ( dis:ACT dis:REACT ) ;
                   sh:message "stance must be ACT or REACT" ] ;
-    sh:property [ sh:path dis:boundFunction ; sh:class dis:FunctionCatalogEntry ] .
+    sh:property [ sh:path dis:boundFunction ; sh:class dis:FunctionCatalogEntry ] ;
+    sh:property [ sh:path dis:bindingStatus ; sh:class dis:BindingStatus ; sh:maxCount 1 ] ;
+    sh:property [ sh:path dis:unboundReason ; sh:datatype xsd:string ; sh:maxCount 1 ] .
 
 # ---------- UtterancePolicy ----------
 dis:UtterancePolicyShape a sh:NodeShape ;
@@ -238,11 +240,23 @@ dis:ApplicationShape a sh:NodeShape ;
     sh:property [ sh:path dis:applicationType ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:in ( dis:SYSTEM_OF_RECORD dis:SAAS_PLATFORM dis:MOCK dis:KNOWLEDGE_STORE ) ;
                   sh:message "applicationType must be one of the four declared kinds" ] ;
+    sh:property [ sh:path dis:networkScope ; sh:maxCount 1 ; sh:class dis:NetworkScope ] ;
     sh:property [ sh:path dis:baseUrl ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
-                  sh:pattern "^https://" ;
-                  sh:message "baseUrl is required and must be https — a target that cannot reach it cannot use it" ] ;
+                  sh:message "baseUrl is required" ] ;
     sh:property [ sh:path dis:authMethod ; sh:maxCount 1 ;
-                  sh:in ( dis:NONE dis:API_KEY dis:OAUTH2 dis:BEARER ) ] .
+                  sh:in ( dis:NONE dis:API_KEY dis:OAUTH2 dis:BEARER ) ] ;
+    sh:sparql [
+        sh:message "baseUrl is required and must be https — a target that cannot reach it cannot use it" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this (dis:baseUrl AS ?path) WHERE {
+                $this dis:baseUrl ?url .
+                OPTIONAL { $this dis:networkScope ?scope }
+                FILTER (!BOUND(?scope) || ?scope = dis:SCOPE_PUBLIC)
+                FILTER (!STRSTARTS(STR(?url), "https://"))
+            }
+        """
+    ] .
 
 dis:EndpointShape a sh:NodeShape ;
     dis:paletteConstruct true ;
@@ -256,13 +270,27 @@ dis:EndpointShape a sh:NodeShape ;
     sh:property [ sh:path dis:hostedBy ; sh:minCount 1 ; sh:maxCount 1 ;
                   sh:class dis:Application ;
                   sh:message "an endpoint must be hosted by an Application" ] ;
-    sh:property [ sh:path dis:httpMethod ; sh:minCount 1 ; sh:maxCount 1 ;
+    sh:property [ sh:path dis:transport ; sh:maxCount 1 ; sh:class dis:Transport ] ;
+    sh:property [ sh:path dis:httpMethod ; sh:maxCount 1 ;
                   sh:in ( dis:GET dis:POST dis:PUT dis:PATCH dis:HTTP_DELETE ) ] ;
-    sh:property [ sh:path dis:urlPath ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
+    sh:property [ sh:path dis:urlPath ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:pattern "^/" ;
                   sh:message "urlPath is relative to the Application's baseUrl and must start with /" ] ;
+    sh:property [ sh:path dis:topic ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:streamUri ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:subject ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:peerAddress ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:socketPath ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path dis:channel ; sh:maxCount 1 ; sh:datatype xsd:string ] ;
     sh:property [ sh:path dis:mutates ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:boolean ;
-                  sh:message "declare whether this endpoint changes state; HTTP method is not the answer" ] .
+                  sh:message "declare whether this endpoint changes state; HTTP method is not the answer" ] ;
+    sh:or (
+        [ sh:property [ sh:path dis:transport ; sh:in ( dis:TRANSPORT_MQTT dis:TRANSPORT_RTSP dis:TRANSPORT_ESPNOW dis:TRANSPORT_NATS dis:TRANSPORT_UNIX_SOCKET dis:TRANSPORT_BLE dis:TRANSPORT_SERIAL dis:TRANSPORT_CAN_BUS ) ] ]
+        [ sh:and (
+            [ sh:property [ sh:path dis:httpMethod ; sh:minCount 1 ] ]
+            [ sh:property [ sh:path dis:urlPath ; sh:minCount 1 ] ]
+        ) ]
+    ) .
 
 dis:FunctionCatalogEntryShape a sh:NodeShape ;
     dis:paletteConstruct true ;
@@ -278,6 +306,8 @@ dis:FunctionCatalogEntryShape a sh:NodeShape ;
                   sh:message "a function must call an Endpoint — otherwise it states nothing executable" ] ;
     sh:property [ sh:path dis:readsEntity ; sh:minCount 1 ; sh:maxCount 1 ; sh:class dis:Entity ;
                   sh:message "readsEntity is required and must reference a dis:Entity" ] ;
+    sh:property [ sh:path dis:writesEntity ; sh:maxCount 1 ; sh:class dis:Entity ;
+                  sh:message "writesEntity must reference a dis:Entity" ] ;
     sh:property [ sh:path dis:inputFields ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
                   sh:message "comma-separated field names the caller must supply" ] ;
     sh:property [ sh:path dis:outputFields ; sh:minCount 1 ; sh:maxCount 1 ; sh:datatype xsd:string ;
@@ -329,13 +359,16 @@ dis:AccessGateMatrixShape a sh:NodeShape ;
     sh:property [ sh:path dis:allowedMode ;
                   sh:class dis:Mode ;
                   sh:message "allowedMode must be one of the seven canonical modes" ] ;
+    sh:property [ sh:path dis:allowedFunction ;
+                  sh:class dis:FunctionCatalogEntry ;
+                  sh:message "allowedFunction must reference a dis:FunctionCatalogEntry" ] ;
     sh:property [ sh:path dis:gateCondition ; sh:maxCount 1 ; sh:datatype xsd:string ] .
 
 
 # ---------- the grammar is enforced, not documented ----------
 # A triplet asserts that a Role uses a Mode on an Entity. That is only legal if
 # the Entity supports the mode at all, and the Role has been granted it. Without
-# these two shapes the matrices are a picture beside the model; with them, an
+# these shapes the matrices are a picture beside the model; with them, an
 # illegal triplet cannot be committed.
 #
 # SPARQL rather than property paths because the constraint spans three subjects:
@@ -378,6 +411,82 @@ dis:TripletWithinAccessGateShape a sh:NodeShape ;
               FILTER EXISTS { ?any a dis:AccessGateMatrix }
             }
         """ ] .
+
+dis:TripletWithinAllowedFunctionGateShape a sh:NodeShape ;
+    sh:targetClass dis:AgenticTriplet ;
+    sh:sparql [
+        sh:message "this triplet binds a function not permitted by the role's function-scoped access gate" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this (dis:boundFunction AS ?path) WHERE {
+              $this dis:actingRole ?role ;
+                    dis:targetEntity ?entity ;
+                    dis:mode ?mode ;
+                    dis:boundFunction ?fn .
+              ?gate a dis:AccessGateMatrix ;
+                    dis:matrixRole ?role ;
+                    dis:matrixEntity ?entity ;
+                    dis:allowedMode ?mode ;
+                    dis:allowedFunction ?anyFn .
+              FILTER NOT EXISTS {
+                ?gate dis:allowedFunction ?fn .
+              }
+            }
+        """ ] .
+
+# ---------- provenance and mutation integrity (1.8) ----------
+dis:TripletModeMutationConsistencyShape a sh:NodeShape ;
+    sh:targetClass dis:AgenticTriplet ;
+    sh:sparql [
+        sh:message "triplet mode and bound function endpoint mutates mismatch: READ requires mutates false; CREATE/UPDATE/DELETE requires mutates true" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this (dis:boundFunction AS ?path) WHERE {
+                $this dis:mode ?mode ;
+                      dis:boundFunction ?fn .
+                ?fn dis:callsEndpoint ?ep .
+                ?ep dis:mutates ?mutates .
+                FILTER (
+                    (?mode = dis:READ && ?mutates = true) ||
+                    (?mode IN (dis:CREATE, dis:UPDATE, dis:DELETE) && ?mutates = false)
+                )
+            }
+        """
+    ] .
+
+dis:FunctionMutatesNeedsWritesEntityShape a sh:NodeShape ;
+    sh:targetClass dis:FunctionCatalogEntry ;
+    sh:sparql [
+        sh:message "a function calling a mutating endpoint must declare writesEntity" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this (dis:writesEntity AS ?path) WHERE {
+                $this dis:callsEndpoint ?ep .
+                ?ep dis:mutates true .
+                FILTER NOT EXISTS { $this dis:writesEntity ?entity }
+            }
+        """
+    ] .
+
+dis:TripletTargetEntityConsistencyShape a sh:NodeShape ;
+    sh:targetClass dis:AgenticTriplet ;
+    sh:sparql [
+        sh:message "triplet targetEntity must match the bound function's readsEntity (for READ) or writesEntity (for CREATE/UPDATE/DELETE)" ;
+        sh:prefixes dis: ;
+        sh:select """
+            SELECT $this (dis:targetEntity AS ?path) WHERE {
+                $this dis:mode ?mode ;
+                      dis:targetEntity ?target ;
+                      dis:boundFunction ?fn .
+                OPTIONAL { ?fn dis:readsEntity ?reads }
+                OPTIONAL { ?fn dis:writesEntity ?writes }
+                FILTER (
+                    (?mode = dis:READ && BOUND(?reads) && ?target != ?reads) ||
+                    (?mode IN (dis:CREATE, dis:UPDATE, dis:DELETE) && BOUND(?writes) && ?target != ?writes)
+                )
+            }
+        """
+    ] .
 
 
 # ---------- entity instances ----------

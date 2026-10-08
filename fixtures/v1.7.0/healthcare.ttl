@@ -112,6 +112,7 @@ h:fn-read-appointment-status a dis:FunctionCatalogEntry ;
 h:fn-cancel-appointment a dis:FunctionCatalogEntry ;
     dis:callsEndpoint h:post-cancel-appointment ;
     dis:readsEntity h:appointment ;
+    dis:writesEntity h:appointment ;
     dis:inputFields "patient_id,appointment_id,reason" ;
     dis:outputFields "appointment_id,status,cancellation_timestamp" ;
     dis:description "Executes cancellation of a booked appointment in EHR." ;

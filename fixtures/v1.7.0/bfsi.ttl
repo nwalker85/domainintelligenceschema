@@ -112,6 +112,7 @@ b:fn-read-transactions a dis:FunctionCatalogEntry ;
 b:fn-lock-card a dis:FunctionCatalogEntry ;
     dis:callsEndpoint b:post-lock-card ;
     dis:readsEntity b:creditcard ;
+    dis:writesEntity b:creditcard ;
     dis:inputFields "card_last_four,lock_reason,auth_token" ;
     dis:outputFields "card_last_four,status,lock_timestamp" ;
     dis:description "Applies an instant freeze lock to a card to prevent unauthorized debits." ;
