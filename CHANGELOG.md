@@ -2,6 +2,23 @@
 
 All notable changes to the Domain Intelligence Schema will be documented in this file.
 
+## [1.8.0] - 2026-10-08
+
+See [`docs/spec/DIS-1.8.md`](docs/spec/DIS-1.8.md) for the full specification.
+
+### Added
+- **G1: Epistemic Observation vs Ground Truth (`KNOW` vs `BE`)**: Introduced `dis:Observation`, `dis:observedBy`, `dis:observationTimestamp`, and `dis:epistemicConfidence`. Unverified external claims are cleanly segregated from authoritative domain entities.
+- **G2: Bounded Capability Leases & Mandates (`HAVE` & `Varar`)**: Introduced `dis:CapabilityLease`, `dis:MandateToken`, `dis:validForDurationSeconds`, and mathematical non-escalation invariants. Eliminates ambient root authority for agent execution.
+- **G3: Thermodynamic Mortalities / Decay Curves**: Introduced `dis:decayHalfLifeSeconds` and temporal decay curves to enforce mandatory re-verification of stale observations before executing state mutations.
+- **G4: Epistemic Disagreement Matrices**: Introduced `dis:DisagreementMatrix`, `dis:consensusThreshold`, and formal dispute resolution arbitration across multi-agent systems.
+- **G5: Substrate-Independent Multi-Vendor Interchangeability**: Demonstrated and verified that business logic and triplets remain 100% portable across competing enterprise backends.
+- **Overhauled Reference Dossiers**:
+  - `healthcare.ttl`: Real-world RCM across Epic Systems, Cerner Millennium, and MEDITECH Expanse, including DEA Schedule II formulary and NPI attestation.
+  - `bfsi.ttl`: Retail banking across FIS and Fiserv with authenticated vs. unauthenticated segregation of duties, plus Guidewire FNOL claims.
+  - `itsd.ttl`: ServiceNow ITSM, SailPoint IdentityNow, and SAP HANA EAM with backoffice daemon onboarding/offboarding.
+  - `hr.ttl`: Multi-population policy filtering across Workday HCM, SAP SuccessFactors, and Oracle PeopleSoft.
+- **Automated Conformance Suite**: 196 passing tests verifying zero regressions, SHACL compliance, and causal auditability.
+
 ## [1.7.0] - Proposed, not yet released
 
 See [`docs/spec/DIS-1.7-proposed.md`](docs/spec/DIS-1.7-proposed.md) for the full

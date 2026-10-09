@@ -112,6 +112,7 @@ i:fn-read-pto-balance a dis:FunctionCatalogEntry ;
 i:fn-request-hardware a dis:FunctionCatalogEntry ;
     dis:callsEndpoint i:post-create-hardware-request ;
     dis:readsEntity i:hardwareasset ;
+    dis:writesEntity i:serviceticket ;
     dis:inputFields "employee_id,asset_sku,shipping_address" ;
     dis:outputFields "ticket_id,asset_sku,approval_status,tracking_id" ;
     dis:description "Submits standard equipment fulfillment request." ;

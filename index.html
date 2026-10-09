@@ -3,397 +3,1036 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domain Intelligence Schema — Open standard for agentic AI</title>
-    <meta name="description" content="An open, platform-agnostic standard for modeling enterprise agentic AI. Write the domain once. Apply it to any runtime.">
+    <title>Domain Intelligence Schema (DIS) — The Open Standard for Enterprise Agentic AI</title>
+    <meta name="description" content="OpenAPI defines endpoints. Terraform defines infrastructure. DIS defines what AI agents are mathematically allowed to know, decide, and execute.">
     <link rel="canonical" href="https://domainintelligenceschema.org/">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #030305;
+            --surface: rgba(14, 18, 30, 0.7);
+            --surface-hover: rgba(22, 28, 46, 0.85);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(30, 103, 255, 0.4);
+            --text-main: #E6EAF2;
+            --text-muted: #8E98AB;
+            --blue-accent: #1E67FF;
+            --blue-glow: rgba(30, 103, 255, 0.25);
+            --emerald: #17C97B;
+            --emerald-glow: rgba(23, 201, 123, 0.25);
+            --gold: #D2A93B;
+            --purple: #A88CFA;
+            --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6;
-            color: #E6EAF2;
-            background: #030305;
+            color: var(--text-main);
+            background: var(--bg);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Hero */
-        .hero {
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.08) 0%, rgba(47, 214, 255, 0.04) 45%, rgba(168, 140, 250, 0.06) 100%), #030305;
-            text-align: center;
-            padding: 6rem 2rem 5rem;
-            border-bottom: 1px solid rgba(26, 29, 36, 0.5);
-        }
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #E6EAF2 0%, #7FB3FF 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .hero .tagline {
-            font-size: 1.3rem;
-            color: #B6BDCB;
-            margin-bottom: 1.5rem;
-        }
-        .version-badge {
-            display: inline-block;
-            background: #0E1018;
-            border: 1px solid rgba(30, 103, 255, 0.3);
-            padding: 0.3rem 1rem;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: #7FB3FF;
-            margin-bottom: 2.5rem;
-        }
-        .cta-primary {
-            display: inline-block;
-            background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%), rgba(30, 103, 255, 0.55);
-            color: #E6EAF2;
-            font-size: 1.1rem;
-            font-weight: 500;
-            padding: 0.85rem 2.5rem;
-            border-radius: 8px;
-            text-decoration: none;
-            border: 1px solid rgba(255,255,255,0.12);
-            backdrop-filter: blur(4px);
-            transition: all 0.2s ease;
-        }
-        .cta-primary:hover {
-            background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%), rgba(58, 128, 255, 0.55);
-            transform: translateY(-2px);
-        }
-        .cta-row {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .cta-secondary {
-            display: inline-block;
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.03) 0%, rgba(168, 140, 250, 0.02) 100%), rgba(10, 12, 20, 0.5);
-            color: #B6BDCB;
-            font-size: 0.95rem;
-            font-weight: 500;
-            padding: 0.7rem 1.8rem;
-            border-radius: 8px;
-            text-decoration: none;
-            border: 1px solid rgba(255,255,255,0.08);
-            backdrop-filter: blur(6px);
-            transition: all 0.2s ease;
-        }
-        .cta-secondary:hover {
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.06) 0%, rgba(168, 140, 250, 0.04) 100%), rgba(10, 12, 20, 0.7);
-            color: #E6EAF2;
-            border-color: rgba(255,255,255,0.15);
+        /* Ambient Glow Mesh */
+        .ambient-glow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100vw;
+            max-width: 1400px;
+            height: 700px;
+            background: radial-gradient(circle at 50% 15%, rgba(30, 103, 255, 0.15) 0%, rgba(23, 201, 123, 0.05) 35%, rgba(3, 3, 5, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
         }
 
-        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Section */
-        section {
-            padding: 4rem 0;
-        }
-        section h2 {
-            color: #B6BDCB;
-            font-size: 1.6rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        /* About */
-        .about p {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-            color: #6B7280;
-            font-size: 1.05rem;
-            line-height: 1.8;
-        }
-
-        /* Glass card mixin */
-        .glass-card {
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.05) 0%, rgba(47, 214, 255, 0.03) 45%, rgba(168, 140, 250, 0.04) 100%), rgba(6, 8, 16, 0.65);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.06);
-            backdrop-filter: blur(12px);
-            transition: all 0.2s ease;
-        }
-        .glass-card:hover {
-            border-color: rgba(255,255,255,0.12);
-            transform: translateY(-2px);
-        }
-
-        /* Features grid */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        .feature-card {
-            padding: 2rem;
-            text-align: center;
-        }
-        .feature-card h3 {
-            color: #7FB3FF;
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-        .feature-card p {
-            color: #6B7280;
-            font-size: 0.9rem;
-        }
-
-        /* Quick Start */
-        .quickstart {
-            background: linear-gradient(135deg, rgba(30, 102, 255, 0.03) 0%, rgba(168, 140, 250, 0.02) 100%), rgba(10, 12, 20, 0.3);
-            border-top: 1px solid rgba(26, 29, 36, 0.5);
-            border-bottom: 1px solid rgba(26, 29, 36, 0.5);
-        }
-        .quickstart .container > p {
-            text-align: center;
-            color: #6B7280;
-            margin-bottom: 2rem;
-        }
-        .code-tabs {
-            max-width: 800px;
-            margin: 0 auto;
+        /* Navigation */
+        nav {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            letter-spacing: -0.02em;
+        }
+        .nav-logo-mark {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, var(--blue-accent), var(--emerald));
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
             gap: 1.5rem;
         }
-        .code-block {
-            background: rgba(6, 8, 16, 0.65);
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-        .code-block .label {
-            background: rgba(30, 103, 255, 0.08);
-            color: #7FB3FF;
-            padding: 0.5rem 1rem;
-            font-size: 0.75rem;
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
             font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text-main); }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            padding: 0.45rem 1rem;
+            border-radius: 6px;
+            color: var(--text-main) !important;
+            transition: all 0.2s;
+        }
+        .nav-btn:hover {
+            border-color: var(--blue-accent);
+            background: rgba(30, 103, 255, 0.1);
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 4.5rem 0 3rem;
+        }
+        .version-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(30, 103, 255, 0.1);
+            border: 1px solid rgba(30, 103, 255, 0.35);
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #7FB3FF;
+            margin-bottom: 1.5rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            border-bottom: 1px solid rgba(26, 29, 36, 0.5);
         }
-        .code-block pre {
-            padding: 1rem 1.25rem;
-            overflow-x: auto;
-            color: #B6BDCB;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 0.82rem;
-            line-height: 1.6;
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--emerald);
         }
-        .code-block .key { color: #7FB3FF; }
-        .code-block .str { color: #6EE7A0; }
-        .code-block .cmt { color: #6B7280; }
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+            background: linear-gradient(180deg, #FFFFFF 0%, #B6BDCB 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero .pitch-highlight {
+            font-size: 1.35rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #C5CEE0;
+            max-width: 860px;
+            margin: 0 auto 1rem;
+        }
+        .hero .pitch-highlight strong {
+            color: #FFFFFF;
+            font-weight: 600;
+        }
+        .hero .pitch-sub {
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            max-width: 750px;
+            margin: 0 auto 2.5rem;
+        }
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3.5rem;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1E67FF 0%, #104EC9 100%);
+            color: #FFFFFF;
+            padding: 0.85rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 20px rgba(30, 103, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(30, 103, 255, 0.6);
+        }
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-main);
+            padding: 0.85rem 1.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: var(--surface-hover);
+        }
 
-        /* Categories */
-        .categories-grid {
+        /* ==========================================================================
+           5-SECOND ROTATING TRIPLET ENGINE
+           ========================================================================== */
+        .engine-showcase {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem 2.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px var(--blue-glow);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 5rem;
+        }
+        .engine-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.25rem;
+        }
+        .engine-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #7FB3FF;
+        }
+        .industry-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.3rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.45rem 1rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active {
+            background: rgba(30, 103, 255, 0.2);
+            color: #FFFFFF;
+            border: 1px solid rgba(30, 103, 255, 0.4);
+            box-shadow: 0 0 12px rgba(30, 103, 255, 0.3);
+        }
+
+        /* 3-Rail Grid */
+        .tri-rail {
+            display: grid;
+            grid-template-columns: 240px 1fr 280px;
+            gap: 1.5rem;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Rail 1: Channel In */
+        .rail-channel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .rail-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .channel-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        .channel-card .name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .channel-card .tag {
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            color: #555E6D;
+            background: rgba(255,255,255,0.03);
+            padding: 0.2rem 0.45rem;
+            border-radius: 4px;
+        }
+        .channel-card.active {
+            background: rgba(23, 201, 123, 0.1);
+            border-color: var(--emerald);
+            box-shadow: 0 0 15px var(--emerald-glow);
+            transform: translateX(4px);
+        }
+        .channel-card.active .name { color: #FFFFFF; }
+        .channel-card.active .tag { color: var(--emerald); background: rgba(23, 201, 123, 0.15); }
+
+        /* Rail 2: Triplet Core */
+        .rail-core {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.75rem;
+            text-align: center;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .triplet-cards-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.25rem 0;
+        }
+        .triplet-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 0.75rem;
+            min-height: 125px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .triplet-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+        }
+        .card-role::before { background: var(--blue-accent); }
+        .card-entity::before { background: var(--emerald); }
+        .card-mode::before { background: var(--purple); }
+
+        .triplet-card .label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .card-role .label { color: #7FB3FF; }
+        .card-entity .label { color: #5EE5A1; }
+        .card-mode .label { color: #C4B5FD; }
+
+        .triplet-card .val {
+            font-size: 1.05rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            word-break: break-word;
+            transition: opacity 0.25s, transform 0.25s;
+        }
+
+        /* Invariant Banner */
+        .invariant-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(23, 201, 123, 0.08);
+            border: 1px solid rgba(23, 201, 123, 0.25);
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-family: var(--font-mono);
+            color: #5EE5A1;
+            margin-top: 0.5rem;
+        }
+
+        /* Rail 3: Substrate Out */
+        .rail-substrate {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+        .substrate-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            transition: all 0.3s;
+        }
+        .substrate-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+        .substrate-chips {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.25s;
+        }
+        .chip-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--blue-accent);
+        }
+
+        /* Progress Bar */
+        .timer-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue-accent), var(--emerald));
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* ==========================================================================
+           PROMPT & PRAY VS DIS
+           ========================================================================== */
+        .comparison-section {
+            padding: 4rem 0;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .section-header h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 680px;
+            margin: 0 auto;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .comp-card {
+            border-radius: 16px;
+            padding: 2.25rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+        .comp-bad {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: linear-gradient(180deg, rgba(239, 68, 68, 0.05) 0%, rgba(14, 18, 30, 0.7) 100%);
+        }
+        .comp-good {
+            border-color: rgba(23, 201, 123, 0.4);
+            background: linear-gradient(180deg, rgba(23, 201, 123, 0.07) 0%, rgba(14, 18, 30, 0.7) 100%);
+            box-shadow: 0 10px 30px rgba(23, 201, 123, 0.1);
+        }
+        .comp-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1.25rem;
+        }
+        .comp-bad .comp-badge { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .comp-good .comp-badge { background: rgba(23, 201, 123, 0.15); color: #34D399; border: 1px solid rgba(23, 201, 123, 0.3); }
+
+        .comp-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        .comp-flow {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin: 1.25rem 0;
+            line-height: 1.7;
+        }
+        .comp-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+        .comp-list li {
+            font-size: 0.92rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #C5CEE0;
+        }
+        .comp-bad .comp-list li::before { content: "✕"; color: #F87171; font-weight: bold; }
+        .comp-good .comp-list li::before { content: "✓"; color: #34D399; font-weight: bold; }
+
+        /* ==========================================================================
+           DIS 1.8 GRAMMAR EXTENSIONS (G1-G5)
+           ========================================================================== */
+        .grammar-section {
+            padding: 4rem 0;
+            border-top: 1px solid var(--border);
+        }
+        .grammar-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
-            margin-top: 2rem;
+            margin-top: 2.5rem;
         }
-        .category-card {
-            padding: 1.5rem;
-            border-left: 3px solid #1E67FF;
+        .grammar-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.75rem;
+            transition: all 0.2s ease;
         }
-        .category-card h3 {
-            color: #E6EAF2;
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
+        .grammar-card:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+            transform: translateY(-3px);
         }
-        .category-card .count {
+        .grammar-code {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
             color: #7FB3FF;
-            font-weight: 500;
-            font-size: 0.8rem;
+            background: rgba(30, 103, 255, 0.1);
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+        }
+        .grammar-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
             margin-bottom: 0.5rem;
+            color: #FFFFFF;
         }
-        .category-card p {
-            color: #6B7280;
+        .grammar-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ==========================================================================
+           CONFORMANCE & CODE
+           ========================================================================== */
+        .code-section {
+            padding: 4rem 0;
+            border-top: 1px solid var(--border);
+        }
+        .code-showcase {
+            background: #060810;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .code-header {
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .code-body {
+            padding: 1.5rem;
+            font-family: var(--font-mono);
             font-size: 0.85rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            color: #C5CEE0;
         }
+        .kw { color: #A88CFA; }
+        .pred { color: #7FB3FF; }
+        .lit { color: #5EE5A1; }
+        .cmt { color: #555E6D; }
 
         /* Footer */
         footer {
+            border-top: 1px solid var(--border);
+            padding: 4rem 0 3rem;
             text-align: center;
-            padding: 3rem 2rem;
-            border-top: 1px solid rgba(26, 29, 36, 0.5);
-            color: #6B7280;
+            color: var(--text-muted);
             font-size: 0.85rem;
         }
-        footer a {
-            color: #7FB3FF;
-            text-decoration: none;
-        }
-        footer a:hover { color: #B6BDCB; }
-        footer p { margin-bottom: 0.5rem; }
-        footer strong { color: #B6BDCB; }
+        footer a { color: #7FB3FF; text-decoration: none; }
+        footer a:hover { color: #FFFFFF; }
+        footer p { margin-bottom: 0.6rem; }
 
         /* Responsive */
-        @media (max-width: 1200px) {
-            .features-grid, .categories-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        @media (max-width: 992px) {
+            .tri-rail { grid-template-columns: 1fr; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .grammar-grid { grid-template-columns: 1fr 1fr; }
+            .hero h1 { font-size: 2.4rem; }
         }
-        @media (max-width: 768px) {
+        @media (max-width: 600px) {
+            .grammar-grid { grid-template-columns: 1fr; }
+            .triplet-cards-row { grid-template-columns: 1fr; }
             .hero h1 { font-size: 2rem; }
-            .hero .tagline { font-size: 1.05rem; }
-            .features-grid, .categories-grid {
-                grid-template-columns: 1fr;
-            }
-            .cta-row {
-                flex-direction: column;
-                align-items: center;
-            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Hero -->
-    <div class="hero">
-        <h1>Domain Intelligence Schema</h1>
-        <div class="tagline">Open standard. Platform-agnostic.<br>Terraform for the domain model &mdash; not the runtime.</div>
-        <div class="version-badge">v1.6.0</div>
-        <div>
-            <a class="cta-primary" href="https://nwalker85.substack.com/p/the-row">Read the Origin Story</a>
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <a href="/" class="nav-logo">
+                <span class="nav-logo-mark"></span>
+                Domain Intelligence Schema
+            </a>
+            <div class="nav-links">
+                <a href="/docs/">Documentation</a>
+                <a href="/docs/spec/DIS-1.8.md">Specification (1.8)</a>
+                <a href="https://github.com/nwalker85/domainintelligenceschema" class="nav-btn">GitHub</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="version-pill">
+                <span class="pulse-dot"></span>
+                DIS Specification v1.8.0 &middot; Active Standard
+            </div>
+            <h1>The Open Standard for<br>Enterprise Agentic AI</h1>
+            <p class="pitch-highlight">
+                <strong>OpenAPI defines endpoints. Terraform defines infrastructure.</strong><br>
+                DIS defines what AI agents are mathematically allowed to know, decide, and execute.
+            </p>
+            <p class="pitch-sub">
+                A formal grammar, W3C RDF/SHACL ontology, and invariant boundary engine.<br>
+                Write your domain once. Enforce it across any channel, runtime, or legacy enterprise substrate.
+            </p>
+
+            <div class="hero-actions">
+                <a href="/docs/" class="btn-primary">Explore Documentation</a>
+                <a href="https://github.com/nwalker85/domainintelligenceschema" class="btn-secondary">View GitHub Repository</a>
+                <a href="https://nwalker85.substack.com/p/the-row" class="btn-secondary">The Origin Story</a>
+            </div>
+        </section>
+
+        <!-- 5-Second Interactive Engine Showcase -->
+        <div class="engine-showcase" id="engineShowcase">
+            <div class="engine-topbar">
+                <div class="engine-title">
+                    <span>⚡ Governed Execution Engine</span>
+                </div>
+                <div class="industry-tabs">
+                    <button class="tab-btn active" onclick="setIndustry(0)">Clinical Healthcare</button>
+                    <button class="tab-btn" onclick="setIndustry(1)">Banking &amp; Insurance</button>
+                    <button class="tab-btn" onclick="setIndustry(2)">ITSM &amp; Cyber</button>
+                    <button class="tab-btn" onclick="setIndustry(3)">Human Capital</button>
+                </div>
+            </div>
+
+            <!-- The 3-Rail Grid -->
+            <div class="tri-rail">
+                
+                <!-- Rail 1: Any Channel In -->
+                <div class="rail-channel">
+                    <div class="rail-header">
+                        <span>1. Any Channel In</span>
+                    </div>
+                    <div class="channel-card" id="chan-voice">
+                        <span class="name">📞 Voice (IVR / Telephony)</span>
+                        <span class="tag">Audio Stream</span>
+                    </div>
+                    <div class="channel-card" id="chan-chat">
+                        <span class="name">💬 Chat (Slack / Teams / Web)</span>
+                        <span class="tag">Natural Lang</span>
+                    </div>
+                    <div class="channel-card" id="chan-backoffice">
+                        <span class="name">⚙️ Backoffice Daemon</span>
+                        <span class="tag">Queue Event</span>
+                    </div>
+                </div>
+
+                <!-- Rail 2: The Governed Triplet -->
+                <div class="rail-core">
+                    <div class="rail-header" style="justify-content: center;">
+                        <span>2. Governed Triplet (The Domain)</span>
+                    </div>
+
+                    <div class="triplet-cards-row">
+                        <!-- Role -->
+                        <div class="triplet-card card-role">
+                            <span class="label">ROLE (Who Acts)</span>
+                            <span class="val" id="val-role">ClinicalPharmacist</span>
+                        </div>
+                        <!-- Entity -->
+                        <div class="triplet-card card-entity">
+                            <span class="label">ENTITY (What Noun)</span>
+                            <span class="val" id="val-entity">MedicationOrder</span>
+                        </div>
+                        <!-- Mode -->
+                        <div class="triplet-card card-mode">
+                            <span class="label">MODE (Which Verb)</span>
+                            <span class="val" id="val-mode">RESPOND</span>
+                        </div>
+                    </div>
+
+                    <div class="invariant-banner" id="val-invariant">
+                        ✓ W3C SHACL Verified &middot; DEA Schedule II Formulary &middot; NPI Attested
+                    </div>
+                </div>
+
+                <!-- Rail 3: Any Substrate Out -->
+                <div class="rail-substrate">
+                    <div class="rail-header">
+                        <span>3. Any Substrate Out</span>
+                    </div>
+                    <div class="substrate-box">
+                        <span class="substrate-label">Executing Systems</span>
+                        <div class="substrate-chips" id="val-substrates">
+                            <div class="chip"><span class="chip-dot"></span>Epic Systems EHR</div>
+                            <div class="chip"><span class="chip-dot"></span>Cerner Millennium</div>
+                            <div class="chip"><span class="chip-dot"></span>MEDITECH Expanse</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Auto-cycle progress bar -->
+            <div class="timer-progress" id="timerProgress"></div>
         </div>
-        <div class="cta-row">
-            <a href="https://schemas.domainintelligenceschema.org/docs/" class="cta-secondary">View Documentation</a>
-            <a href="https://github.com/nwalker85/domainintelligenceschema" class="cta-secondary">GitHub Repository</a>
-        </div>
+
+        <!-- Comparison: Prompt & Pray vs DIS -->
+        <section class="comparison-section">
+            <div class="section-header">
+                <h2>Prompt &amp; Pray vs. Attributed Causality</h2>
+                <p>Why modern enterprise AI agents fail in production, and how DIS provides mathematical guardrails.</p>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="comp-card comp-bad">
+                    <span class="comp-badge">The Status Quo: Prompt &amp; Pray</span>
+                    <h3 class="comp-title">Unconstrained Agent Chaos</h3>
+                    <div class="comp-flow">
+                        [Prompt] ──► [LLM Inference] ──► [Unbounded Tool Call] ──► 💥 Liability
+                    </div>
+                    <ul class="comp-list">
+                        <li>Ambient permissions grant root access to enterprise APIs.</li>
+                        <li>Natural language prompt injections hijack tool invocation.</li>
+                        <li>Hallucinated entities and modes mutate databases silently.</li>
+                        <li>Zero verifiable audit receipts for compliance or legal review.</li>
+                    </ul>
+                </div>
+
+                <div class="comp-card comp-good">
+                    <span class="comp-badge">The Standard: Governed DIS</span>
+                    <h3 class="comp-title">Attributed Causal Execution</h3>
+                    <div class="comp-flow">
+                        [Input] ──► [Triplet: Role &times; Entity &times; Mode] ──► [SHACL Gate] ──► ✓ Proven Action
+                    </div>
+                    <ul class="comp-list">
+                        <li>Strict segregation of duties enforced by W3C SHACL shapes.</li>
+                        <li>UtterancePolicy prevents prompt injection at the boundary.</li>
+                        <li>Substrate-independent: swap Epic for Cerner with zero model rewrite.</li>
+                        <li>Self-proving audit ledger with cryptographic Varar capability tokens.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- DIS 1.8 Grammar Highlights -->
+        <section class="grammar-section">
+            <div class="section-header">
+                <h2>DIS 1.8 Formal Semantic Extensions</h2>
+                <p>Five formal architectural primitives moving enterprise agents from probabilistic guessing to verifiable causality.</p>
+            </div>
+
+            <div class="grammar-grid">
+                <div class="grammar-card">
+                    <span class="grammar-code">G1 &middot; KNOW vs. BE</span>
+                    <h3>Epistemic Observation vs Ground Truth</h3>
+                    <p>Separates unverified external claims from ground truth. Claims require observer identity and carry temporal epistemic decay curves.</p>
+                </div>
+                <div class="grammar-card">
+                    <span class="grammar-code">G2 &middot; HAVE &amp; Varar</span>
+                    <h3>Bounded Capability Leases</h3>
+                    <p>Replaces ambient credentials with time-bounded, single-task mandate tokens. Mathematical non-escalation prevents privilege leaks.</p>
+                </div>
+                <div class="grammar-card">
+                    <span class="grammar-code">G3 &middot; Mortalities</span>
+                    <h3>Thermodynamic Decay Curves</h3>
+                    <p>Observations decay with explicit half-lives. Stale context automatically triggers mandatory re-verification before state mutations.</p>
+                </div>
+                <div class="grammar-card">
+                    <span class="grammar-code">G4 &middot; Consensus</span>
+                    <h3>Epistemic Disagreement Matrices</h3>
+                    <p>Formalizes multi-agent consensus, arbitration thresholds, and dispute resolution when peer observations collide.</p>
+                </div>
+                <div class="grammar-card">
+                    <span class="grammar-code">G5 &middot; Substrates</span>
+                    <h3>Multi-Vendor Interchangeability</h3>
+                    <p>Write business logic once. Compile to Epic, Cerner, MEDITECH, FIS, Fiserv, Guidewire, ServiceNow, or Workday without code changes.</p>
+                </div>
+                <div class="grammar-card">
+                    <span class="grammar-code">CI &middot; 196 Tests</span>
+                    <h3>Automated Conformance Suite</h3>
+                    <p>Validated with pytest and pySHACL. 196 automated tests guarantee zero orphaned entities, valid triplets, and clean audit logs.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code & Conformance -->
+        <section class="code-section">
+            <div class="section-header">
+                <h2>Formal W3C Semantic Representation</h2>
+                <p>Pure RDF/Turtle knowledge graphs validated by SHACL shapes — fully auditable with standard SPARQL.</p>
+            </div>
+
+            <div class="code-showcase">
+                <div class="code-header">
+                    <span>fixtures/v1.7.0/healthcare.ttl &middot; Governed Triplet Example</span>
+                    <span>196/196 Conformance Tests Passing</span>
+                </div>
+                <div class="code-body">
+<span class="cmt"># An authorized clinical agentic triplet in DIS 1.8</span>
+<span class="pred">:PharmacistPrescriptionReview</span> <span class="kw">a</span> <span class="pred">dis:AgenticTriplet</span> ;
+    <span class="pred">rdfs:label</span> <span class="lit">"Clinical Pharmacist Review of Schedule II Medication"</span> ;
+    <span class="pred">dis:hasRole</span> <span class="pred">:ClinicalPharmacist</span> ;
+    <span class="pred">dis:hasEntity</span> <span class="pred">:MedicationOrder</span> ;
+    <span class="pred">dis:hasMode</span> <span class="pred">dis:RESPOND</span> ;
+    <span class="pred">dis:hasCapabilityLease</span> [
+        <span class="kw">a</span> <span class="pred">dis:CapabilityLease</span> ;
+        <span class="pred">dis:validForDurationSeconds</span> <span class="lit">1800</span> ;
+        <span class="pred">dis:boundToSubstrate</span> <span class="pred">:EpicSystemsEHR</span>, <span class="pred">:CernerMillennium</span>, <span class="pred">:MeditechExpanse</span> ;
+        <span class="pred">dis:npiAttestationRequired</span> <span class="lit">true</span>
+    ] .
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <p><strong>Domain Intelligence Schema v1.8.0</strong> &middot; Apache License 2.0</p>
+                <p>
+                    <a href="/docs/">Documentation</a> &middot; 
+                    <a href="/docs/spec/DIS-1.8.md">Specification</a> &middot; 
+                    <a href="https://github.com/nwalker85/domainintelligenceschema">GitHub</a> &middot; 
+                    <a href="https://nwalker85.substack.com">Field Notes</a> &middot; 
+                    <a href="https://nwalker.cc">Nathan Walker</a>
+                </p>
+                <p style="color: #555E6D; font-size: 0.8rem; margin-top: 1rem;">
+                    Hosted on GitHub Pages &middot; Governed by Ravenhelm &middot; Zero vendor lock-in
+                </p>
+            </div>
+        </footer>
     </div>
 
-    <!-- What is DIS? -->
-    <section class="about">
-        <div class="container">
-            <h2>What is DIS?</h2>
-            <p>
-                The Domain Intelligence Schema is an <strong>open, platform-agnostic standard</strong> for modeling agentic AI systems in enterprise environments. Think of it as the BNF for business units &mdash; a formal grammar for composing valid domain models. DIS captures domain structure, behavioral rules, execution bindings, and governance. Write the domain once. Apply it to any runtime. The schema is the standard. Compilers and playbooks that apply it are separate.
-            </p>
-        </div>
-    </section>
+    <!-- Interactive Engine JavaScript -->
+    <script>
+        const industries = [
+            {
+                name: "Clinical Healthcare",
+                activeChannel: "chan-voice",
+                role: "ClinicalPharmacist",
+                entity: "MedicationOrder",
+                mode: "RESPOND",
+                invariant: "✓ W3C SHACL Verified · DEA Schedule II Formulary · NPI Attested",
+                substrates: ["Epic Systems EHR", "Cerner Millennium", "MEDITECH Expanse"]
+            },
+            {
+                name: "Banking & Insurance",
+                activeChannel: "chan-chat",
+                role: "ClaimsAdjuster",
+                entity: "FirstNoticeOfLoss",
+                mode: "INITIATE",
+                invariant: "✓ Segregation of Duties · GLBA Compliance Ledger · Audit Receipt",
+                substrates: ["Guidewire ClaimCenter", "FIS Modern Banking", "Fiserv DNA"]
+            },
+            {
+                name: "ITSM & Cyber",
+                activeChannel: "chan-backoffice",
+                role: "SecOpsEngineer",
+                entity: "PrivilegedAccessGrant",
+                mode: "UPDATE",
+                invariant: "✓ Non-Escalation Varar Token · 4-Hour Temporal Lease · Zero Ambient Root",
+                substrates: ["ServiceNow ITSM", "SailPoint IdentityNow", "SAP HANA EAM"]
+            },
+            {
+                name: "Human Capital",
+                activeChannel: "chan-chat",
+                role: "PeoplePartner",
+                entity: "CompensationBand",
+                mode: "READ",
+                invariant: "✓ Multi-Jurisdiction Filter · Masked PII · SOX Compliance Checked",
+                substrates: ["Workday HCM", "SAP SuccessFactors", "Oracle PeopleSoft"]
+            }
+        ];
 
-    <!-- Key Features -->
-    <section>
-        <div class="container">
-            <h2>Key Features</h2>
-            <div class="features-grid">
-                <div class="feature-card glass-card">
-                    <h3>23 Core Constructs</h3>
-                    <p>A complete vocabulary for modeling entities, roles, behaviors, execution bindings, and governance in agentic AI systems.</p>
-                </div>
-                <div class="feature-card glass-card">
-                    <h3>7 Canonical Modes</h3>
-                    <p>Atomic verbs &mdash; CREATE, READ, UPDATE, DELETE, INITIATE, RESPOND, NOTIFY &mdash; that force proper entity discovery and prevent scope creep.</p>
-                </div>
-                <div class="feature-card glass-card">
-                    <h3>Platform-agnostic</h3>
-                    <p>No required vendor. No proprietary runtime. The dossier is portable. Example compilers exist; none are part of the standard.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+        let currentIndex = 0;
+        let progress = 0;
+        const cycleDuration = 4500; // 4.5 seconds
+        const stepInterval = 50;
+        let isHovered = false;
 
-    <!-- Quick Start -->
-    <section class="quickstart">
-        <div class="container">
-            <h2>Quick Start</h2>
-            <p>Reference schemas directly in your IDE, validate with AJV, or generate types for your language.</p>
-            <div class="code-tabs">
-                <div class="code-block">
-                    <div class="label">Minimal dossier &mdash; validates as-is</div>
-                    <pre>{
-  <span class="key">"header"</span>: {
-    <span class="key">"dossierId"</span>: <span class="str">"customer-service-v1"</span>,
-    <span class="key">"domainName"</span>: <span class="str">"Customer Service"</span>,
-    <span class="key">"version"</span>: <span class="str">"1.0.0"</span>,
-    <span class="key">"disSpecificationRef"</span>: <span class="str">"1.6.0"</span>
-  },
-  <span class="key">"dossierSpecificDefinitions"</span>: {}
-}</pre>
-                </div>
-                <div class="code-block">
-                    <div class="label">Validation &mdash; AJV</div>
-                    <pre><span class="cmt"># Validate a dossier against the CDN-hosted schema</span>
-ajv validate \
-  -s https://schemas.domainintelligenceschema.org/dis/1.6.0/DISDossier.schema.json \
-  -d my-dossier.json</pre>
-                </div>
-                <div class="code-block">
-                    <div class="label">Type Generation &mdash; TypeScript</div>
-                    <pre>json-schema-to-typescript \
-  https://schemas.domainintelligenceschema.org/dis/1.6.0/Entity.schema.json \
-  > types/Entity.ts</pre>
-                </div>
-            </div>
-        </div>
-    </section>
+        function updateUI(idx) {
+            const data = industries[idx];
 
-    <!-- Schema Categories -->
-    <section>
-        <div class="container">
-            <h2>Schema Categories</h2>
-            <div class="categories-grid">
-                <div class="category-card glass-card">
-                    <h3>Foundation</h3>
-                    <div class="count">2 schemas</div>
-                    <p>CommonEnums (26 controlled vocabularies) and DISDossier (root container and manifest).</p>
-                </div>
-                <div class="category-card glass-card">
-                    <h3>Identity &amp; Structure</h3>
-                    <div class="count">5 schemas</div>
-                    <p>Entity, Role, Application, Endpoint, and Modes &mdash; the core nouns and interfaces of your domain.</p>
-                </div>
-                <div class="category-card glass-card">
-                    <h3>Behavioral Grammar</h3>
-                    <div class="count">2 schemas</div>
-                    <p>AgenticTriplet (Entity + Mode + Role) and ModeOfInteractionRegistryEntry for behavioral composition.</p>
-                </div>
-                <div class="category-card glass-card">
-                    <h3>Matrices</h3>
-                    <div class="count">4 schemas</div>
-                    <p>AccessGateMatrix, EntityModeMatrix, RelationshipMatrix, and TripletFunctionMatrixEntry for cross-cutting rules.</p>
-                </div>
-                <div class="category-card glass-card">
-                    <h3>Supporting Constructs</h3>
-                    <div class="count">4 schemas</div>
-                    <p>FunctionCatalogEntry, KnowledgeDocument, TagDefinition, and ValidationRule for execution and metadata.</p>
-                </div>
-                <div class="category-card glass-card">
-                    <h3>Governance</h3>
-                    <div class="count">6 schemas</div>
-                    <p>ValueEngineering, DossierComparison, PrivacyManifest, Telemetry, Marketplace, and ChangeManagement.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+            // Tabs
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === idx);
+            });
 
-    <!-- Footer -->
-    <footer>
-        <p><strong>Domain Intelligence Schema v1.6.0</strong></p>
-        <p><a href="https://github.com/nwalker85/domainintelligenceschema/blob/main/LICENSE">Apache License 2.0</a> | <a href="https://github.com/nwalker85/domainintelligenceschema">GitHub</a> | <a href="https://schemas.domainintelligenceschema.org/docs/">Documentation</a> | <a href="https://nwalker.cc/ecosystem">Nathan Walker Ecosystem</a></p>
-        <p>A <a href="https://ravenhelm.ai">Ravenhelm</a> project by <a href="https://nwalker.cc">Nathan Walker</a> | <a href="https://www.linkedin.com/in/nwalker85">LinkedIn</a> | <a href="https://nwalker85.substack.com">Field Notes</a> | <a href="https://nwalker85.substack.com/p/the-row">The origin story</a></p>
-        <p>Hosted on GitHub Pages | Schemas served from Google Cloud Platform</p>
-    </footer>
+            // Channels
+            ['chan-voice', 'chan-chat', 'chan-backoffice'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('active', id === data.activeChannel);
+            });
 
+            // Triplet Cards with quick fade effect
+            const roleEl = document.getElementById('val-role');
+            const entityEl = document.getElementById('val-entity');
+            const modeEl = document.getElementById('val-mode');
+
+            roleEl.style.opacity = '0';
+            entityEl.style.opacity = '0';
+            modeEl.style.opacity = '0';
+
+            setTimeout(() => {
+                roleEl.textContent = data.role;
+                entityEl.textContent = data.entity;
+                modeEl.textContent = data.mode;
+                roleEl.style.opacity = '1';
+                entityEl.style.opacity = '1';
+                modeEl.style.opacity = '1';
+            }, 150);
+
+            // Invariant banner
+            document.getElementById('val-invariant').textContent = data.invariant;
+
+            // Substrates
+            const subContainer = document.getElementById('val-substrates');
+            subContainer.innerHTML = '';
+            data.substrates.forEach(sub => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.innerHTML = `<span class="chip-dot"></span>${sub}`;
+                subContainer.appendChild(chip);
+            });
+        }
+
+        function setIndustry(idx) {
+            currentIndex = idx;
+            progress = 0;
+            document.getElementById('timerProgress').style.width = '0%';
+            updateUI(currentIndex);
+        }
+
+        // Auto-cycle timer loop
+        setInterval(() => {
+            if (isHovered) return;
+
+            progress += (stepInterval / cycleDuration) * 100;
+            if (progress >= 100) {
+                progress = 0;
+                currentIndex = (currentIndex + 1) % industries.length;
+                updateUI(currentIndex);
+            }
+            document.getElementById('timerProgress').style.width = `${progress}%`;
+        }, stepInterval);
+
+        // Pause on hover
+        const engineEl = document.getElementById('engineShowcase');
+        if (engineEl) {
+            engineEl.addEventListener('mouseenter', () => isHovered = true);
+            engineEl.addEventListener('mouseleave', () => isHovered = false);
+        }
+
+        // Initialize first view
+        updateUI(0);
+    </script>
 </body>
 </html>

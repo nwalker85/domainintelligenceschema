@@ -116,6 +116,15 @@ dis:mode          a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:r
 dis:stance        a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:Stance .
 dis:boundFunction a owl:ObjectProperty ; rdfs:range dis:FunctionCatalogEntry .
 
+dis:BindingStatus a owl:Class ; rdfs:label "Binding status" ;
+    rdfs:comment "Execution binding status of an AgenticTriplet." .
+dis:BOUND             a dis:BindingStatus ; rdfs:label "BOUND" ; rdfs:comment "Bound to an executable FunctionCatalogEntry." .
+dis:MANUAL_PROCEDURE  a dis:BindingStatus ; rdfs:label "MANUAL_PROCEDURE" ; rdfs:comment "Executed by a human operator via procedure or physical interaction." .
+dis:ABSTRACT_UNBOUND  a dis:BindingStatus ; rdfs:label "ABSTRACT_UNBOUND" ; rdfs:comment "Deliberately unbound design-time or roadmap interaction." .
+
+dis:bindingStatus a owl:ObjectProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range dis:BindingStatus .
+dis:unboundReason a owl:DatatypeProperty ; rdfs:domain dis:AgenticTriplet ; rdfs:range xsd:string .
+
 dis:policyType       a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:PolicyType .
 dis:enforcement      a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:Enforcement .
 dis:liabilityClass   a owl:ObjectProperty ; rdfs:domain dis:UtterancePolicy ; rdfs:range dis:LiabilityClass .
@@ -139,6 +148,13 @@ dis:MOCK             a dis:ApplicationType ; rdfs:label "MOCK" ;
     rdfs:comment "A stand-in used for design and demonstration. Never a production claim." .
 dis:KNOWLEDGE_STORE  a dis:ApplicationType ; rdfs:label "KNOWLEDGE_STORE" .
 
+dis:NetworkScope a owl:Class ; rdfs:label "Network scope" ;
+    rdfs:comment "Reachability scope for an Application (public Internet, private LAN, local IPC, radio mesh)." .
+dis:SCOPE_PUBLIC     a dis:NetworkScope ; rdfs:label "SCOPE_PUBLIC" ; rdfs:comment "Reachable over public networks; requires TLS (https)." .
+dis:SCOPE_INTERNAL   a dis:NetworkScope ; rdfs:label "SCOPE_INTERNAL" ; rdfs:comment "Private network (LAN, VLAN, Tailscale, container network)." .
+dis:SCOPE_LOCAL_IPC  a dis:NetworkScope ; rdfs:label "SCOPE_LOCAL_IPC" ; rdfs:comment "Host-only loopback or Unix domain socket." .
+dis:SCOPE_RADIO_MESH a dis:NetworkScope ; rdfs:label "SCOPE_RADIO_MESH" ; rdfs:comment "Direct radio peer-to-peer (ESP-NOW, LoRa, BLE, Zigbee)." .
+
 dis:AuthMethod a owl:Class ; rdfs:label "Auth method" .
 dis:NONE   a dis:AuthMethod . dis:API_KEY a dis:AuthMethod .
 dis:OAUTH2 a dis:AuthMethod . dis:BEARER  a dis:AuthMethod .
@@ -147,16 +163,44 @@ dis:HttpMethod a owl:Class ; rdfs:label "HTTP method" .
 dis:GET a dis:HttpMethod . dis:POST a dis:HttpMethod .
 dis:PUT a dis:HttpMethod . dis:PATCH a dis:HttpMethod . dis:HTTP_DELETE a dis:HttpMethod .
 
+dis:Transport a owl:Class ; rdfs:label "Transport" ;
+    rdfs:comment "A protocol or network transport mechanism supported by an Endpoint." .
+dis:TRANSPORT_HTTPS       a dis:Transport ; rdfs:label "HTTPS" ; rdfs:comment "Encrypted HTTP/1.1 or HTTP/2." .
+dis:TRANSPORT_HTTP        a dis:Transport ; rdfs:label "HTTP" ; rdfs:comment "Plain HTTP (LAN, localhost, or unencrypted microcontrollers)." .
+dis:TRANSPORT_SSE         a dis:Transport ; rdfs:label "SSE" ; rdfs:comment "Server-Sent Events unidirectional stream." .
+dis:TRANSPORT_WEBSOCKET   a dis:Transport ; rdfs:label "WEBSOCKET" ; rdfs:comment "Full-duplex WebSocket framing (WS/WSS)." .
+dis:TRANSPORT_WEBRTC      a dis:Transport ; rdfs:label "WEBRTC" ; rdfs:comment "Peer-to-peer real-time audio, video, or data channels." .
+dis:TRANSPORT_ESPNOW      a dis:Transport ; rdfs:label "ESPNOW" ; rdfs:comment "Connectionless 2.4 GHz packet radio for ESP32/ESP8266." .
+dis:TRANSPORT_RTSP        a dis:Transport ; rdfs:label "RTSP" ; rdfs:comment "Real-Time Streaming Protocol for video/audio streams." .
+dis:TRANSPORT_MQTT        a dis:Transport ; rdfs:label "MQTT" ; rdfs:comment "Lightweight publish/subscribe messaging over broker topics." .
+dis:TRANSPORT_NATS        a dis:Transport ; rdfs:label "NATS" ; rdfs:comment "Distributed messaging, JetStream subjects, and key-value buckets." .
+dis:TRANSPORT_GRPC        a dis:Transport ; rdfs:label "GRPC" ; rdfs:comment "RPC over HTTP/2 with Protocol Buffers." .
+dis:TRANSPORT_UNIX_SOCKET a dis:Transport ; rdfs:label "UNIX_SOCKET" ; rdfs:comment "Local inter-process communication via filesystem socket." .
+dis:TRANSPORT_BLE         a dis:Transport ; rdfs:label "BLE" ; rdfs:comment "Bluetooth Low Energy GATT services and characteristics." .
+dis:TRANSPORT_SERIAL      a dis:Transport ; rdfs:label "SERIAL" ; rdfs:comment "Byte-stream serial communications (USB CDC, RS-485, Modbus)." .
+dis:TRANSPORT_CAN_BUS     a dis:Transport ; rdfs:label "CAN_BUS" ; rdfs:comment "Controller Area Network automotive and embedded bus." .
+
 dis:applicationType a owl:ObjectProperty ; rdfs:domain dis:Application ; rdfs:range dis:ApplicationType .
+dis:networkScope    a owl:ObjectProperty ; rdfs:domain dis:Application ; rdfs:range dis:NetworkScope .
 dis:authMethod      a owl:ObjectProperty ; rdfs:domain dis:Application ; rdfs:range dis:AuthMethod .
 dis:baseUrl         a owl:DatatypeProperty ; rdfs:domain dis:Application ; rdfs:range xsd:string .
 
 dis:hostedBy   a owl:ObjectProperty ; rdfs:domain dis:Endpoint ; rdfs:range dis:Application .
+dis:transport  a owl:ObjectProperty ; rdfs:domain dis:Endpoint ; rdfs:range dis:Transport .
 dis:httpMethod a owl:ObjectProperty ; rdfs:domain dis:Endpoint ; rdfs:range dis:HttpMethod .
 dis:urlPath    a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
+dis:topic        a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
+dis:streamUri    a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
+dis:subject      a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
+dis:peerAddress  a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
+dis:socketPath   a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
+dis:channel      a owl:DatatypeProperty ; rdfs:domain dis:Endpoint ; rdfs:range xsd:string .
 
 dis:callsEndpoint  a owl:ObjectProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range dis:Endpoint .
 dis:readsEntity    a owl:ObjectProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range dis:Entity .
+dis:writesEntity   a owl:ObjectProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range dis:Entity ;
+    rdfs:label "writes entity" ;
+    rdfs:comment "The Entity whose state is created, updated, or deleted by this function. Required when the bound Endpoint mutates." .
 dis:inputFields    a owl:DatatypeProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range xsd:string .
 dis:outputFields   a owl:DatatypeProperty ; rdfs:domain dis:FunctionCatalogEntry ; rdfs:range xsd:string .
 
@@ -175,11 +219,14 @@ dis:AccessGateMatrix a owl:Class ; rdfs:subClassOf dis:Construct ;
     rdfs:label "Access gate matrix" ;
     rdfs:comment "Which Role may use which modes on which Entity. Authority: who may. Contrast UtterancePolicy, which governs the utterance once reach is granted." .
 
-dis:matrixEntity   a owl:ObjectProperty ; rdfs:range dis:Entity .
-dis:matrixRole     a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:Role .
-dis:supportedMode  a owl:ObjectProperty ; rdfs:domain dis:EntityModeMatrix ; rdfs:range dis:Mode .
-dis:allowedMode    a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:Mode .
-dis:gateCondition  a owl:DatatypeProperty ; rdfs:range xsd:string ;
+dis:matrixEntity    a owl:ObjectProperty ; rdfs:range dis:Entity .
+dis:matrixRole      a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:Role .
+dis:supportedMode   a owl:ObjectProperty ; rdfs:domain dis:EntityModeMatrix ; rdfs:range dis:Mode .
+dis:allowedMode     a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:Mode .
+dis:allowedFunction a owl:ObjectProperty ; rdfs:domain dis:AccessGateMatrix ; rdfs:range dis:FunctionCatalogEntry ;
+    rdfs:label "allowed function" ;
+    rdfs:comment "Restricts the gate to specific executable functions." .
+dis:gateCondition   a owl:DatatypeProperty ; rdfs:range xsd:string ;
     rdfs:comment "An executable condition that must hold for the gate to open. Empty means unconditional." .
 
 # ------------------------------------------------- the instance set (1.7)

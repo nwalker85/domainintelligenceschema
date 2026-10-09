@@ -1,318 +1,546 @@
 @prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
 @prefix b:   <https://dossier.ravenhelm.dev/bfsi/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
-@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <https://dossier.ravenhelm.dev/bfsi/> a owl:Ontology ;
-    dct:title "Vanguard Federal Financial Virtual Banking Assistant" ;
+    owl:versionInfo "1.8.0" ;
     dis:dossierType dis:DESIGN ;
-    dis:dossierStatus dis:DRAFT ;
-    owl:versionInfo "1.0.0" .
+    dis:dossierStatus dis:APPROVED ;
+    rdfs:label "Banking, Financial Services & Insurance (BFSI) Multi-Domain Dossier" ;
+    rdfs:comment "Dual-domain reference architecture: Retail Banking (authenticated accountholders vs unauthenticated callers across FIS and Fiserv) and Insurance Claims (FNOL, coverage, claim adjudication across Guidewire ClaimCenter & PolicyCenter)." .
 
-# ---------- Roles ----------
-b:accountholder a dis:Role ;
-    dis:roleType "human" ;
-    dis:description "Retail banking customer with checking, savings, or credit accounts." ;
-    dis:name "Account Holder" .
+# =============================================================================
+# 1. SYSTEMS LAYER (FIS, Fiserv, Guidewire)
+# =============================================================================
 
-b:banking-assistant a dis:Role ;
-    dis:roleType "agent" ;
-    dis:description "Automated banking assistant handling balances, transaction history, and card locks." ;
-    dis:name "Banking Virtual Assistant" .
-
-b:fraud-analyst a dis:Role ;
-    dis:roleType "human" ;
-    dis:description "Bank security specialist investigating suspicious transactions and identity theft." ;
-    dis:name "Fraud Analyst" .
-
-b:wealth-advisor a dis:Role ;
-    dis:roleType "human" ;
-    dis:description "Licensed financial advisor holding sole authority to provide investment and securities recommendations." ;
-    dis:name "Wealth Advisor" .
-
-b:branch-specialist a dis:Role ;
-    dis:roleType "human" ;
-    dis:description "In-branch customer service representative handling high-value wire transfers and notary services." ;
-    dis:name "Branch Specialist" .
-
-# ---------- Entities ----------
-b:bankaccount a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Customer deposit account, current balance, available balance, and routing numbers." ;
-    dis:name "BankAccount" .
-
-b:transaction a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Posted or pending transaction debit/credit records." ;
-    dis:name "Transaction" .
-
-b:creditcard a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Credit card account, card status (active, frozen, replaced), and credit limit." ;
-    dis:name "CreditCard" .
-
-b:fraudalert a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Suspected unauthorized debit or transaction dispute." ;
-    dis:name "FraudAlert" .
-
-b:wiretransfer a dis:Entity ;
-    dis:entityType "data" ;
-    dis:description "Outbound wire or ACH transfer request." ;
-    dis:name "WireTransfer" .
-
-# ---------- Systems Layer ----------
-b:core-banking-api a dis:Application ;
+b:fis-modern-banking a dis:Application ;
+    dis:name "FIS Modern Banking Platform (MBP)" ;
+    dis:description "Real-time core banking engine for deposits, transaction ledgers, ACH transfers, and Reg E dispute intake." ;
     dis:applicationType dis:SYSTEM_OF_RECORD ;
-    dis:authMethod dis:OAUTH2 ;
-    dis:baseUrl "https://core.example.bank/api/v2" ;
-    dis:description "Core ledger banking platform providing real-time balances and transaction history." ;
-    dis:name "Core Banking API" .
+    dis:networkScope dis:SCOPE_PUBLIC ;
+    dis:baseUrl "https://fis-core.bank.internal/api/v3" ;
+    dis:authMethod dis:OAUTH2 .
 
-b:get-account-balance a dis:Endpoint ;
-    dis:hostedBy b:core-banking-api ;
+b:fiserv-card-services a dis:Application ;
+    dis:name "Fiserv Signature & Card Services" ;
+    dis:description "Enterprise debit card processing, fraud monitoring, and instant debit card freeze gateway." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_PUBLIC ;
+    dis:baseUrl "https://cards.fiserv.bank.internal/v2" ;
+    dis:authMethod dis:OAUTH2 .
+
+b:guidewire-claimcenter a dis:Application ;
+    dis:name "Guidewire ClaimCenter" ;
+    dis:description "Property & casualty claims administration, First Notice of Loss (FNOL) intake, and adjuster adjudication engine." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_PUBLIC ;
+    dis:baseUrl "https://claimcenter.insurance.internal/rest/v1" ;
+    dis:authMethod dis:OAUTH2 .
+
+b:guidewire-policycenter a dis:Application ;
+    dis:name "Guidewire PolicyCenter" ;
+    dis:description "Underwriting and policy administration system holding personal auto, homeowners, and commercial coverage lines." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_PUBLIC ;
+    dis:baseUrl "https://policycenter.insurance.internal/rest/v1" ;
+    dis:authMethod dis:OAUTH2 .
+
+# --- Endpoints ---
+
+b:ep-fis-get-balance a dis:Endpoint ;
+    dis:name "FIS Get Account Balance" ;
+    dis:description "Returns available and ledger balances for authenticated DDA accounts." ;
+    dis:hostedBy b:fis-modern-banking ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/accounts/{id}/balances" ;
+    dis:mutates false .
+
+b:ep-fis-create-transfer a dis:Endpoint ;
+    dis:name "FIS Create Funds Transfer" ;
+    dis:description "Executes internal account-to-account or external ACH transfer." ;
+    dis:hostedBy b:fis-modern-banking ;
+    dis:transport dis:TRANSPORT_HTTPS ;
     dis:httpMethod dis:POST ;
-    dis:urlPath "/accounts/balance" ;
-    dis:mutates false ;
-    dis:description "Returns verified account balance details for authenticated customer." ;
-    dis:name "Get account balance" .
+    dis:urlPath "/transfers" ;
+    dis:mutates true .
 
-b:get-recent-transactions a dis:Endpoint ;
-    dis:hostedBy b:core-banking-api ;
+b:ep-fis-create-dispute a dis:Endpoint ;
+    dis:name "FIS Create Reg E Dispute" ;
+    dis:description "Logs formal unauthorized charge dispute and initiates provisional credit review." ;
+    dis:hostedBy b:fis-modern-banking ;
+    dis:transport dis:TRANSPORT_HTTPS ;
     dis:httpMethod dis:POST ;
-    dis:urlPath "/accounts/transactions" ;
-    dis:mutates false ;
-    dis:description "Returns last 30 days of posted and pending account transactions." ;
-    dis:name "Get recent transactions" .
+    dis:urlPath "/disputes" ;
+    dis:mutates true .
 
-b:post-lock-card a dis:Endpoint ;
-    dis:hostedBy b:core-banking-api ;
+b:ep-fiserv-freeze-card a dis:Endpoint ;
+    dis:name "Fiserv Freeze Debit Card" ;
+    dis:description "Toggles debit card status to FROZEN to prevent unauthorized POS and ATM debits." ;
+    dis:hostedBy b:fiserv-card-services ;
+    dis:transport dis:TRANSPORT_HTTPS ;
     dis:httpMethod dis:POST ;
-    dis:urlPath "/cards/lock" ;
-    dis:mutates true ;
-    dis:description "Immediately updates credit or debit card status to temporary frozen state." ;
-    dis:name "Lock payment card" .
+    dis:urlPath "/cards/{id}/freeze" ;
+    dis:mutates true .
 
-b:fn-read-balance a dis:FunctionCatalogEntry ;
-    dis:callsEndpoint b:get-account-balance ;
-    dis:readsEntity b:bankaccount ;
-    dis:inputFields "account_id,auth_token" ;
-    dis:outputFields "account_id,account_type,current_balance,available_balance" ;
-    dis:description "Retrieves current and available balance for an authenticated bank account." ;
-    dis:name "Read account balance" .
+b:ep-guidewire-submit-fnol a dis:Endpoint ;
+    dis:name "Guidewire Submit FNOL" ;
+    dis:description "Ingests First Notice of Loss incident data, assigns claim number, and routes to catastrophe/adjuster queue." ;
+    dis:hostedBy b:guidewire-claimcenter ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/claims/fnol" ;
+    dis:mutates true .
 
-b:fn-read-transactions a dis:FunctionCatalogEntry ;
-    dis:callsEndpoint b:get-recent-transactions ;
-    dis:readsEntity b:transaction ;
-    dis:inputFields "account_id,days,auth_token" ;
-    dis:outputFields "account_id,transactions_list,total_count" ;
-    dis:description "Retrieves recent transactions for an authenticated bank account." ;
-    dis:name "Read recent transactions" .
+b:ep-guidewire-get-coverage a dis:Endpoint ;
+    dis:name "Guidewire Get Policy Coverage" ;
+    dis:description "Retrieves active coverages, deductibles, endorsements, and policy status." ;
+    dis:hostedBy b:guidewire-policycenter ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/policies/{id}/coverage" ;
+    dis:mutates false .
 
-b:fn-lock-card a dis:FunctionCatalogEntry ;
-    dis:callsEndpoint b:post-lock-card ;
-    dis:readsEntity b:creditcard ;
-    dis:inputFields "card_last_four,lock_reason,auth_token" ;
-    dis:outputFields "card_last_four,status,lock_timestamp" ;
-    dis:description "Applies an instant freeze lock to a card to prevent unauthorized debits." ;
-    dis:name "Lock card function" .
+b:ep-guidewire-get-claim a dis:Endpoint ;
+    dis:name "Guidewire Get Claim Status" ;
+    dis:description "Fetches claim adjudication progress, adjuster contact, and payment status." ;
+    dis:hostedBy b:guidewire-claimcenter ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/claims/{id}" ;
+    dis:mutates false .
 
-# ---------- Agentic Triplets ----------
-b:t1-read-account-balance a dis:AgenticTriplet ;
-    dis:actingRole b:banking-assistant ;
-    dis:boundFunction b:fn-read-balance ;
+# --- Functions ---
+
+b:fn-get-account-balance a dis:FunctionCatalogEntry ;
+    dis:name "Get Account Balance" ;
+    dis:description "Queries available balance in FIS MBP." ;
+    dis:callsEndpoint b:ep-fis-get-balance ;
+    dis:readsEntity b:demand-deposit-account ;
+    dis:inputFields "account_id,auth_session_token" ;
+    dis:outputFields "account_id,available_balance,ledger_balance,currency" .
+
+b:fn-create-funds-transfer a dis:FunctionCatalogEntry ;
+    dis:name "Create Funds Transfer" ;
+    dis:description "Executes money transfer via FIS core." ;
+    dis:callsEndpoint b:ep-fis-create-transfer ;
+    dis:readsEntity b:demand-deposit-account ;
+    dis:writesEntity b:account-transfer-record ;
+    dis:inputFields "source_account_id,destination_account_id,amount,currency,transfer_type" ;
+    dis:outputFields "transfer_id,status,settlement_date,confirmation_code" .
+
+b:fn-dispute-transaction a dis:FunctionCatalogEntry ;
+    dis:name "Dispute Charge" ;
+    dis:description "Files Reg E dispute in FIS core." ;
+    dis:callsEndpoint b:ep-fis-create-dispute ;
+    dis:readsEntity b:demand-deposit-account ;
+    dis:writesEntity b:transaction-dispute ;
+    dis:inputFields "account_id,transaction_id,dispute_reason_code,disputed_amount" ;
+    dis:outputFields "dispute_id,provisional_credit_eligibility,case_number,filing_date" .
+
+b:fn-freeze-debit-card a dis:FunctionCatalogEntry ;
+    dis:name "Freeze Lost Debit Card" ;
+    dis:description "Applies instant freeze lock in Fiserv card services." ;
+    dis:callsEndpoint b:ep-fiserv-freeze-card ;
+    dis:readsEntity b:cardholder-debit-card ;
+    dis:writesEntity b:cardholder-debit-card ;
+    dis:inputFields "card_token,lock_reason,auth_token" ;
+    dis:outputFields "card_token,card_status,lock_timestamp" .
+
+b:fn-submit-fnol a dis:FunctionCatalogEntry ;
+    dis:name "Submit FNOL Incident" ;
+    dis:description "Submits claim FNOL to Guidewire ClaimCenter." ;
+    dis:callsEndpoint b:ep-guidewire-submit-fnol ;
+    dis:readsEntity b:insurance-policy-coverage ;
+    dis:writesEntity b:first-notice-of-loss ;
+    dis:inputFields "policy_number,date_of_loss,loss_location,incident_summary" ;
+    dis:outputFields "claim_number,assigned_adjuster,initial_status,incident_id" .
+
+b:fn-get-coverage a dis:FunctionCatalogEntry ;
+    dis:name "Get Policy Coverage Info" ;
+    dis:description "Retrieves coverage details from Guidewire PolicyCenter." ;
+    dis:callsEndpoint b:ep-guidewire-get-coverage ;
+    dis:readsEntity b:insurance-policy-coverage ;
+    dis:inputFields "policy_number,effective_date" ;
+    dis:outputFields "policy_number,comprehensive_deductible,collision_deductible,liability_limit" .
+
+b:fn-get-claim-status a dis:FunctionCatalogEntry ;
+    dis:name "Get Claim Adjudication Status" ;
+    dis:description "Queries claim progress in Guidewire ClaimCenter." ;
+    dis:callsEndpoint b:ep-guidewire-get-claim ;
+    dis:readsEntity b:adjudicated-claim ;
+    dis:inputFields "claim_number,policyholder_ssn_last4" ;
+    dis:outputFields "claim_number,stage,adjuster_name,adjuster_phone,estimated_payout" .
+
+# =============================================================================
+# 2. ROLES & ENTITIES
+# =============================================================================
+
+# --- Roles (Authenticated vs Unauthenticated) ---
+
+b:unauthenticated-caller a dis:Role ;
+    dis:roleType "human" ;
+    dis:name "Unauthenticated Caller" ;
+    dis:description "Anonymous caller, prospective customer, or accountholder prior to step-up authentication. Structurally denied access to private banking entities." .
+
+b:authenticated-accountholder a dis:Role ;
+    dis:roleType "human" ;
+    dis:name "Authenticated Accountholder" ;
+    dis:description "Verified customer who has satisfied MFA / biometric security criteria and holds an active session token." .
+
+b:insurance-claimant a dis:Role ;
+    dis:roleType "human" ;
+    dis:name "Insurance Claimant" ;
+    dis:description "Policyholder, designated driver, or claimant reporting or tracking a casualty loss." .
+
+b:bfsi-concierge-agent a dis:Role ;
+    dis:roleType "agent" ;
+    dis:name "BFSI Virtual Concierge" ;
+    dis:description "Enterprise AI conversational agent assisting with banking operations and insurance claim intake." .
+
+# --- Entities ---
+
+b:demand-deposit-account a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Demand Deposit Account (DDA)" ;
+    dis:description "Checking or savings ledger account held in FIS Modern Banking Platform." .
+
+b:account-transfer-record a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Account Transfer Record" ;
+    dis:description "Executed funds movement transaction." .
+
+b:transaction-dispute a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Transaction Dispute Case" ;
+    dis:description "Regulation E contested charge claim." .
+
+b:cardholder-debit-card a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Cardholder Debit Card" ;
+    dis:description "Debit card token and authorization state in Fiserv." .
+
+b:public-branch-location a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Public Branch & ATM Location" ;
+    dis:description "Public directory of physical branch hours, surcharge-free ATMs, and deposit drop-boxes." .
+
+b:insurance-policy-coverage a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Insurance Policy Coverage" ;
+    dis:description "P&C policy schedule in Guidewire PolicyCenter." .
+
+b:first-notice-of-loss a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "First Notice of Loss (FNOL)" ;
+    dis:description "Initial incident notification document submitted to Guidewire ClaimCenter." .
+
+b:adjudicated-claim a dis:Entity ;
+    dis:entityType "data" ;
+    dis:name "Adjudicated Insurance Claim" ;
+    dis:description "Active claim file undergoing investigation, appraisal, or settlement." .
+
+# =============================================================================
+# 3. AGENTIC TRIPLETS
+# =============================================================================
+
+# Public / Unauthenticated
+b:t1-lookup-branch-location a dis:AgenticTriplet ;
+    dis:actingRole b:bfsi-concierge-agent ;
     dis:stance dis:REACT ;
     dis:mode dis:READ ;
-    dis:targetEntity b:bankaccount ;
-    dis:description "Authenticated customer asks for account balance." ;
-    dis:name "T1 read account balance" .
+    dis:targetEntity b:public-branch-location ;
+    dis:bindingStatus dis:MANUAL_PROCEDURE ;
+    dis:unboundReason "Lookup from public geospatial directory" ;
+    dis:name "Lookup branch or ATM location" ;
+    dis:description "Unauthenticated caller asks for nearest open branch or ATM." .
 
-b:t2-read-transactions a dis:AgenticTriplet ;
-    dis:actingRole b:banking-assistant ;
-    dis:boundFunction b:fn-read-transactions ;
+# Retail Banking (Authenticated Accountholder)
+b:t2-lookup-balance a dis:AgenticTriplet ;
+    dis:actingRole b:bfsi-concierge-agent ;
+    dis:boundFunction b:fn-get-account-balance ;
     dis:stance dis:REACT ;
     dis:mode dis:READ ;
-    dis:targetEntity b:transaction ;
-    dis:description "Authenticated customer inquires about recent debits or deposits." ;
-    dis:name "T2 read transactions" .
+    dis:targetEntity b:demand-deposit-account ;
+    dis:name "Lookup account balance" ;
+    dis:description "Queries available balance in FIS core for verified customer." .
 
-b:t3-lock-card a dis:AgenticTriplet ;
-    dis:actingRole b:banking-assistant ;
-    dis:boundFunction b:fn-lock-card ;
+b:t3-execute-transfer a dis:AgenticTriplet ;
+    dis:actingRole b:bfsi-concierge-agent ;
+    dis:boundFunction b:fn-create-funds-transfer ;
+    dis:stance dis:ACT ;
+    dis:mode dis:CREATE ;
+    dis:targetEntity b:account-transfer-record ;
+    dis:name "Transfer funds" ;
+    dis:description "Executes internal or external funds movement." .
+
+b:t4-dispute-charge a dis:AgenticTriplet ;
+    dis:actingRole b:bfsi-concierge-agent ;
+    dis:boundFunction b:fn-dispute-transaction ;
+    dis:stance dis:ACT ;
+    dis:mode dis:CREATE ;
+    dis:targetEntity b:transaction-dispute ;
+    dis:name "Dispute unauthorized charge" ;
+    dis:description "Initiates formal Reg E investigation in FIS." .
+
+b:t5-freeze-lost-card a dis:AgenticTriplet ;
+    dis:actingRole b:bfsi-concierge-agent ;
+    dis:boundFunction b:fn-freeze-debit-card ;
     dis:stance dis:ACT ;
     dis:mode dis:UPDATE ;
-    dis:targetEntity b:creditcard ;
-    dis:description "Customer requests an emergency lock on a lost or stolen card." ;
-    dis:name "T3 lock card" .
+    dis:targetEntity b:cardholder-debit-card ;
+    dis:name "Freeze lost or stolen debit card" ;
+    dis:description "Instantly freezes card in Fiserv." .
 
-b:t4-escalate-fraud-alert a dis:AgenticTriplet ;
-    dis:actingRole b:banking-assistant ;
+# Insurance Claims
+b:t6-file-fnol a dis:AgenticTriplet ;
+    dis:actingRole b:bfsi-concierge-agent ;
+    dis:boundFunction b:fn-submit-fnol ;
     dis:stance dis:ACT ;
-    dis:mode dis:INITIATE ;
-    dis:targetEntity b:fraudalert ;
-    dis:description "Transfers caller reporting unauthorized activity to human fraud investigation." ;
-    dis:name "T4 escalate fraud alert" .
+    dis:mode dis:CREATE ;
+    dis:targetEntity b:first-notice-of-loss ;
+    dis:name "Submit FNOL claim" ;
+    dis:description "Files initial damage claim in Guidewire ClaimCenter." .
 
-b:t5-route-to-branch a dis:AgenticTriplet ;
-    dis:actingRole b:banking-assistant ;
-    dis:stance dis:ACT ;
-    dis:mode dis:INITIATE ;
-    dis:targetEntity b:wiretransfer ;
-    dis:description "Transfers large outbound wire transfers to in-branch wire specialists." ;
-    dis:name "T5 route to branch" .
+b:t7-check-policy-coverage a dis:AgenticTriplet ;
+    dis:actingRole b:bfsi-concierge-agent ;
+    dis:boundFunction b:fn-get-coverage ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity b:insurance-policy-coverage ;
+    dis:name "Check policy coverage limits" ;
+    dis:description "Queries policy deductibles and limits in Guidewire PolicyCenter." .
 
-# ---------- Utterance Policies (Financial & Regulatory Governance) ----------
-b:p1-reg-e-dispute-disclosure a dis:UtterancePolicy ;
+b:t8-track-claim-status a dis:AgenticTriplet ;
+    dis:actingRole b:bfsi-concierge-agent ;
+    dis:boundFunction b:fn-get-claim-status ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:targetEntity b:adjudicated-claim ;
+    dis:name "Track claim adjudication status" ;
+    dis:description "Provides status and assigned adjuster details from Guidewire ClaimCenter." .
+
+# =============================================================================
+# 4. GOVERNANCE & UTTERANCE POLICIES
+# =============================================================================
+
+b:p1-pci-dss-card-redaction a dis:UtterancePolicy ;
+    dis:name "PCI DSS full PAN redaction" ;
+    dis:description "Mandatory compliance with Payment Card Industry Data Security Standard (PCI DSS) 4.0." ;
+    dis:policyType dis:PROHIBITION ;
     dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:onViolation dis:REDACT ;
+    dis:requirement "The agent must never speak, print, or log more than the last 4 digits of a payment card. CVV/CVC codes must be completely suppressed." ;
+    dis:appliesToTriplet b:t5-freeze-lost-card ;
+    dis:appliesToEntity b:cardholder-debit-card .
+
+b:p2-glba-financial-privacy-limit a dis:UtterancePolicy ;
+    dis:name "GLBA financial privacy disclosure limit" ;
+    dis:description "Gramm-Leach-Bliley Act privacy mandate protecting customer non-public personal information." ;
+    dis:policyType dis:DISCLOSURE_LIMIT ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:FINANCIAL ;
+    dis:onViolation dis:REFUSE ;
+    dis:requirement "Account balances and transaction histories are disclosable only after successful cryptographic MFA authentication. Never disclosable to unauthenticated callers." ;
+    dis:appliesToTriplet b:t2-lookup-balance ;
+    dis:appliesToEntity b:demand-deposit-account .
+
+b:p3-transfer-verbal-confirmation a dis:UtterancePolicy ;
+    dis:name "Transfer verbal confirmation obligation" ;
+    dis:description "Mandatory verbal readback before executing irreversible monetary debits." ;
     dis:policyType dis:OBLIGATION ;
-    dis:requirement "Any utterance referencing disputed electronic fund transfers must state Regulation E 60-day dispute rights and provisional credit terms." ;
-    dis:description "CFPB Regulation E statutory consumer disclosure requirement." ;
-    dis:name "P1 Reg E dispute disclosure" ;
-    dis:liabilityClass dis:REGULATORY ;
-    dis:boundValue b:regulation-e-disclosure-statement ;
-    dis:appliesToTriplet b:t4-escalate-fraud-alert ;
-    dis:onViolation dis:REFUSE .
-
-b:p2-investment-advice-prohibition a dis:UtterancePolicy ;
     dis:enforcement dis:STRUCTURAL ;
-    dis:policyType dis:PROHIBITION ;
-    dis:requirement "The automated assistant must not recommend stocks, ETFs, mutual funds, or offer wealth investment advice. Inquiries must route to a registered wealth advisor." ;
-    dis:description "FINRA / SEC regulatory compliance boundary." ;
-    dis:name "P2 investment advice prohibition" ;
-    dis:liabilityClass dis:REGULATORY ;
-    dis:appliesToRole b:banking-assistant ;
-    dis:onViolation dis:ESCALATE .
+    dis:liabilityClass dis:FINANCIAL ;
+    dis:onViolation dis:REFUSE ;
+    dis:requirement "Before committing a funds transfer, the agent MUST explicitly recite the source account, destination account, dollar amount, and fee schedule to the caller." ;
+    dis:boundValue b:account-transfer-record ;
+    dis:appliesToTriplet b:t3-execute-transfer ;
+    dis:appliesToEntity b:account-transfer-record .
 
-b:p3-pci-dss-masked-pan a dis:UtterancePolicy ;
+b:p4-fnol-emergency-redirection a dis:UtterancePolicy ;
+    dis:name "FNOL bodily injury emergency deflection" ;
+    dis:description "Directs active emergency casualty incidents to 911." ;
+    dis:policyType dis:OBLIGATION ;
     dis:enforcement dis:STRUCTURAL ;
-    dis:policyType dis:PROHIBITION ;
-    dis:requirement "The assistant must never utter or display full 16-digit Primary Account Numbers (PAN) or 3-digit CVV security codes. Only the last four digits may be spoken." ;
-    dis:description "PCI-DSS cardholder data protection standard." ;
-    dis:name "P3 PCI DSS masked PAN" ;
-    dis:liabilityClass dis:REGULATORY ;
-    dis:appliesToTriplet b:t3-lock-card ;
-    dis:onViolation dis:REFUSE .
+    dis:liabilityClass dis:SAFETY ;
+    dis:onViolation dis:ESCALATE ;
+    dis:requirement "If an FNOL report indicates active bodily injury, fire, or immediate highway hazard, the agent must instruct the caller to seek emergency medical attention before taking claim notes." ;
+    dis:boundValue b:first-notice-of-loss ;
+    dis:appliesToTriplet b:t6-file-fnol ;
+    dis:appliesToEntity b:first-notice-of-loss .
 
-b:p4-unauthenticated-balance-refusal a dis:UtterancePolicy ;
-    dis:enforcement dis:STRUCTURAL ;
-    dis:policyType dis:PROHIBITION ;
-    dis:requirement "Account balance figures must never be uttered without prior multi-factor authentication or confirmed customer verification." ;
-    dis:description "GLBA and financial privacy safeguarding rule." ;
-    dis:name "P4 unauthenticated balance refusal" ;
-    dis:liabilityClass dis:REGULATORY ;
-    dis:appliesToTriplet b:t1-read-account-balance ;
-    dis:onViolation dis:REFUSE .
+# =============================================================================
+# 5. GRAMMAR MATRICES (Denials are the Model)
+# =============================================================================
 
-b:p5-greeting-security-notice a dis:UtterancePolicy ;
-    dis:enforcement dis:INSTRUCTED ;
-    dis:policyType dis:LIFECYCLE ;
-    dis:requirement "Opening greeting informs customer that session calls may be recorded for quality and security, and prompts for secure verification." ;
-    dis:description "Standard regulatory and service disclosure in greeting phase." ;
-    dis:name "P5 greeting security notice" ;
-    dis:liabilityClass dis:STANDARD ;
-    dis:lifecyclePhase dis:GREETING ;
-    dis:onViolation dis:LOG_ONLY .
-
-# ---------- Entity-Mode Matrices ----------
-b:emm-bankaccount a dis:EntityModeMatrix ;
-    dis:matrixEntity b:bankaccount ;
+b:emm-dda a dis:EntityModeMatrix ;
+    dis:matrixEntity b:demand-deposit-account ;
     dis:supportedMode dis:READ ;
-    dis:description "Bank accounts are read for balance queries; balance updates only occur via core ledger transactions." ;
-    dis:name "bankaccount supports READ" .
+    dis:name "DDA supports READ" ;
+    dis:description "Balance and account details are read-only in conversational interface." .
 
-b:emm-transaction a dis:EntityModeMatrix ;
-    dis:matrixEntity b:transaction ;
+b:emm-transfer a dis:EntityModeMatrix ;
+    dis:matrixEntity b:account-transfer-record ;
+    dis:supportedMode dis:CREATE , dis:READ ;
+    dis:name "Transfer supports CREATE, READ" ;
+    dis:description "Transfers are created and queried; never edited." .
+
+b:emm-dispute a dis:EntityModeMatrix ;
+    dis:matrixEntity b:transaction-dispute ;
+    dis:supportedMode dis:CREATE , dis:READ ;
+    dis:name "Dispute supports CREATE, READ" ;
+    dis:description "Disputes are submitted and tracked." .
+
+b:emm-card a dis:EntityModeMatrix ;
+    dis:matrixEntity b:cardholder-debit-card ;
+    dis:supportedMode dis:READ , dis:UPDATE ;
+    dis:name "Debit card supports READ, UPDATE" ;
+    dis:description "Cards can be inspected or frozen (UPDATE)." .
+
+b:emm-location a dis:EntityModeMatrix ;
+    dis:matrixEntity b:public-branch-location ;
     dis:supportedMode dis:READ ;
-    dis:description "Transactions are read-only historical ledger records." ;
-    dis:name "transaction supports READ" .
+    dis:name "Branch location supports READ" ;
+    dis:description "Public location directory is read-only." .
 
-b:emm-creditcard a dis:EntityModeMatrix ;
-    dis:matrixEntity b:creditcard ;
+b:emm-policy a dis:EntityModeMatrix ;
+    dis:matrixEntity b:insurance-policy-coverage ;
     dis:supportedMode dis:READ ;
-    dis:supportedMode dis:UPDATE ;
-    dis:description "Cards can be inspected and updated for temporary freeze/lock." ;
-    dis:name "creditcard supports READ, UPDATE" .
+    dis:name "Policy coverage supports READ" ;
+    dis:description "Coverage schedule is read-only." .
 
-b:emm-fraudalert a dis:EntityModeMatrix ;
-    dis:matrixEntity b:fraudalert ;
-    dis:supportedMode dis:INITIATE ;
-    dis:description "Fraud alerts are initiated to transfer to security analysts." ;
-    dis:name "fraudalert supports INITIATE" .
+b:emm-fnol a dis:EntityModeMatrix ;
+    dis:matrixEntity b:first-notice-of-loss ;
+    dis:supportedMode dis:CREATE , dis:READ ;
+    dis:name "FNOL supports CREATE, READ" ;
+    dis:description "First notice of loss is immutable upon creation." .
 
-b:emm-wiretransfer a dis:EntityModeMatrix ;
-    dis:matrixEntity b:wiretransfer ;
-    dis:supportedMode dis:INITIATE ;
-    dis:description "High-value wires are handed off to authorized branch personnel." ;
-    dis:name "wiretransfer supports INITIATE" .
+b:emm-claim a dis:EntityModeMatrix ;
+    dis:matrixEntity b:adjudicated-claim ;
+    dis:supportedMode dis:READ ;
+    dis:name "Claim adjudication supports READ" ;
+    dis:description "Claim details are read-only." .
 
-# ---------- Access Gate Matrices ----------
-b:gate-accountholder-bankaccount a dis:AccessGateMatrix ;
-    dis:matrixRole b:accountholder ;
-    dis:matrixEntity b:bankaccount ;
+# --- Access Gates (Explicit Denials for Unauthenticated Callers) ---
+
+# The Unauthenticated Gate: ONLY branch locations
+b:gate-unauth-locations a dis:AccessGateMatrix ;
+    dis:matrixRole b:unauthenticated-caller ;
+    dis:matrixEntity b:public-branch-location ;
     dis:allowedMode dis:READ ;
-    dis:description "Authenticated accountholder reads their balance." ;
-    dis:name "accountholder -> bankaccount: READ" .
+    dis:name "Unauthenticated caller branch lookup gate" ;
+    dis:description "Anonymous callers may only look up physical branches and ATMs. All core banking entities are denied." .
 
-b:gate-accountholder-transaction a dis:AccessGateMatrix ;
-    dis:matrixRole b:accountholder ;
-    dis:matrixEntity b:transaction ;
+# The Authenticated Gates (All Banking Operations)
+b:gate-auth-dda a dis:AccessGateMatrix ;
+    dis:matrixRole b:authenticated-accountholder ;
+    dis:matrixEntity b:demand-deposit-account ;
     dis:allowedMode dis:READ ;
-    dis:description "Authenticated accountholder reads their transaction history." ;
-    dis:name "accountholder -> transaction: READ" .
+    dis:name "Authenticated accountholder DDA gate" ;
+    dis:description "Accountholder reads own balances." .
 
-b:gate-banking-assistant-bankaccount a dis:AccessGateMatrix ;
-    dis:matrixRole b:banking-assistant ;
-    dis:matrixEntity b:bankaccount ;
-    dis:allowedMode dis:READ ;
-    dis:description "Assistant queries balance on customer behalf." ;
-    dis:name "banking-assistant -> bankaccount: READ" .
+b:gate-auth-transfer a dis:AccessGateMatrix ;
+    dis:matrixRole b:authenticated-accountholder ;
+    dis:matrixEntity b:account-transfer-record ;
+    dis:allowedMode dis:CREATE , dis:READ ;
+    dis:name "Authenticated accountholder transfer gate" ;
+    dis:description "Accountholder creates money transfers." .
 
-b:gate-banking-assistant-transaction a dis:AccessGateMatrix ;
-    dis:matrixRole b:banking-assistant ;
-    dis:matrixEntity b:transaction ;
-    dis:allowedMode dis:READ ;
-    dis:description "Assistant queries transactions on customer behalf." ;
-    dis:name "banking-assistant -> transaction: READ" .
+b:gate-auth-dispute a dis:AccessGateMatrix ;
+    dis:matrixRole b:authenticated-accountholder ;
+    dis:matrixEntity b:transaction-dispute ;
+    dis:allowedMode dis:CREATE , dis:READ ;
+    dis:name "Authenticated accountholder dispute gate" ;
+    dis:description "Accountholder files charge dispute." .
 
-b:gate-banking-assistant-creditcard a dis:AccessGateMatrix ;
-    dis:matrixRole b:banking-assistant ;
-    dis:matrixEntity b:creditcard ;
+# Gate Scoping (G5): Card update is locked strictly to FREEZE
+b:gate-auth-card a dis:AccessGateMatrix ;
+    dis:matrixRole b:authenticated-accountholder ;
+    dis:matrixEntity b:cardholder-debit-card ;
     dis:allowedMode dis:UPDATE ;
-    dis:description "Assistant can apply instant freeze lock to customer credit card." ;
-    dis:name "banking-assistant -> creditcard: UPDATE" .
+    dis:allowedFunction b:fn-freeze-debit-card ;
+    dis:name "Authenticated card freeze gate (scoped)" ;
+    dis:description "Accountholder may only freeze a card. Unfreezing or ordering replacement requires in-branch auth." .
 
-b:gate-banking-assistant-fraudalert a dis:AccessGateMatrix ;
-    dis:matrixRole b:banking-assistant ;
-    dis:matrixEntity b:fraudalert ;
-    dis:allowedMode dis:INITIATE ;
-    dis:description "Assistant initiates escalation to fraud department." ;
-    dis:name "banking-assistant -> fraudalert: INITIATE" .
-
-b:gate-banking-assistant-wiretransfer a dis:AccessGateMatrix ;
-    dis:matrixRole b:banking-assistant ;
-    dis:matrixEntity b:wiretransfer ;
-    dis:allowedMode dis:INITIATE ;
-    dis:description "Assistant initiates transfer of wire inquiries to branch specialists." ;
-    dis:name "banking-assistant -> wiretransfer: INITIATE" .
-
-b:gate-fraud-analyst-fraudalert a dis:AccessGateMatrix ;
-    dis:matrixRole b:fraud-analyst ;
-    dis:matrixEntity b:fraudalert ;
+# Insurance Gates
+b:gate-claimant-coverage a dis:AccessGateMatrix ;
+    dis:matrixRole b:insurance-claimant ;
+    dis:matrixEntity b:insurance-policy-coverage ;
     dis:allowedMode dis:READ ;
-    dis:allowedMode dis:RESPOND ;
-    dis:description "Fraud analysts have full authority to adjudicate fraud investigations." ;
-    dis:name "fraud-analyst -> fraudalert: READ, RESPOND" .
+    dis:name "Claimant policy coverage gate" ;
+    dis:description "Claimant reads policy coverage limits." .
 
-# ---------- Entity Instances ----------
-b:card-vanguard-visa-signature a dis:EntityInstance ;
-    dis:instanceOf b:creditcard ;
-    dis:spokenForm "Vanguard Prime Visa Signature" ;
-    dis:confusableWith b:card-vanguard-visa-platinum ;
-    dis:systemKey "card-prod-visa-sig" ;
-    dis:name "Vanguard Prime Visa Signature" .
+b:gate-claimant-fnol a dis:AccessGateMatrix ;
+    dis:matrixRole b:insurance-claimant ;
+    dis:matrixEntity b:first-notice-of-loss ;
+    dis:allowedMode dis:CREATE , dis:READ ;
+    dis:name "Claimant FNOL submission gate" ;
+    dis:description "Claimant creates FNOL report." .
 
-b:card-vanguard-visa-platinum a dis:EntityInstance ;
-    dis:instanceOf b:creditcard ;
-    dis:spokenForm "Vanguard Rewards Visa Platinum" ;
-    dis:systemKey "card-prod-visa-plat" ;
-    dis:name "Vanguard Rewards Visa Platinum" .
+b:gate-claimant-claim a dis:AccessGateMatrix ;
+    dis:matrixRole b:insurance-claimant ;
+    dis:matrixEntity b:adjudicated-claim ;
+    dis:allowedMode dis:READ ;
+    dis:name "Claimant claim status gate" ;
+    dis:description "Claimant tracks claim progress." .
+
+# Agent Gates (Concierge executing on behalf of roles)
+b:gate-agent-location a dis:AccessGateMatrix ;
+    dis:matrixRole b:bfsi-concierge-agent ;
+    dis:matrixEntity b:public-branch-location ;
+    dis:allowedMode dis:READ ;
+    dis:name "Agent location gate" ;
+    dis:description "Agent reads branch locator." .
+
+b:gate-agent-dda a dis:AccessGateMatrix ;
+    dis:matrixRole b:bfsi-concierge-agent ;
+    dis:matrixEntity b:demand-deposit-account ;
+    dis:allowedMode dis:READ ;
+    dis:name "Agent DDA gate" ;
+    dis:description "Agent queries balances." .
+
+b:gate-agent-transfer a dis:AccessGateMatrix ;
+    dis:matrixRole b:bfsi-concierge-agent ;
+    dis:matrixEntity b:account-transfer-record ;
+    dis:allowedMode dis:CREATE , dis:READ ;
+    dis:name "Agent transfer gate" ;
+    dis:description "Agent submits transfer." .
+
+b:gate-agent-dispute a dis:AccessGateMatrix ;
+    dis:matrixRole b:bfsi-concierge-agent ;
+    dis:matrixEntity b:transaction-dispute ;
+    dis:allowedMode dis:CREATE , dis:READ ;
+    dis:name "Agent dispute gate" ;
+    dis:description "Agent files dispute." .
+
+b:gate-agent-card a dis:AccessGateMatrix ;
+    dis:matrixRole b:bfsi-concierge-agent ;
+    dis:matrixEntity b:cardholder-debit-card ;
+    dis:allowedMode dis:UPDATE ;
+    dis:allowedFunction b:fn-freeze-debit-card ;
+    dis:name "Agent card freeze gate (scoped)" ;
+    dis:description "Agent executes card freeze in Fiserv." .
+
+b:gate-agent-fnol a dis:AccessGateMatrix ;
+    dis:matrixRole b:bfsi-concierge-agent ;
+    dis:matrixEntity b:first-notice-of-loss ;
+    dis:allowedMode dis:CREATE , dis:READ ;
+    dis:name "Agent FNOL gate" ;
+    dis:description "Agent submits FNOL in Guidewire." .
+
+b:gate-agent-coverage a dis:AccessGateMatrix ;
+    dis:matrixRole b:bfsi-concierge-agent ;
+    dis:matrixEntity b:insurance-policy-coverage ;
+    dis:allowedMode dis:READ ;
+    dis:name "Agent coverage gate" ;
+    dis:description "Agent checks coverages." .
+
+b:gate-agent-claim a dis:AccessGateMatrix ;
+    dis:matrixRole b:bfsi-concierge-agent ;
+    dis:matrixEntity b:adjudicated-claim ;
+    dis:allowedMode dis:READ ;
+    dis:name "Agent claim gate" ;
+    dis:description "Agent queries claim status." .

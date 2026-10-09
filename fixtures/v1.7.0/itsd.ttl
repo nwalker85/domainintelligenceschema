@@ -1,0 +1,494 @@
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix it:  <https://dossier.ravenhelm.dev/itsd/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://dossier.ravenhelm.dev/itsd/> a owl:Ontology ;
+    owl:versionInfo "1.8.0" ;
+    dis:dossierType dis:DESIGN ;
+    dis:dossierStatus dis:APPROVED ;
+    rdfs:label "IT Service Desk (ITSD) & ITIL Enterprise Systems Dossier" ;
+    rdfs:comment "Comprehensive enterprise ITSM dossier spanning ServiceNow ITSM, SailPoint IdentityNow, Microsoft Entra ID, and SAP HANA Enterprise Asset Management (EAM). Covers incident management, change requests, account lifecycle, and automated backoffice employee onboarding and offboarding." .
+
+# =============================================================================
+# 1. SYSTEMS LAYER (ServiceNow, SailPoint, Microsoft Entra ID, SAP HANA)
+# =============================================================================
+
+it:servicenow-itsm a dis:Application ;
+    dis:name "ServiceNow ITSM Enterprise" ;
+    dis:description "ITIL service management suite providing Incident Management, Problem Management, Change Advisory Board (CAB) workflows, and Service Catalog." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_INTERNAL ;
+    dis:baseUrl "https://enterprise.service-now.com/api/now/v2" ;
+    dis:authMethod dis:OAUTH2 .
+
+it:sailpoint-identitynow a dis:Application ;
+    dis:name "SailPoint IdentityNow & Entra ID Bridge" ;
+    dis:description "Identity Governance and Administration (IGA) platform automating enterprise birthright provisioning, role-based access control, password resets, and offboarding de-provisioning." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_INTERNAL ;
+    dis:baseUrl "https://identity.sailpoint.corp.internal/v3" ;
+    dis:authMethod dis:BEARER .
+
+it:saphana-eam a dis:Application ;
+    dis:name "SAP HANA Enterprise Asset Management (EAM)" ;
+    dis:description "In-memory ERP asset register managing enterprise compute hardware, developer workstations, serial tracking, and physical inventory depreciation." ;
+    dis:applicationType dis:SYSTEM_OF_RECORD ;
+    dis:networkScope dis:SCOPE_INTERNAL ;
+    dis:baseUrl "https://saphana.corp.internal/eam/odata/v4" ;
+    dis:authMethod dis:BEARER .
+
+# --- Endpoints ---
+
+it:ep-snow-get-incident a dis:Endpoint ;
+    dis:name "ServiceNow Table API - Get Incident" ;
+    dis:description "Fetches incident status, assignment group, severity, and work notes." ;
+    dis:hostedBy it:servicenow-itsm ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/table/incident/{sys_id}" ;
+    dis:mutates false .
+
+it:ep-snow-create-incident a dis:Endpoint ;
+    dis:name "ServiceNow Table API - Create Incident" ;
+    dis:description "Files a new ITIL incident ticket with caller ID, category, urgency, and short description." ;
+    dis:hostedBy it:servicenow-itsm ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/table/incident" ;
+    dis:mutates true ;
+    dis:writesEntity it:incident-ticket .
+
+it:ep-snow-get-change a dis:Endpoint ;
+    dis:name "ServiceNow Table API - Get Change Request" ;
+    dis:description "Queries Change Request (RFC) approval phase, CAB schedule, and risk assessment." ;
+    dis:hostedBy it:servicenow-itsm ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/table/change_request/{sys_id}" ;
+    dis:mutates false .
+
+it:ep-snow-create-change a dis:Endpoint ;
+    dis:name "ServiceNow Table API - Create Change Request" ;
+    dis:description "Drafts a new normal or emergency Change Request requiring CAB signoff." ;
+    dis:hostedBy it:servicenow-itsm ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/table/change_request" ;
+    dis:mutates true ;
+    dis:writesEntity it:change-request .
+
+it:ep-sailpoint-get-account a dis:Endpoint ;
+    dis:name "SailPoint Accounts API - Lookup Directory Account" ;
+    dis:description "Queries enterprise employee active directory account lock status, MFA enrollment, and assigned role entitlements." ;
+    dis:hostedBy it:sailpoint-identitynow ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/accounts/{id}" ;
+    dis:mutates false .
+
+it:ep-sailpoint-unlock-account a dis:Endpoint ;
+    dis:name "SailPoint Accounts API - Unlock Account & Reset Credentials" ;
+    dis:description "Unlocks locked directory accounts and dispatches temporary one-time password credentials to verified out-of-band channels." ;
+    dis:hostedBy it:sailpoint-identitynow ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/accounts/{id}/unlock" ;
+    dis:mutates true ;
+    dis:writesEntity it:directory-account .
+
+it:ep-sailpoint-provision-onboarding a dis:Endpoint ;
+    dis:name "SailPoint Governance - Automated Onboarding Provisioning" ;
+    dis:description "Backoffice batch endpoint triggered by HR hire event to generate birthright accounts, Entra ID groups, and mailbox provisioning." ;
+    dis:hostedBy it:sailpoint-identitynow ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/lifecycle/onboarding/provision" ;
+    dis:mutates true ;
+    dis:writesEntity it:onboarding-order .
+
+it:ep-sailpoint-revoke-offboarding a dis:Endpoint ;
+    dis:name "SailPoint Governance - Automated Offboarding Deprovisioning" ;
+    dis:description "Backoffice batch endpoint triggered by HR termination event to invalidate all OAuth tokens, revoke directory memberships, and disable accounts." ;
+    dis:hostedBy it:sailpoint-identitynow ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:POST ;
+    dis:urlPath "/lifecycle/offboarding/revoke" ;
+    dis:mutates true ;
+    dis:writesEntity it:offboarding-order .
+
+it:ep-saphana-get-asset a dis:Endpoint ;
+    dis:name "SAP HANA EAM - Query IT Asset Details" ;
+    dis:description "Retrieves hardware asset specifications, warranty status, and allocated custodian from SAP HANA." ;
+    dis:hostedBy it:saphana-eam ;
+    dis:transport dis:TRANSPORT_HTTPS ;
+    dis:httpMethod dis:GET ;
+    dis:urlPath "/Equipment('{equipment_id}')" ;
+    dis:mutates false .
+
+# --- Function Catalog ---
+
+it:fn-get-incident a dis:FunctionCatalogEntry ;
+    dis:name "Get Incident Status" ;
+    dis:description "Queries ServiceNow for open ticket state, assignee, and SLA timer." ;
+    dis:callsEndpoint it:ep-snow-get-incident ;
+    dis:readsEntity it:incident-ticket ;
+    dis:inputFields "sys_id, incident_number" ;
+    dis:outputFields "incident_number, state, urgency, assignment_group, resolved_at" .
+
+it:fn-create-incident a dis:FunctionCatalogEntry ;
+    dis:name "Create Incident Ticket" ;
+    dis:description "Opens a new incident in ServiceNow with user issue description and impact." ;
+    dis:callsEndpoint it:ep-snow-create-incident ;
+    dis:readsEntity it:incident-ticket ;
+    dis:writesEntity it:incident-ticket ;
+    dis:inputFields "caller_id, short_description, category, impact, urgency" ;
+    dis:outputFields "sys_id, incident_number, state, created_at" .
+
+it:fn-get-change a dis:FunctionCatalogEntry ;
+    dis:name "Get Change Request" ;
+    dis:description "Reads Change Request workflow stage and CAB decision in ServiceNow." ;
+    dis:callsEndpoint it:ep-snow-get-change ;
+    dis:readsEntity it:change-request ;
+    dis:inputFields "sys_id, change_number" ;
+    dis:outputFields "change_number, type, state, cab_approval, planned_start_date" .
+
+it:fn-create-change a dis:FunctionCatalogEntry ;
+    dis:name "Submit Change Request" ;
+    dis:description "Submits a new RFC in ServiceNow detailing system changes, backout plan, and risk." ;
+    dis:callsEndpoint it:ep-snow-create-change ;
+    dis:readsEntity it:change-request ;
+    dis:writesEntity it:change-request ;
+    dis:inputFields "requested_by, change_type, justification, backout_plan, planned_start, planned_end" ;
+    dis:outputFields "sys_id, change_number, state, cab_required" .
+
+it:fn-get-account a dis:FunctionCatalogEntry ;
+    dis:name "Lookup Directory Account" ;
+    dis:description "Retrieves account lock status and security group memberships from SailPoint / Entra ID." ;
+    dis:callsEndpoint it:ep-sailpoint-get-account ;
+    dis:readsEntity it:directory-account ;
+    dis:inputFields "employee_id, upn" ;
+    dis:outputFields "employee_id, upn, is_locked, mfa_enabled, assigned_roles" .
+
+it:fn-unlock-account a dis:FunctionCatalogEntry ;
+    dis:name "Unlock Account" ;
+    dis:description "Clears account lock flags and issues temporary authentication credentials." ;
+    dis:callsEndpoint it:ep-sailpoint-unlock-account ;
+    dis:readsEntity it:directory-account ;
+    dis:writesEntity it:directory-account ;
+    dis:inputFields "employee_id, verified_auth_token" ;
+    dis:outputFields "employee_id, status, temporary_token_expiry" .
+
+it:fn-execute-onboarding a dis:FunctionCatalogEntry ;
+    dis:name "Execute Automated Onboarding Provisioning" ;
+    dis:description "Backoffice system automation creating directory profiles, birthright security groups, and cloud access." ;
+    dis:callsEndpoint it:ep-sailpoint-provision-onboarding ;
+    dis:readsEntity it:onboarding-order ;
+    dis:writesEntity it:onboarding-order ;
+    dis:inputFields "onboarding_request_id, employee_id, job_code, department_id, start_date" ;
+    dis:outputFields "order_id, accounts_provisioned, mailbox_status, completion_timestamp" .
+
+it:fn-execute-offboarding a dis:FunctionCatalogEntry ;
+    dis:name "Execute Automated Offboarding Deprovisioning" ;
+    dis:description "Backoffice system automation revoking directory access, active sessions, and enterprise credentials." ;
+    dis:callsEndpoint it:ep-sailpoint-revoke-offboarding ;
+    dis:readsEntity it:offboarding-order ;
+    dis:writesEntity it:offboarding-order ;
+    dis:inputFields "offboarding_request_id, employee_id, termination_timestamp, legal_hold_flag" ;
+    dis:outputFields "order_id, tokens_revoked, accounts_disabled, completion_timestamp" .
+
+it:fn-get-asset a dis:FunctionCatalogEntry ;
+    dis:name "Get Hardware Asset Record" ;
+    dis:description "Reads hardware asset serial numbers, assigned employee custodian, and lifecycle status from SAP HANA EAM." ;
+    dis:callsEndpoint it:ep-saphana-get-asset ;
+    dis:readsEntity it:hardware-asset ;
+    dis:inputFields "equipment_id, serial_number" ;
+    dis:outputFields "equipment_id, make_model, serial_number, assigned_user, warranty_expiration" .
+
+# =============================================================================
+# 2. ENTITIES LAYER
+# =============================================================================
+
+it:incident-ticket a dis:Entity ;
+    dis:name "ITIL Incident Ticket" ;
+    dis:description "ServiceNow ITSM incident record capturing unplanned service interruption, symptoms, urgency, and technical resolution." ;
+    dis:entityType "data" .
+
+it:change-request a dis:Entity ;
+    dis:name "Change Request (RFC)" ;
+    dis:description "ServiceNow Change Management record containing architecture modification plans, risk scoring, CAB review, and rollback procedures." ;
+    dis:entityType "data" .
+
+it:directory-account a dis:Entity ;
+    dis:name "Corporate Directory Account" ;
+    dis:description "SailPoint IdentityNow / Microsoft Entra ID enterprise user account, identity attributes, and security credentials." ;
+    dis:entityType "data" .
+
+it:onboarding-order a dis:Entity ;
+    dis:name "Employee Onboarding Provisioning Order" ;
+    dis:description "System-orchestrated birthright account provisioning transaction bundle for incoming corporate personnel." ;
+    dis:entityType "data" .
+
+it:offboarding-order a dis:Entity ;
+    dis:name "Employee Offboarding Deprovisioning Order" ;
+    dis:description "System-orchestrated security revocation transaction bundle disabling enterprise access, tokens, and accounts upon termination." ;
+    dis:entityType "data" .
+
+it:hardware-asset a dis:Entity ;
+    dis:name "Enterprise Hardware Asset" ;
+    dis:description "Physical corporate IT asset in SAP HANA EAM register including developer laptops, workstations, and network equipment." ;
+    dis:entityType "data" .
+
+# =============================================================================
+# 3. ROLES LAYER (Human Employees, Support Agents, and Backoffice Automation)
+# =============================================================================
+
+it:corporate-employee a dis:Role ;
+    dis:name "Corporate Employee" ;
+    dis:description "Authenticated corporate worker seeking IT service desk assistance, reporting system incidents, or requesting credential resets." ;
+    dis:roleType "human" .
+
+it:itsm-virtual-agent a dis:Role ;
+    dis:name "ITSM Virtual Assistant" ;
+    dis:description "Interactive AI virtual agent assisting corporate personnel with ITSM self-service, incident triage, and RFC drafts." ;
+    dis:roleType "agent" .
+
+it:backoffice-idm-orchestrator a dis:Role ;
+    dis:name "Backoffice IDM Daemon Orchestrator" ;
+    dis:description "Automated headless background daemon running scheduled and event-driven employee lifecycle provisioning and revocation workflows without human helpdesk intervention." ;
+    dis:roleType "agent" .
+
+it:system-engineer a dis:Role ;
+    dis:name "Systems & DevOps Engineer" ;
+    dis:description "Authenticated infrastructure engineer authoring change requests, scheduled maintenance plans, and emergency hotfixes." ;
+    dis:roleType "human" .
+
+# =============================================================================
+# 4. AGENTIC TRIPLETS LAYER
+# =============================================================================
+
+# --- End-User Incident Lifecycle ---
+
+it:t1-query-incident a dis:AgenticTriplet ;
+    dis:name "Query Incident Status" ;
+    dis:description "Virtual agent queries ServiceNow for live incident ticket status on behalf of employee." ;
+    dis:actingRole it:itsm-virtual-agent ;
+    dis:targetEntity it:incident-ticket ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:boundFunction it:fn-get-incident .
+
+it:t2-create-incident a dis:AgenticTriplet ;
+    dis:name "Create Incident Ticket" ;
+    dis:description "Virtual agent files an incident ticket in ServiceNow for an employee experiencing system disruption." ;
+    dis:actingRole it:itsm-virtual-agent ;
+    dis:targetEntity it:incident-ticket ;
+    dis:stance dis:ACT ;
+    dis:mode dis:CREATE ;
+    dis:boundFunction it:fn-create-incident .
+
+# --- Change Management Lifecycle ---
+
+it:t3-query-change a dis:AgenticTriplet ;
+    dis:name "Query Change Request Status" ;
+    dis:description "Virtual agent queries ServiceNow for RFC review status and CAB approval schedule." ;
+    dis:actingRole it:itsm-virtual-agent ;
+    dis:targetEntity it:change-request ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:boundFunction it:fn-get-change .
+
+it:t4-create-change a dis:AgenticTriplet ;
+    dis:name "Submit Change Request" ;
+    dis:description "Virtual agent structures and submits a new Change Request in ServiceNow on behalf of a systems engineer." ;
+    dis:actingRole it:itsm-virtual-agent ;
+    dis:targetEntity it:change-request ;
+    dis:stance dis:ACT ;
+    dis:mode dis:CREATE ;
+    dis:boundFunction it:fn-create-change .
+
+# --- Account Management ---
+
+it:t5-query-account a dis:AgenticTriplet ;
+    dis:name "Check Account Lock Status" ;
+    dis:description "Virtual agent inspects SailPoint directory account to confirm lock state." ;
+    dis:actingRole it:itsm-virtual-agent ;
+    dis:targetEntity it:directory-account ;
+    dis:stance dis:REACT ;
+    dis:mode dis:READ ;
+    dis:boundFunction it:fn-get-account .
+
+it:t6-unlock-account a dis:AgenticTriplet ;
+    dis:name "Unlock Directory Account" ;
+    dis:description "Virtual agent executes account unlock and credential reset in SailPoint following strict identity verification." ;
+    dis:actingRole it:itsm-virtual-agent ;
+    dis:targetEntity it:directory-account ;
+    dis:stance dis:ACT ;
+    dis:mode dis:UPDATE ;
+    dis:boundFunction it:fn-unlock-account .
+
+# --- Backoffice Lifecycle Automation (Headless, Not Triggered by Helpdesk Caller) ---
+
+it:t7-auto-provision-onboarding a dis:AgenticTriplet ;
+    dis:name "Automated Backoffice Onboarding Provisioning" ;
+    dis:description "Autonomous background daemon executes birthright provisioning in SailPoint for new hires upon receiving an HR system trigger." ;
+    dis:actingRole it:backoffice-idm-orchestrator ;
+    dis:targetEntity it:onboarding-order ;
+    dis:stance dis:ACT ;
+    dis:mode dis:CREATE ;
+    dis:boundFunction it:fn-execute-onboarding .
+
+it:t8-auto-revoke-offboarding a dis:AgenticTriplet ;
+    dis:name "Automated Backoffice Offboarding Deprovisioning" ;
+    dis:description "Autonomous background daemon executes immediate directory credential revocation and account suspension upon receiving an HR termination trigger." ;
+    dis:actingRole it:backoffice-idm-orchestrator ;
+    dis:targetEntity it:offboarding-order ;
+    dis:stance dis:ACT ;
+    dis:mode dis:DELETE ;
+    dis:boundFunction it:fn-execute-offboarding .
+
+# =============================================================================
+# 5. MATRICES (EntityModeMatrix & AccessGateMatrix)
+# =============================================================================
+
+# --- EntityModeMatrix ---
+
+it:emm-incident-ticket a dis:EntityModeMatrix ;
+    dis:name "Incident Ticket Entity Modes" ;
+    dis:description "Incidents can be created and queried." ;
+    dis:matrixEntity it:incident-ticket ;
+    dis:supportedMode dis:READ ;
+    dis:supportedMode dis:CREATE .
+
+it:emm-change-request a dis:EntityModeMatrix ;
+    dis:name "Change Request Entity Modes" ;
+    dis:description "Change requests can be drafted and queried." ;
+    dis:matrixEntity it:change-request ;
+    dis:supportedMode dis:READ ;
+    dis:supportedMode dis:CREATE .
+
+it:emm-directory-account a dis:EntityModeMatrix ;
+    dis:name "Directory Account Entity Modes" ;
+    dis:description "User directory accounts can be queried and unlocked (updated)." ;
+    dis:matrixEntity it:directory-account ;
+    dis:supportedMode dis:READ ;
+    dis:supportedMode dis:UPDATE .
+
+it:emm-onboarding-order a dis:EntityModeMatrix ;
+    dis:name "Onboarding Order Entity Modes" ;
+    dis:description "Onboarding provisioning orders are created autonomously." ;
+    dis:matrixEntity it:onboarding-order ;
+    dis:supportedMode dis:CREATE .
+
+it:emm-offboarding-order a dis:EntityModeMatrix ;
+    dis:name "Offboarding Order Entity Modes" ;
+    dis:description "Offboarding deprovisioning orders execute credential destruction / deletion." ;
+    dis:matrixEntity it:offboarding-order ;
+    dis:supportedMode dis:DELETE .
+
+it:emm-hardware-asset a dis:EntityModeMatrix ;
+    dis:name "Hardware Asset Entity Modes" ;
+    dis:description "Hardware inventory is read-only for support queries." ;
+    dis:matrixEntity it:hardware-asset ;
+    dis:supportedMode dis:READ .
+
+# --- AccessGateMatrix ---
+
+it:gate-agent-incident a dis:AccessGateMatrix ;
+    dis:name "Virtual Agent Gate: Incident Tickets" ;
+    dis:description "ITSM virtual agent may query and file incident tickets." ;
+    dis:matrixRole it:itsm-virtual-agent ;
+    dis:matrixEntity it:incident-ticket ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:CREATE ;
+    dis:allowedFunction it:fn-get-incident ;
+    dis:allowedFunction it:fn-create-incident .
+
+it:gate-agent-change a dis:AccessGateMatrix ;
+    dis:name "Virtual Agent Gate: Change Requests" ;
+    dis:description "ITSM virtual agent may query and file change requests." ;
+    dis:matrixRole it:itsm-virtual-agent ;
+    dis:matrixEntity it:change-request ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:CREATE ;
+    dis:allowedFunction it:fn-get-change ;
+    dis:allowedFunction it:fn-create-change .
+
+it:gate-agent-account a dis:AccessGateMatrix ;
+    dis:name "Virtual Agent Gate: Directory Accounts" ;
+    dis:description "ITSM virtual agent may read account lock status and execute account unlocks." ;
+    dis:matrixRole it:itsm-virtual-agent ;
+    dis:matrixEntity it:directory-account ;
+    dis:allowedMode dis:READ ;
+    dis:allowedMode dis:UPDATE ;
+    dis:allowedFunction it:fn-get-account ;
+    dis:allowedFunction it:fn-unlock-account .
+
+it:gate-daemon-onboarding a dis:AccessGateMatrix ;
+    dis:name "Daemon Gate: Automated Onboarding" ;
+    dis:description "Backoffice daemon is authorized to execute birthright onboarding provisioning." ;
+    dis:matrixRole it:backoffice-idm-orchestrator ;
+    dis:matrixEntity it:onboarding-order ;
+    dis:allowedMode dis:CREATE ;
+    dis:allowedFunction it:fn-execute-onboarding .
+
+it:gate-daemon-offboarding a dis:AccessGateMatrix ;
+    dis:name "Daemon Gate: Automated Offboarding" ;
+    dis:description "Backoffice daemon is authorized to execute security revocation offboarding." ;
+    dis:matrixRole it:backoffice-idm-orchestrator ;
+    dis:matrixEntity it:offboarding-order ;
+    dis:allowedMode dis:DELETE ;
+    dis:allowedFunction it:fn-execute-offboarding .
+
+# --- Policy Bound Value Instances ---
+
+it:inst-change-freeze-disclosure a dis:EntityInstance ;
+    dis:name "Emergency CAB Authorization Notice" ;
+    dis:description "Official CAB moratorium disclosure requiring VP escalation." ;
+    dis:spokenForm "Production change freeze active, VP CAB approval required." ;
+    dis:instanceOf it:change-request ;
+    dis:systemKey "CHANGE-FREEZE-DISC-01" .
+
+it:inst-p1-bridge-notice a dis:EntityInstance ;
+    dis:name "Major Incident Commander War Room Bridge Notice" ;
+    dis:description "Immediate high-severity incident bridge dispatch details." ;
+    dis:spokenForm "Major incident war room bridge opened at bridge dot corp internal." ;
+    dis:instanceOf it:incident-ticket ;
+    dis:systemKey "P1-BRIDGE-DISC-01" .
+
+# =============================================================================
+# 6. UTTERANCE POLICIES (ITIL Compliance, Change Freeze, ID Verification)
+# =============================================================================
+
+it:pol-mfa-verification-for-unlock a dis:UtterancePolicy ;
+    dis:name "Policy: Mandatory Multi-Factor Identity Verification for Credential Unlock" ;
+    dis:description "Prohibits issuing unlock commands or credentials without completing verified out-of-band MFA authentication." ;
+    dis:requirement "The automated assistant must never execute an account unlock or credential reset without first verifying the employee identity via an out-of-band authenticator push challenge." ;
+    dis:policyType dis:PROHIBITION ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:REGULATORY ;
+    dis:onViolation dis:REFUSE ;
+    dis:appliesToTriplet it:t6-unlock-account .
+
+it:pol-change-freeze-disclosure a dis:UtterancePolicy ;
+    dis:name "Policy: Production Change Freeze Notification" ;
+    dis:description "Obligates disclosing active change moratoriums when filing change requests." ;
+    dis:requirement "Any interaction drafting or submitting a Change Request during designated enterprise change-freeze windows must explicitly notify the engineer that emergency VP CAB authorization is required." ;
+    dis:policyType dis:OBLIGATION ;
+    dis:enforcement dis:INSTRUCTED ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:boundValue it:inst-change-freeze-disclosure ;
+    dis:onViolation dis:REFUSE ;
+    dis:appliesToTriplet it:t4-create-change .
+
+it:pol-incident-high-impact-escalation a dis:UtterancePolicy ;
+    dis:name "Policy: P1/P2 Major Incident Immediate Bridge Escalation" ;
+    dis:description "Requires immediate bridge escalation when high-urgency business-critical services are impacted." ;
+    dis:requirement "When an incident ticket is filed with Severity-1 (Critical) or Severity-2 (Major), the virtual agent must immediately notify the on-call Incident Commander and provide the War Room bridge link." ;
+    dis:policyType dis:OBLIGATION ;
+    dis:enforcement dis:STRUCTURAL ;
+    dis:liabilityClass dis:STANDARD ;
+    dis:boundValue it:inst-p1-bridge-notice ;
+    dis:onViolation dis:ESCALATE ;
+    dis:appliesToTriplet it:t2-create-incident .

@@ -73,7 +73,7 @@ def test_deformed_report_every_property_shape_result_has_a_result_path(dossier, 
     shutil.which("pyshacl") is None and shutil.which("uvx") is None,
     reason="neither pyshacl nor uvx is on PATH",
 )
-@pytest.mark.parametrize("fixture", ["retail.ttl", "healthcare.ttl", "bfsi.ttl", "itsd-hr.ttl", "dadjoke.ttl"])
+@pytest.mark.parametrize("fixture", ["retail.ttl", "healthcare.ttl", "bfsi.ttl", "itsd-hr.ttl", "itsd.ttl", "hr.ttl", "dadjoke.ttl"])
 def test_validate_dossier_script_exits_0_on_reference_dossiers(repo, fixture):
     result = subprocess.run(
         ["bash", str(repo / "scripts/validate-dossier.sh"), f"fixtures/v1.7.0/{fixture}"],
