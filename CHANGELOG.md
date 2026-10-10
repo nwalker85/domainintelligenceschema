@@ -2,27 +2,165 @@
 
 All notable changes to the Domain Intelligence Schema will be documented in this file.
 
-## [1.8.0] - 2026-10-08
+## [Unreleased] — proposals, no artifacts
 
-See [`docs/spec/DIS-1.8.md`](docs/spec/DIS-1.8.md) for the full specification.
+Ideas that appeared in the withdrawn first draft of the 1.8.0 entry (2026-10-08,
+PR #11). They are recorded here as proposals only, and are part of no release.
 
-### Added
-- **G1: Epistemic Observation vs Ground Truth (`KNOW` vs `BE`)**: Introduced `dis:Observation`, `dis:observedBy`, `dis:observationTimestamp`, and `dis:epistemicConfidence`. Unverified external claims are cleanly segregated from authoritative domain entities.
-- **G2: Bounded Capability Leases & Mandates (`HAVE` & `Varar`)**: Introduced `dis:CapabilityLease`, `dis:MandateToken`, `dis:validForDurationSeconds`, and mathematical non-escalation invariants. Eliminates ambient root authority for agent execution.
-- **G3: Thermodynamic Mortalities / Decay Curves**: Introduced `dis:decayHalfLifeSeconds` and temporal decay curves to enforce mandatory re-verification of stale observations before executing state mutations.
-- **G4: Epistemic Disagreement Matrices**: Introduced `dis:DisagreementMatrix`, `dis:consensusThreshold`, and formal dispute resolution arbitration across multi-agent systems.
-- **G5: Substrate-Independent Multi-Vendor Interchangeability**: Demonstrated and verified that business logic and triplets remain 100% portable across competing enterprise backends.
-- **Overhauled Reference Dossiers**:
-  - `healthcare.ttl`: Real-world RCM across Epic Systems, Cerner Millennium, and MEDITECH Expanse, including DEA Schedule II formulary and NPI attestation.
-  - `bfsi.ttl`: Retail banking across FIS and Fiserv with authenticated vs. unauthenticated segregation of duties, plus Guidewire FNOL claims.
-  - `itsd.ttl`: ServiceNow ITSM, SailPoint IdentityNow, and SAP HANA EAM with backoffice daemon onboarding/offboarding.
-  - `hr.ttl`: Multi-population policy filtering across Workday HCM, SAP SuccessFactors, and Oracle PeopleSoft.
-- **Automated Conformance Suite**: 196 passing tests verifying zero regressions, SHACL compliance, and causal auditability.
+- Epistemic observation (`dis:Observation`, `observedBy`, `observationTimestamp`,
+  `epistemicConfidence`): keep unverified claims apart from ground truth, with an
+  observer, a confidence and a decay half-life.
+- Bounded authority (`CapabilityLease`, `MandateToken`, `validForDurationSeconds`):
+  time-limited, non-escalating grants in place of ambient credentials.
+- `DisagreementMatrix` and `consensusThreshold`: arbitration rules for when
+  multi-agent observations conflict.
 
-## [1.7.0] - Proposed, not yet released
+No vocabulary, shapes, CUE or tests exist for these.
 
-See [`docs/spec/DIS-1.7-proposed.md`](docs/spec/DIS-1.7-proposed.md) for the full
-proposal. No tag or release exists yet; nothing here is published.
+## [1.8.0] - 2026-10-09
+
+The first release since 1.6.0. It carries the constructs of the 1.7.0 proposal
+(1.7.0 was never tagged) plus six grammar fixes found by the Argus trial. See
+[`docs/spec/DIS-1.8.md`](docs/spec/DIS-1.8.md) for the design record.
+
+### Grammar (from the Argus trial; design record in `docs/spec/DIS-1.8.md`)
+
+Transcribing the Argus camera automation engine as a dossier exposed six
+structural gaps, G1 to G6, in the 1.7 grammar. Each bullet gives the resolution
+as the spec states it, then what is implemented in `vocabulary/v1.8.0` and
+`shapes/v1.8.0`.
+
+- **G1, mode and `mutates` disconnect.** Spec: "SHACL-SPARQL consistency rule:
+  `READ` requires `mutates false`; `CREATE`, `UPDATE`, `DELETE` require
+  `mutates true`." Implemented as `TripletModeMutationConsistencyShape`, which
+  checks a triplet's `dis:mode` against `dis:mutates` on the endpoint of its
+  `dis:boundFunction`.
+- **G2, target blindness on mutation.** Spec: "Introduce `dis:writesEntity`
+  (required when `mutates true`). Enforce that triplet `targetEntity ==
+  writesEntity`." Implemented: `dis:writesEntity` on `FunctionCatalogEntry`;
+  `FunctionMutatesNeedsWritesEntityShape` requires it when the called endpoint
+  mutates; `TripletTargetEntityConsistencyShape` requires a `READ` triplet's
+  `targetEntity` to equal the bound function's `readsEntity`, and a `CREATE`,
+  `UPDATE` or `DELETE` triplet's `targetEntity` to equal its `writesEntity`.
+- **G3, unbound mutating triplets.** Spec: "Require `boundFunction` for all
+  mutating triplets, or require explicit `dis:bindingStatus dis:UNBOUND` with
+  justification." Implemented: `dis:bindingStatus` (`dis:BOUND`,
+  `dis:MANUAL_PROCEDURE`, `dis:ABSTRACT_UNBOUND`) and `dis:unboundReason` on
+  `AgenticTriplet`, accepted by `AgenticTripletShape`; `healthcare.ttl` and
+  `bfsi.ttl` use them for their unbound manual steps. Not yet implemented: no
+  shape rejects a mutating `ACT` triplet that has neither a `boundFunction` nor a
+  `bindingStatus` (spec §3.2), so such a triplet still conforms. (The §2 table of the
+  spec says `dis:UNBOUND`; its §3.2 and the vocabulary use `dis:ABSTRACT_UNBOUND`.)
+- **G4, HTTP-only transport trap.** Spec: "Introduce `dis:transport` (`HTTP`,
+  `MQTT`, `RTSP`, `NATS`, `GRPC`), transport-specific addressing, and
+  `dis:networkScope`." Implemented: `dis:transport` on `Endpoint` with 14
+  `dis:Transport` individuals (`TRANSPORT_HTTPS`, `TRANSPORT_MQTT`,
+  `TRANSPORT_RTSP`, `TRANSPORT_NATS`, `TRANSPORT_GRPC` and nine more); the
+  addressing properties `dis:topic`, `dis:streamUri`, `dis:subject`,
+  `dis:peerAddress`, `dis:socketPath` and `dis:channel`; `EndpointShape` no
+  longer demands `httpMethod` and `urlPath` for MQTT, RTSP, ESP-NOW, NATS, Unix
+  socket, BLE, serial and CAN bus endpoints; `dis:networkScope` on `Application`
+  (`SCOPE_PUBLIC`, `SCOPE_INTERNAL`, `SCOPE_LOCAL_IPC`, `SCOPE_RADIO_MESH`), with
+  the https-only `baseUrl` check applying to `SCOPE_PUBLIC` or an unscoped
+  Application. Not yet implemented: requiring the matching address property per
+  transport (for example a `topic` on an MQTT endpoint), and the spec's `qos` and
+  gRPC service and method fields.
+- **G5, coarse mode gates against asymmetric rights.** Spec: "Add function-scoped
+  gates (`dis:allowedFunction`) and value constraints (`dis:allowedTargetValue` /
+  `dis:allowedTransition`)." Implemented: `dis:allowedFunction` on
+  `AccessGateMatrix`, enforced by `TripletWithinAllowedFunctionGateShape`, which
+  rejects a triplet whose bound function is not listed by a function-scoped gate
+  for its role, entity and mode. Not yet implemented: `dis:allowedTargetValue` and
+  `dis:allowedTransition`.
+- **G6, vocabulary loading trap in conformance.** Spec: "Mandate merged-graph
+  evaluation in §7 conformance, and bundle core class/enum declarations into
+  distribution shapes." Implemented: the single-graph recipe in
+  `scripts/validate-dossier.sh` merges `vocabulary/v1.8.0/dis.ttl` into the
+  dossier graph and runs pySHACL against `shapes/v1.8.0/dis-shapes.ttl` with no
+  inference flag; `tests/test_validation_recipe.py` pins both traps (validating
+  without the vocabulary merged, and `-i rdfs`). Not yet implemented: self-contained
+  distribution shapes. `dis-shapes.ttl` still needs the vocabulary merged in.
+
+### Carried from the 1.7.0 proposal (never tagged separately)
+- **`UtterancePolicy`**: constraints on what an agent may say, distinct from what it
+  may do.
+- **The Systems layer**: `Application`, `Endpoint`, `FunctionCatalogEntry`.
+- **`EntityInstance`**: a closed, known population for an Entity.
+- **The remaining 1.6 constructs, ported to Turtle/SHACL**: `TagDefinition`,
+  `PrivacyManifest`, `TelemetryConfiguration`, `MarketplaceEntry`,
+  `ChangeManagementRecord`, `ValueEngineeringProfile`, `DossierComparison`.
+- **Dossier metadata**: `dossierType` and `dossierStatus` on a dossier's own root IRI.
+
+The pre-release fixes and the breaking change to `EntityModeMatrix` and
+`AccessGateMatrix` are recorded under [1.7.0] below.
+
+### Artifacts
+- Five trees, all under `v1.8.0`: `vocabulary/v1.8.0/dis.ttl`,
+  `shapes/v1.8.0/dis-shapes.ttl`, `cue/v1.8.0/UtterancePolicy.cue`,
+  `queries/v1.8.0/` (four SPARQL queries), `fixtures/v1.8.0/` (eight dossiers).
+  `owl:versionInfo` is `1.8.0`.
+- The `dis:` namespace IRI is now `https://schemas.domainintelligenceschema.org/dis/1.8.0/`
+  (it was `.../dis/1.7.0/` on main before this release). A dossier written against
+  the unreleased 1.7.0 namespace must change its `dis:` prefix.
+
+### Reference dossiers
+Everything in `fixtures/v1.8.0/`:
+- `bfsi.ttl`: retail banking and insurance claims over FIS Modern Banking Platform,
+  Fiserv Signature & Card Services and Guidewire ClaimCenter and PolicyCenter;
+  separates an unauthenticated caller from an authenticated accountholder.
+- `dadjoke.ttl`: the smallest conforming dossier; one entity, one triplet, one
+  utterance policy, one application with one endpoint.
+- `deformed.ttl`: the negative fixture; three deliberate violations (a triplet
+  targeting a Role, an invented mode, an `OBLIGATION` with no bound value), and the
+  suite asserts exactly those three are reported.
+- `healthcare.ttl`: patient access over Epic Cadence & MyChart, Cerner Millennium,
+  MEDITECH Expanse and Surescripts: appointments, patient lookup, caregiver proxy
+  consent and prescription refill; two unbound steps declared `MANUAL_PROCEDURE`.
+- `hr.ttl`: an HR assistant over Workday, SAP SuccessFactors and Oracle PeopleSoft
+  Time and Labor, with a role per worker population and population-specific policies.
+- `itsd-hr.ttl`: a smaller employee IT service desk and HR portal behind one
+  gateway application; status `DRAFT`, version `1.0.0`.
+- `itsd.ttl`: IT service management over ServiceNow, SailPoint IdentityNow and
+  Entra ID, and SAP HANA EAM, with a separate backoffice orchestrator role for
+  automated onboarding and offboarding.
+- `retail.ttl`: Apex Retail Customer Support; the base graph most conformance tests
+  mutate to build negative cases; status `DRAFT`.
+
+### Conformance suite
+- 196 tests in 15 files under `tests/`, run with `uv sync --group test && uv run pytest`.
+  They use pytest, rdflib, pySHACL and, for the CUE and JSON Schema checks, the `cue`
+  command (CI pins v0.17.1); those tests are skipped when `cue` is not on `PATH`.
+
+### Site
+- Overhaul of domainintelligenceschema.org and `/docs`: landing page, documentation
+  reference and specification link, describing G1 to G6 as implemented.
+
+### JSON Schema
+- Deprecated since 1.7. `schemas/v1.6.0` remains the last JSON Schema release and
+  stays on the CDN. `schemas/v1.7.0` is unpublished on the CDN (it carries an
+  `.unreleased` marker, which the CDN deploy skips) and will not be published there.
+
+### Corrections
+- The previous 1.8.0 entry (2026-10-08, PR #11), the pull request body and the site
+  described constructs that were never implemented: `dis:Observation`, `observedBy`,
+  `observationTimestamp`, `epistemicConfidence`, `CapabilityLease`, `MandateToken`,
+  `validForDurationSeconds`, `decayHalfLifeSeconds`, `DisagreementMatrix`,
+  `consensusThreshold`, and substrate interchangeability as a construct. None of
+  them exists in `vocabulary/`, `shapes/`, `cue/` or `tests/`. They are withdrawn
+  from 1.8.0 and recorded under Unreleased above as proposals.
+- That entry and the site also credited the dossiers with features the files do not
+  contain (NPI attestation, a "Fiserv DNA" system, temporal leases). The dossier list
+  above is read from the files.
+- `docs/spec/DIS-1.8.md` was marked a draft proposal while the site called 1.8.0 an
+  active standard; it is now marked as the design record of the 1.8.0 release.
+  The artifacts moved from `v1.7.0` paths to `v1.8.0` paths.
+
+## [1.7.0] - Absorbed into 1.8.0, never tagged
+
+No tag or release exists for 1.7.0. Its constructs shipped in 1.8.0, and
+`schemas/v1.7.0` stays unpublished. See
+[`docs/spec/DIS-1.7-proposed.md`](docs/spec/DIS-1.7-proposed.md) for the original
+proposal.
 
 ### Added
 - **`UtterancePolicy`** — constraints on what an agent may SAY, distinct from what
@@ -172,4 +310,5 @@ proposal. No tag or release exists yet; nothing here is published.
 - **BREAKING**: `proxiedAmeliaBotInstanceId` from Entity
 - **BREAKING**: AmeliaBotInstance construct
 
+[1.8.0]: https://github.com/nwalker85/domainintelligenceschema/releases/tag/v1.8.0
 [1.6.0]: https://github.com/nwalker85/domainintelligenceschema/releases/tag/v1.6.0

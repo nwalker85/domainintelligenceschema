@@ -1,8 +1,8 @@
 # DIS 1.8 — Proposed Specification & Review
 
-**Status:** Draft Proposal  
+**Status:** Released as DIS 1.8.0 (2026-10-09); this document is the design record  
 **Baseline:** DIS 1.7.0 (`vocabulary/v1.8.0/dis.ttl`, `shapes/v1.8.0/dis-shapes.ttl`)  
-**Trigger:** Dogfooding `argus.camera.v1` in [`2026-10-05-argus-automation-engine.md`](file:///Users/nate/docs/reports/2026-10-05-argus-automation-engine.md)  
+**Trigger:** Dogfooding `argus.camera.v1` in the Argus automation-engine report (private, not in this repository)  
 **Author:** Nathan Walker  
 **Date:** 2026-10-05  
 
@@ -19,7 +19,7 @@ DIS 1.7 shifted Domain Intelligence Schema from a permissive documentation schem
 5. **Contract Consolidation**: Deprecated `.schema.json` in favor of Turtle/SHACL as the primary graph contract, with CUE as upstream source.
 
 ### 1.2 The Trial: `argus.camera.v1`
-Attempting to transcribe the Argus camera warden automation engine ([`argus-camera.ttl`](file:///Users/nate/docs/reports/argus-camera-dis/argus-camera.ttl)) revealed that while the 1.7 grammar successfully caught critical architectural oversights (e.g., automated wardens attempting to seize lifecycle authority from human operators, alerts lacking typed entities), it exposed **six structural flaws (G1–G6)** in DIS 1.7 itself.
+Attempting to transcribe the Argus camera warden automation engine (the private `argus-camera.ttl` trial dossier) revealed that while the 1.7 grammar successfully caught critical architectural oversights (e.g., automated wardens attempting to seize lifecycle authority from human operators, alerts lacking typed entities), it exposed **six structural flaws (G1–G6)** in DIS 1.7 itself.
 
 The core promise of DIS is **verifiable executable provenance** ("safety isn't inferred from conventions"). In 1.7, that promise broke down at the boundary between grammar modes, endpoint side-effects, and non-HTTP protocols.
 

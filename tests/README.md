@@ -1,4 +1,4 @@
-# DIS 1.7 conformance suite
+# DIS 1.8 conformance suite
 
 ## Running
 

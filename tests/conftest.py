@@ -1,4 +1,4 @@
-"""Shared fixtures for the DIS 1.7 conformance suite.
+"""Shared fixtures for the DIS 1.8 conformance suite.
 
 `dossier(name)` returns a FRESH merged graph each call (vocab + one fixture)
 so tests can mutate it (add_triplet / add_node) without bleeding state into

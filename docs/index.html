@@ -131,6 +131,8 @@
             line-height: 1.75;
         }
 
+        .doc-section a { color: #7FB3FF; }
+
         /* Grammar Grid */
         .grammar-grid {
             display: grid;
@@ -247,7 +249,7 @@
             </a>
             <div class="nav-links">
                 <a href="/">Overview</a>
-                <a href="/docs/spec/DIS-1.8.md">Spec Proposal</a>
+                <a href="/docs/spec/DIS-1.8.md">Specification</a>
                 <a href="https://github.com/nwalker85/domainintelligenceschema">GitHub</a>
             </div>
         </header>
@@ -258,8 +260,8 @@
             <h1>Technical Reference &amp; Formal Grammar</h1>
             <p>
                 The Domain Intelligence Schema (DIS) is an open, platform-agnostic standard for enterprise agentic systems. 
-                Rooted in W3C RDF and SHACL knowledge graphs, DIS provides formal mathematical guardrails, attributed causality, 
-                and substrate-independent execution across any input channel or legacy backend.
+                Rooted in W3C RDF and SHACL knowledge graphs, DIS provides a closed grammar, SHACL-enforced constraints,
+                and a declared systems layer that names what each agent step reaches and changes.
             </p>
         </div>
 
@@ -273,13 +275,13 @@
             <div class="grammar-grid">
                 <div class="card">
                     <span class="card-tag">W3C RDF / Turtle</span>
-                    <h3>Knowledge Graph Substrate</h3>
+                    <h3>Knowledge Graph</h3>
                     <p>Every entity, role, mode, and execution binding is formally defined as an attributed triple in a closed semantic graph.</p>
                 </div>
                 <div class="card">
                     <span class="card-tag">W3C SHACL</span>
                     <h3>Structural &amp; Behavioral Gates</h3>
-                    <p>Shapes Constraint Language (SHACL) acts as the execution firewall. If an agent proposes an invalid triplet or breaks segregation of duties, the shape validator rejects it deterministically.</p>
+                    <p>Shapes Constraint Language (SHACL) is the contract. A dossier containing an invalid triplet, a mode its entity does not support, or a role with no access gate for it is rejected by the shape validator.</p>
                 </div>
                 <div class="card">
                     <span class="card-tag">SPARQL</span>
@@ -308,80 +310,109 @@
 
         <!-- 3. DIS 1.8 Grammar Extensions -->
         <section class="doc-section">
-            <h2>3. DIS 1.8 Grammar Extensions (G1 &ndash; G5)</h2>
+            <h2>3. DIS 1.8 Grammar Extensions (G1 &ndash; G6)</h2>
             <p>
-                Version 1.8 expands the semantic grammar to address the physical reality of multi-agent execution, epistemic drift, and legacy enterprise backends:
+                Version 1.8 closes six gaps found by transcribing a real automation engine (the Argus trial) as a dossier. Together they give a triplet executable provenance: what it reaches, what it mutates, and what it is allowed to call. The design record is <a href="/docs/spec/DIS-1.8.md">DIS-1.8.md</a>.
             </p>
 
             <div class="grammar-grid">
                 <div class="card">
-                    <span class="card-tag">G1 &middot; KNOW vs BE</span>
-                    <h3>Epistemic Observation vs Ground Truth</h3>
-                    <p>Unverified external claims are modeled as <code>dis:Observation</code>, carrying observer identity and epistemic confidence. Ground truth remains immutable.</p>
+                    <span class="card-tag">G1 &middot; Mode / Mutates</span>
+                    <h3>Mode / Mutates Consistency</h3>
+                    <p>A <code>READ</code> triplet cannot bind a function whose endpoint has <code>mutates true</code>; <code>CREATE</code>, <code>UPDATE</code> and <code>DELETE</code> triplets must bind one that does. Enforced by <code>TripletModeMutationConsistencyShape</code>.</p>
                 </div>
                 <div class="card">
-                    <span class="card-tag">G2 &middot; HAVE &amp; Varar</span>
-                    <h3>Bounded Capability Leases</h3>
-                    <p>Replaces ambient credentials with single-task <code>dis:CapabilityLease</code> mandate tokens with mathematical non-escalation invariants.</p>
+                    <span class="card-tag">G2 &middot; Side Effects</span>
+                    <h3>Directed Side Effects</h3>
+                    <p>A function calling a mutating endpoint must declare the entity it changes with <code>writesEntity</code>, and the triplet's <code>targetEntity</code> must match the function's <code>readsEntity</code> (READ) or <code>writesEntity</code> (CREATE, UPDATE, DELETE).</p>
                 </div>
                 <div class="card">
-                    <span class="card-tag">G3 &middot; Mortalities</span>
-                    <h3>Thermodynamic Decay Curves</h3>
-                    <p>Temporal observations decay via explicit half-life curves (<code>decayHalfLifeSeconds</code>). Stale data triggers mandatory re-verification before state mutation.</p>
+                    <span class="card-tag">G3 &middot; Binding</span>
+                    <h3>Binding Completeness</h3>
+                    <p>A triplet with no executable function declares a <code>bindingStatus</code>: <code>BOUND</code>, <code>MANUAL_PROCEDURE</code> or <code>ABSTRACT_UNBOUND</code>, with an <code>unboundReason</code>. The vocabulary and shape accept these; a rule rejecting an unbound mutating triplet that omits one is specified but not yet enforced.</p>
                 </div>
                 <div class="card">
-                    <span class="card-tag">G4 &middot; Consensus</span>
-                    <h3>Disagreement Matrices</h3>
-                    <p>Multi-agent epistemic arbitration rules specifying consensus thresholds, dissenting votes, and human-in-the-loop arbitration when observations conflict.</p>
+                    <span class="card-tag">G4 &middot; Transport</span>
+                    <h3>Multi-Transport Systems Layer</h3>
+                    <p>An Endpoint declares a <code>dis:transport</code> (HTTPS, MQTT, RTSP, NATS, gRPC and others), and non-HTTP endpoints need no <code>httpMethod</code> or <code>urlPath</code>. An Application declares a <code>networkScope</code>, so a private-network system need not present an https base URL.</p>
                 </div>
                 <div class="card">
-                    <span class="card-tag">G5 &middot; Substrates</span>
-                    <h3>Multi-Vendor Interchangeability</h3>
-                    <p>Demonstrates that governed business logic compiles identically into competing legacy backends (e.g., Epic vs. Cerner vs. MEDITECH) with zero model rework.</p>
+                    <span class="card-tag">G5 &middot; Gates</span>
+                    <h3>Function-Level Access Gates</h3>
+                    <p>An <code>AccessGateMatrix</code> can name the exact catalog functions a role may run on an entity with <code>allowedFunction</code>, so &ldquo;may disable, may not re-enable&rdquo; can be stated. Enforced by <code>TripletWithinAllowedFunctionGateShape</code>.</p>
+                </div>
+                <div class="card">
+                    <span class="card-tag">G6 &middot; Conformance</span>
+                    <h3>Single-Graph Conformance</h3>
+                    <p>A dossier is validated as one graph merged with <code>vocabulary/v1.8.0/dis.ttl</code>, with no inference flag. <code>scripts/validate-dossier.sh</code> is the canonical recipe.</p>
                 </div>
             </div>
         </section>
 
         <!-- 4. Reference Dossiers -->
         <section class="doc-section">
-            <h2>4. Enterprise Reference Dossiers</h2>
+            <h2>4. Reference Dossiers</h2>
             <p>
-                DIS 1.8 provides four fully realized, production-grade reference dossiers with zero mocked shortcuts:
+                DIS 1.8.0 ships eight dossiers in <code>fixtures/v1.8.0/</code>. Every one except <code>deformed.ttl</code> conforms against the merged vocabulary and shapes; <code>deformed.ttl</code> is the negative fixture and is rejected on purpose.
             </p>
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
-                            <th>Industry</th>
+                            <th>Domain</th>
                             <th>Dossier File</th>
-                            <th>Primary Substrates</th>
-                            <th>Key Invariant Proved</th>
+                            <th>Systems Declared</th>
+                            <th>What It Shows</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td><strong>Healthcare</strong></td>
                             <td><code>fixtures/v1.8.0/healthcare.ttl</code></td>
-                            <td>Epic Systems, Cerner, MEDITECH</td>
-                            <td>DEA Schedule II formulary gate, NPI provider attestation, EHR interchangeability.</td>
+                            <td>Epic Cadence &amp; MyChart API, Cerner Millennium EHR, MEDITECH Expanse EHR, Surescripts E-Prescribing Gateway</td>
+                            <td>Appointment, patient lookup and refill triplets bound to endpoints; two unbound steps declared <code>MANUAL_PROCEDURE</code>; a structural policy prohibiting automated controlled-substance refills.</td>
                         </tr>
                         <tr>
                             <td><strong>Banking &amp; Insurance</strong></td>
                             <td><code>fixtures/v1.8.0/bfsi.ttl</code></td>
-                            <td>FIS Core, Fiserv DNA, Guidewire</td>
-                            <td>Authenticated vs. unauthenticated segregation of duties, GLBA compliance receipts.</td>
+                            <td>FIS Modern Banking Platform, Fiserv Signature &amp; Card Services, Guidewire ClaimCenter, Guidewire PolicyCenter</td>
+                            <td>An unauthenticated caller and an authenticated accountholder as separate roles with separate access gates; a card-freeze gate scoped to one function.</td>
                         </tr>
                         <tr>
-                            <td><strong>ITSM &amp; Cyber</strong></td>
+                            <td><strong>IT Service Management</strong></td>
                             <td><code>fixtures/v1.8.0/itsd.ttl</code></td>
-                            <td>ServiceNow, SailPoint, SAP HANA EAM</td>
-                            <td>Non-escalating privilege grants, 4-hour temporal leases, backoffice offboarding daemons.</td>
+                            <td>ServiceNow ITSM, SailPoint IdentityNow &amp; Entra ID Bridge, SAP HANA EAM</td>
+                            <td>A backoffice orchestrator role, separate from the interactive virtual agent, holds the only gates on onboarding and offboarding orders, each scoped to one function.</td>
                         </tr>
                         <tr>
                             <td><strong>Human Capital</strong></td>
                             <td><code>fixtures/v1.8.0/hr.ttl</code></td>
-                            <td>Workday HCM, SuccessFactors, PeopleSoft</td>
-                            <td>Multi-population policy filtering, strict privacy manifests, SOX compliance.</td>
+                            <td>Workday HCM, SAP SuccessFactors Employee Central, Oracle PeopleSoft Time and Labor</td>
+                            <td>A role per worker population (exempt, hourly, people leader, contractor, Munich campus) with population-specific policies.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Retail</strong></td>
+                            <td><code>fixtures/v1.8.0/retail.ttl</code></td>
+                            <td>Retail Catalog API</td>
+                            <td>Apex Retail Customer Support, status <code>DRAFT</code>; the base graph most conformance tests mutate to build negative cases.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IT &amp; HR portal</strong></td>
+                            <td><code>fixtures/v1.8.0/itsd-hr.ttl</code></td>
+                            <td>Enterprise Gateway API</td>
+                            <td>A smaller employee IT service desk and HR portal behind one gateway application; status <code>DRAFT</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Minimal</strong></td>
+                            <td><code>fixtures/v1.8.0/dadjoke.ttl</code></td>
+                            <td>Dad Joke Webhook</td>
+                            <td>The smallest conforming dossier: one entity, one triplet, one utterance policy.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Negative</strong></td>
+                            <td><code>fixtures/v1.8.0/deformed.ttl</code></td>
+                            <td>None</td>
+                            <td>Three deliberate violations (a triplet targeting a Role, an invented mode, an <code>OBLIGATION</code> with no bound value); the suite asserts exactly those three are reported.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -392,22 +423,34 @@
         <section class="doc-section">
             <h2>5. Conformance Testing Suite</h2>
             <p>
-                Every DIS release is verified against an automated conformance test suite combining <code>pytest</code>, <code>rdflib</code>, and <code>pyshacl</code>:
+                The repository carries an automated conformance suite built on <code>pytest</code>, <code>rdflib</code> and <code>pyshacl</code>. Its CUE and JSON Schema checks also need the <code>cue</code> command and are skipped without it. Output of <code>uv sync --group test &amp;&amp; uv run pytest</code>, with the environment header lines trimmed:
             </p>
             <pre><code>$ uv run pytest
-============================= test session starts ==============================
-rootdir: /Users/nate/src/github.com/nwalker85/domainintelligenceschema
 collected 196 items
 
-tests/test_dis_18_grammar.py ................................            [ 16%]
-tests/test_grammar_matrices.py .........................                 [ 29%]
-tests/test_queries.py .................................                  [ 46%]
-tests/test_utterance_policy.py ....................                      [ 56%]
-tests/test_v16_compat.py ........................                        [ 68%]
-tests/test_validation_recipe.py .....................................   [ 87%]
-tests/test_vocabulary_integrity.py .........................             [100%]
+tests/test_agentic_triplet.py ................                           [  8%]
+tests/test_artifacts_parse.py ....                                       [ 10%]
+tests/test_cue_json_schema.py ........                                   [ 14%]
+tests/test_dis_18_grammar.py ..............                              [ 21%]
+tests/test_entity_instance.py .........                                  [ 26%]
+tests/test_governance_constructs.py ..........................           [ 39%]
+tests/test_grammar_matrices.py .......                                   [ 42%]
+tests/test_queries.py ....                                               [ 44%]
+tests/test_release_gating.py .......                                     [ 48%]
+tests/test_systems_layer.py ......................                       [ 59%]
+tests/test_utterance_policy.py .............                             [ 66%]
+tests/test_v16_compat.py ....                                            [ 68%]
+tests/test_validation_recipe.py ..............                           [ 75%]
+tests/test_vocabulary_integrity.py .....................                 [ 86%]
+tests/test_worked_example.py ...........................                 [100%]
 
-============================= 196 passed in 65.2s ==============================</code></pre>
+============================= 196 passed in 32.50s =============================</code></pre>
+            <p>
+                To validate a single dossier, merge it with the vocabulary and check it against the shapes with <code>scripts/validate-dossier.sh</code>:
+            </p>
+            <pre><code>$ scripts/validate-dossier.sh fixtures/v1.8.0/healthcare.ttl
+Validation Report
+Conforms: True</code></pre>
         </section>
 
         <!-- Footer -->
