@@ -1,4 +1,4 @@
-"""cue/v1.7.0/UtterancePolicy.cue <-> schemas/v1.7.0/UtterancePolicy.schema.json.
+"""cue/v1.8.0/UtterancePolicy.cue <-> schemas/v1.7.0/UtterancePolicy.schema.json.
 
 §6.2's documented fidelity gap: the exported JSON Schema is WEAKER than
 #UtterancePolicyStrict — the OBLIGATION-needs-boundValueRefs and
@@ -34,7 +34,7 @@ def _cue_vet(repo, instance, definition="#UtterancePolicy", tmp_path=None):
     instance_file.write_text(json.dumps(instance))
     try:
         result = subprocess.run(
-            ["cue", "vet", str(repo / "cue/v1.7.0/UtterancePolicy.cue"), str(instance_file), "-d", definition],
+            ["cue", "vet", str(repo / "cue/v1.8.0/UtterancePolicy.cue"), str(instance_file), "-d", definition],
             capture_output=True,
             text=True,
         )
@@ -44,13 +44,13 @@ def _cue_vet(repo, instance, definition="#UtterancePolicy", tmp_path=None):
 
 
 def test_cue_vet_the_source_file_passes(repo):
-    result = subprocess.run(["cue", "vet", str(repo / "cue/v1.7.0/UtterancePolicy.cue")], capture_output=True, text=True)
+    result = subprocess.run(["cue", "vet", str(repo / "cue/v1.8.0/UtterancePolicy.cue")], capture_output=True, text=True)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
 def test_cue_export_json_equals_checked_in_schema(repo, tmp_path):
     result = subprocess.run(
-        ["cue", "def", str(repo / "cue/v1.7.0/UtterancePolicy.cue"), "-e", "#UtterancePolicy", "--out", "jsonschema"],
+        ["cue", "def", str(repo / "cue/v1.8.0/UtterancePolicy.cue"), "-e", "#UtterancePolicy", "--out", "jsonschema"],
         capture_output=True,
         text=True,
     )

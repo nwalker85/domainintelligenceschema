@@ -1,6 +1,6 @@
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix sh:  <http://www.w3.org/ns/shacl#> .
-@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.8.0/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 # A shape either DEFINES a construct (appears in the palette, renders a form) or

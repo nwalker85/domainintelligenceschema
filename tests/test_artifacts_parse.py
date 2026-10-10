@@ -20,7 +20,7 @@ def test_every_turtle_file_parses(repo):
 
 
 def test_every_sparql_query_compiles(repo):
-    files = sorted((repo / "queries/v1.7.0").glob("*.rq"))
+    files = sorted((repo / "queries/v1.8.0").glob("*.rq"))
     assert len(files) == 4
     for f in files:
         prepareQuery(f.read_text())

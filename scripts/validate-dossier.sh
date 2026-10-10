@@ -11,8 +11,8 @@ if [ "$#" -lt 1 ]; then
 fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VOCAB="$REPO_ROOT/vocabulary/v1.7.0/dis.ttl"
-SHAPES="$REPO_ROOT/shapes/v1.7.0/dis-shapes.ttl"
+VOCAB="$REPO_ROOT/vocabulary/v1.8.0/dis.ttl"
+SHAPES="$REPO_ROOT/shapes/v1.8.0/dis-shapes.ttl"
 
 command -v pyshacl >/dev/null 2>&1 && PYSHACL=(pyshacl) || PYSHACL=(uvx pyshacl)
 # --project pins uv to this repo's environment regardless of the caller's cwd.

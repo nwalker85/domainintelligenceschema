@@ -1,7 +1,7 @@
 # DIS 1.8 — Proposed Specification & Review
 
 **Status:** Draft Proposal  
-**Baseline:** DIS 1.7.0 (`vocabulary/v1.7.0/dis.ttl`, `shapes/v1.7.0/dis-shapes.ttl`)  
+**Baseline:** DIS 1.7.0 (`vocabulary/v1.8.0/dis.ttl`, `shapes/v1.8.0/dis-shapes.ttl`)  
 **Trigger:** Dogfooding `argus.camera.v1` in [`2026-10-05-argus-automation-engine.md`](file:///Users/nate/docs/reports/2026-10-05-argus-automation-engine.md)  
 **Author:** Nathan Walker  
 **Date:** 2026-10-05  
@@ -238,7 +238,7 @@ When modeled against the DIS 1.8 specification:
 
 ## 7. Reference Dossiers Overhaul & Enterprise Systems Decomposition
 
-In accordance with DIS 1.8 requirements, the reference dossiers in `fixtures/v1.7.0/` have been overhauled into rich, production-grade enterprise domain representations decomposed into concrete System of Record entities, roles, and SHACL-validated access gates.
+In accordance with DIS 1.8 requirements, the reference dossiers in `fixtures/v1.8.0/` have been overhauled into rich, production-grade enterprise domain representations decomposed into concrete System of Record entities, roles, and SHACL-validated access gates.
 
 ### 7.1 Healthcare: Revenue Cycle Management (RCM) & Prescription Governance (`healthcare.ttl`)
 - **Systems of Record**:

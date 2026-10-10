@@ -1,4 +1,4 @@
-@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.8.0/> .
 @prefix d:   <https://dossier.example/broken/> .
 
 d:role-agent a dis:Role ;

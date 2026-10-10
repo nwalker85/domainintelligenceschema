@@ -1,5 +1,7 @@
 # DIS 1.7 — proposed specification
 
+Historical proposal, kept as written. Its constructs shipped in DIS 1.8.0; the artifacts now live under `vocabulary/v1.8.0`, `shapes/v1.8.0`, `cue/v1.8.0`, `queries/v1.8.0`, `fixtures/v1.8.0`.
+
 **Status:** Proposal · **Baseline:** 1.6.0 (published at
 `schemas.domainintelligenceschema.org`) · **Author:** Nathan Walker ·
 **Date:** 2026-09-15
