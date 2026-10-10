@@ -1,4 +1,4 @@
-"""Shared fixtures for the DIS 1.7 conformance suite.
+"""Shared fixtures for the DIS 1.8 conformance suite.
 
 `dossier(name)` returns a FRESH merged graph each call (vocab + one fixture)
 so tests can mutate it (add_triplet / add_node) without bleeding state into
@@ -14,14 +14,14 @@ import pytest
 from rdflib import Graph, Namespace, RDF
 from pyshacl import validate as _pyshacl_validate
 
-DIS = Namespace("https://schemas.domainintelligenceschema.org/dis/1.7.0/")
+DIS = Namespace("https://schemas.domainintelligenceschema.org/dis/1.8.0/")
 D = Namespace("https://dossier.ravenhelm.dev/retail/")
 SH = Namespace("http://www.w3.org/ns/shacl#")
 
 REPO = Path(__file__).resolve().parent.parent
-VOCAB_PATH = REPO / "vocabulary/v1.7.0/dis.ttl"
-SHAPES_PATH = REPO / "shapes/v1.7.0/dis-shapes.ttl"
-FIXTURES_DIR = REPO / "fixtures/v1.7.0"
+VOCAB_PATH = REPO / "vocabulary/v1.8.0/dis.ttl"
+SHAPES_PATH = REPO / "shapes/v1.8.0/dis-shapes.ttl"
+FIXTURES_DIR = REPO / "fixtures/v1.8.0"
 
 
 def _local(iri) -> str:

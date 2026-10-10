@@ -50,9 +50,9 @@ def test_validate_workflow_expects_23_and_there_are_23(repo):
     assert count == 23
 
 
-def test_changelog_170_heading_says_not_yet_released_while_marker_exists(repo):
+def test_changelog_170_heading_says_absorbed_never_tagged_while_marker_exists(repo):
     changelog = (repo / "CHANGELOG.md").read_text()
-    assert "[1.7.0] - Proposed, not yet released" in changelog
+    assert "[1.7.0] - Absorbed into 1.8.0, never tagged" in changelog
     assert (repo / "schemas/v1.7.0/.unreleased").exists()
 
 

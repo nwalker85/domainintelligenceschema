@@ -1,5 +1,5 @@
 # The default view: everything, with labels folded on.
-PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/>
+PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.8.0/>
 CONSTRUCT { ?s ?p ?o . ?s dis:__label ?label }
 WHERE {
   ?s ?p ?o .

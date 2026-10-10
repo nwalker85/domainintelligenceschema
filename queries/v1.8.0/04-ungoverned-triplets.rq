@@ -1,6 +1,6 @@
 # GAP FINDER: triplets that no UtterancePolicy governs.
 # On a liability-bearing domain this list is the review queue.
-PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/>
+PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.8.0/>
 SELECT ?triplet ?name ?mode WHERE {
   ?triplet a dis:AgenticTriplet ; dis:name ?name ; dis:mode ?mode .
   FILTER NOT EXISTS { ?p a dis:UtterancePolicy ; dis:appliesToTriplet ?triplet }

@@ -1,4 +1,4 @@
-@prefix dis:  <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix dis:  <https://schemas.domainintelligenceschema.org/dis/1.8.0/> .
 @prefix d:    <https://dossier.example/dadjoke/> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .

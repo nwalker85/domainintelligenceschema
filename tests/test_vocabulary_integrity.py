@@ -102,7 +102,7 @@ def test_gap5_every_construct_subclass_has_a_targeting_nodeshape(vocab, shapes):
 
 
 def _duplicated_nodeshape_names(repo):
-    text = (repo / "shapes/v1.7.0/dis-shapes.ttl").read_text()
+    text = (repo / "shapes/v1.8.0/dis-shapes.ttl").read_text()
     names = re.findall(r"^(dis:\w+Shape)\s+a\s+sh:NodeShape", text, re.MULTILINE)
     return {name for name, count in Counter(names).items() if count > 1}
 
@@ -206,7 +206,7 @@ ENUM_PARITY_CASES = [
 
 @pytest.fixture(scope="module")
 def cue_disjunctions(repo):
-    text = (repo / "cue/v1.7.0/UtterancePolicy.cue").read_text()
+    text = (repo / "cue/v1.8.0/UtterancePolicy.cue").read_text()
     out = {}
     for m in re.finditer(r"#(\w+):\s*(\".+)", text):
         name, rhs = m.groups()
@@ -230,7 +230,7 @@ def test_enum_parity_across_vocab_cue_json_shacl(
 
     shacl_set = None
     for row in shapes.query(
-        "PREFIX sh: <http://www.w3.org/ns/shacl#> PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> "
+        "PREFIX sh: <http://www.w3.org/ns/shacl#> PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.8.0/> "
         "SELECT ?list WHERE { dis:UtterancePolicyShape sh:property ?ps . ?ps sh:path dis:%s ; sh:in ?list }" % shacl_path
     ):
         shacl_set = {_local(x) for x in Collection(shapes, row["list"])}
@@ -242,5 +242,5 @@ def test_ontology_version_and_namespace(vocab):
 
     ontology_iri = URIRef(str(DIS))
     version = vocab.value(ontology_iri, OWL.versionInfo)
-    assert str(version) == "1.7.0"
-    assert str(DIS).endswith("/1.7.0/")
+    assert str(version) == "1.8.0"
+    assert str(DIS).endswith("/1.8.0/")

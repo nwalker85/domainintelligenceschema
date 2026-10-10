@@ -1,4 +1,4 @@
-# DIS 1.7 conformance suite
+# DIS 1.8 conformance suite
 
 ## Running
 
@@ -12,9 +12,9 @@ lists every collected test without running it.
 
 ## The recipe
 
-Validate a dossier by merging `vocabulary/v1.7.0/dis.ttl` into the dossier's own
+Validate a dossier by merging `vocabulary/v1.8.0/dis.ttl` into the dossier's own
 graph and running SHACL with **no** `-i`/inference flag against
-`shapes/v1.7.0/dis-shapes.ttl` — that is `scripts/validate-dossier.sh`. Skipping
+`shapes/v1.8.0/dis-shapes.ttl` — that is `scripts/validate-dossier.sh`. Skipping
 the vocabulary merge produces false positives (the shapes can't see the enum
 individuals' types); adding `-i rdfs` is worse than skipping validation, because
 `rdfs:range` silently types an invented value as legitimate instead of catching it.

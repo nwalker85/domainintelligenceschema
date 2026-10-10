@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import oxigraph from 'oxigraph';
 
-const DIS = 'https://schemas.domainintelligenceschema.org/dis/1.7.0/';
+const DIS = 'https://schemas.domainintelligenceschema.org/dis/1.8.0/';
 const BASES = { retail: 'https://dossier.ravenhelm.dev/retail/', dadjoke: 'https://dossier.example/dadjoke/' };
 
 const store = new oxigraph.Store();

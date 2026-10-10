@@ -1,4 +1,4 @@
-"""queries/v1.7.0/*.rq against the merged vocab+reference dossier graphs."""
+"""queries/v1.8.0/*.rq against the merged vocab+reference dossier graphs."""
 from rdflib.plugins.sparql import prepareQuery
 
 from conftest import DIS
@@ -10,7 +10,7 @@ def _local(iri) -> str:
 
 
 def _run(g, repo, filename):
-    text = (repo / "queries/v1.7.0" / filename).read_text()
+    text = (repo / "queries/v1.8.0" / filename).read_text()
     return g.query(prepareQuery(text))
 
 

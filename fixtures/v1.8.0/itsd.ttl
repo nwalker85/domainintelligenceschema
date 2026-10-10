@@ -1,4 +1,4 @@
-@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix dis: <https://schemas.domainintelligenceschema.org/dis/1.8.0/> .
 @prefix it:  <https://dossier.ravenhelm.dev/itsd/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

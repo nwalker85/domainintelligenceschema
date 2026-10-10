@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Domain Intelligence Schema (DIS) — The Open Standard for Enterprise Agentic AI</title>
-    <meta name="description" content="OpenAPI defines endpoints. Terraform defines infrastructure. DIS defines what AI agents are mathematically allowed to know, decide, and execute.">
+    <meta name="description" content="OpenAPI defines endpoints. Terraform defines infrastructure. DIS defines what AI agents are allowed to do, say, and reach.">
     <link rel="canonical" href="https://domainintelligenceschema.org/">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -402,7 +402,7 @@
             margin-top: 0.5rem;
         }
 
-        /* Rail 3: Substrate Out */
+        /* Rail 3: Systems Reached */
         .rail-substrate {
             display: flex;
             flex-direction: column;
@@ -549,7 +549,7 @@
         .comp-good .comp-list li::before { content: "✓"; color: #34D399; font-weight: bold; }
 
         /* ==========================================================================
-           DIS 1.8 GRAMMAR EXTENSIONS (G1-G5)
+           DIS 1.8 GRAMMAR EXTENSIONS (G1-G6)
            ========================================================================== */
         .grammar-section {
             padding: 4rem 0;
@@ -593,6 +593,11 @@
             color: var(--text-muted);
             line-height: 1.6;
         }
+        .grammar-card code {
+            font-family: var(--font-mono);
+            font-size: 0.82em;
+            color: #7FB3FF;
+        }
 
         /* ==========================================================================
            CONFORMANCE & CODE
@@ -624,6 +629,7 @@
             font-family: var(--font-mono);
             font-size: 0.85rem;
             line-height: 1.7;
+            white-space: pre;
             overflow-x: auto;
             color: #C5CEE0;
         }
@@ -685,11 +691,11 @@
             <h1>The Open Standard for<br>Enterprise Agentic AI</h1>
             <p class="pitch-highlight">
                 <strong>OpenAPI defines endpoints. Terraform defines infrastructure.</strong><br>
-                DIS defines what AI agents are mathematically allowed to know, decide, and execute.
+                DIS defines what AI agents are allowed to do, say, and reach.
             </p>
             <p class="pitch-sub">
-                A formal grammar, W3C RDF/SHACL ontology, and invariant boundary engine.<br>
-                Write your domain once. Enforce it across any channel, runtime, or legacy enterprise substrate.
+                A formal grammar, a W3C RDF/SHACL ontology, and a conformance suite.<br>
+                Write your domain once, as a validated graph: who acts, on what, in which mode, through which system.
             </p>
 
             <div class="hero-actions">
@@ -703,7 +709,7 @@
         <div class="engine-showcase" id="engineShowcase">
             <div class="engine-topbar">
                 <div class="engine-title">
-                    <span>⚡ Governed Execution Engine</span>
+                    <span>⚡ Governed Triplets from the Reference Dossiers</span>
                 </div>
                 <div class="industry-tabs">
                     <button class="tab-btn active" onclick="setIndustry(0)">Clinical Healthcare</button>
@@ -745,36 +751,35 @@
                         <!-- Role -->
                         <div class="triplet-card card-role">
                             <span class="label">ROLE (Who Acts)</span>
-                            <span class="val" id="val-role">ClinicalPharmacist</span>
+                            <span class="val" id="val-role">rcm-navigator-agent</span>
                         </div>
                         <!-- Entity -->
                         <div class="triplet-card card-entity">
                             <span class="label">ENTITY (What Noun)</span>
-                            <span class="val" id="val-entity">MedicationOrder</span>
+                            <span class="val" id="val-entity">medication-refill-request</span>
                         </div>
                         <!-- Mode -->
                         <div class="triplet-card card-mode">
                             <span class="label">MODE (Which Verb)</span>
-                            <span class="val" id="val-mode">RESPOND</span>
+                            <span class="val" id="val-mode">CREATE</span>
                         </div>
                     </div>
 
                     <div class="invariant-banner" id="val-invariant">
-                        ✓ W3C SHACL Verified &middot; DEA Schedule II Formulary &middot; NPI Attested
+                        ✓ SHACL conformant &middot; CREATE binds a mutating endpoint &middot; DEA Schedule II-V refill prohibition
                     </div>
                 </div>
 
-                <!-- Rail 3: Any Substrate Out -->
+                <!-- Rail 3: Systems Reached -->
                 <div class="rail-substrate">
                     <div class="rail-header">
-                        <span>3. Any Substrate Out</span>
+                        <span>3. Systems Reached</span>
                     </div>
                     <div class="substrate-box">
-                        <span class="substrate-label">Executing Systems</span>
+                        <span class="substrate-label">Application &middot; Endpoint</span>
                         <div class="substrate-chips" id="val-substrates">
-                            <div class="chip"><span class="chip-dot"></span>Epic Systems EHR</div>
-                            <div class="chip"><span class="chip-dot"></span>Cerner Millennium</div>
-                            <div class="chip"><span class="chip-dot"></span>MEDITECH Expanse</div>
+                            <div class="chip"><span class="chip-dot"></span>Surescripts E-Prescribing Gateway</div>
+                            <div class="chip"><span class="chip-dot"></span>POST /RefillRequest</div>
                         </div>
                     </div>
                 </div>
@@ -789,7 +794,7 @@
         <section class="comparison-section">
             <div class="section-header">
                 <h2>Prompt &amp; Pray vs. Attributed Causality</h2>
-                <p>Why modern enterprise AI agents fail in production, and how DIS provides mathematical guardrails.</p>
+                <p>Why modern enterprise AI agents fail in production, and how DIS provides structural guardrails.</p>
             </div>
 
             <div class="comparison-grid">
@@ -815,9 +820,9 @@
                     </div>
                     <ul class="comp-list">
                         <li>Strict segregation of duties enforced by W3C SHACL shapes.</li>
-                        <li>UtterancePolicy prevents prompt injection at the boundary.</li>
-                        <li>Substrate-independent: swap Epic for Cerner with zero model rewrite.</li>
-                        <li>Self-proving audit ledger with cryptographic Varar capability tokens.</li>
+                        <li>UtterancePolicy states what an agent must and must not say, with STRUCTURAL, INSTRUCTED or ADVISORY enforcement.</li>
+                        <li>Side effects are declared: a mutating endpoint must name the entity it writes.</li>
+                        <li>SPARQL audit queries list ungoverned triplets and medical-liability constructs.</li>
                     </ul>
                 </div>
             </div>
@@ -827,39 +832,44 @@
         <section class="grammar-section">
             <div class="section-header">
                 <h2>DIS 1.8 Formal Semantic Extensions</h2>
-                <p>Five formal architectural primitives moving enterprise agents from probabilistic guessing to verifiable causality.</p>
+                <p>Six grammar fixes from the Argus trial give a triplet executable provenance: what it reaches, what it mutates, and what it is allowed to call.</p>
             </div>
 
             <div class="grammar-grid">
                 <div class="grammar-card">
-                    <span class="grammar-code">G1 &middot; KNOW vs. BE</span>
-                    <h3>Epistemic Observation vs Ground Truth</h3>
-                    <p>Separates unverified external claims from ground truth. Claims require observer identity and carry temporal epistemic decay curves.</p>
+                    <span class="grammar-code">G1 &middot; Mode / Mutates</span>
+                    <h3>Mode / Mutates Consistency</h3>
+                    <p>A <code>READ</code> triplet cannot bind a function whose endpoint mutates; <code>CREATE</code>, <code>UPDATE</code> and <code>DELETE</code> triplets must bind one that does.</p>
                 </div>
                 <div class="grammar-card">
-                    <span class="grammar-code">G2 &middot; HAVE &amp; Varar</span>
-                    <h3>Bounded Capability Leases</h3>
-                    <p>Replaces ambient credentials with time-bounded, single-task mandate tokens. Mathematical non-escalation prevents privilege leaks.</p>
+                    <span class="grammar-code">G2 &middot; Side Effects</span>
+                    <h3>Directed Side Effects</h3>
+                    <p>A function calling a mutating endpoint declares the entity it changes with <code>writesEntity</code>, and the triplet's target must match <code>readsEntity</code> or <code>writesEntity</code>.</p>
                 </div>
                 <div class="grammar-card">
-                    <span class="grammar-code">G3 &middot; Mortalities</span>
-                    <h3>Thermodynamic Decay Curves</h3>
-                    <p>Observations decay with explicit half-lives. Stale context automatically triggers mandatory re-verification before state mutations.</p>
+                    <span class="grammar-code">G3 &middot; Binding</span>
+                    <h3>Binding Completeness</h3>
+                    <p>A triplet with no executable function declares a <code>bindingStatus</code> (<code>BOUND</code>, <code>MANUAL_PROCEDURE</code> or <code>ABSTRACT_UNBOUND</code>) and an <code>unboundReason</code>, so a human step or roadmap gap is stated, not implied.</p>
                 </div>
                 <div class="grammar-card">
-                    <span class="grammar-code">G4 &middot; Consensus</span>
-                    <h3>Epistemic Disagreement Matrices</h3>
-                    <p>Formalizes multi-agent consensus, arbitration thresholds, and dispute resolution when peer observations collide.</p>
+                    <span class="grammar-code">G4 &middot; Transport</span>
+                    <h3>Multi-Transport Systems Layer</h3>
+                    <p>Endpoints declare a <code>transport</code> (HTTPS, MQTT, RTSP, NATS, gRPC and more), and an Application declares a <code>networkScope</code> so private-network systems can be modeled.</p>
                 </div>
                 <div class="grammar-card">
-                    <span class="grammar-code">G5 &middot; Substrates</span>
-                    <h3>Multi-Vendor Interchangeability</h3>
-                    <p>Write business logic once. Compile to Epic, Cerner, MEDITECH, FIS, Fiserv, Guidewire, ServiceNow, or Workday without code changes.</p>
+                    <span class="grammar-code">G5 &middot; Gates</span>
+                    <h3>Function-Level Access Gates</h3>
+                    <p>An access gate can name the exact catalog functions a role may run on an entity with <code>allowedFunction</code>, so &ldquo;may disable, may not re-enable&rdquo; can be stated.</p>
                 </div>
                 <div class="grammar-card">
+                    <span class="grammar-code">G6 &middot; Conformance</span>
+                    <h3>Single-Graph Conformance</h3>
+                    <p>A dossier is validated as one merged graph with the DIS vocabulary; <code>scripts/validate-dossier.sh</code> is the canonical recipe.</p>
+                </div>
+                <div class="grammar-card" style="grid-column: 1 / -1;">
                     <span class="grammar-code">CI &middot; 196 Tests</span>
                     <h3>Automated Conformance Suite</h3>
-                    <p>Validated with pytest and pySHACL. 196 automated tests guarantee zero orphaned entities, valid triplets, and clean audit logs.</p>
+                    <p>Validated with pytest, pySHACL and CUE. 196 automated tests cover the grammar, the shapes, the SPARQL queries and every reference dossier.</p>
                 </div>
             </div>
         </section>
@@ -873,23 +883,36 @@
 
             <div class="code-showcase">
                 <div class="code-header">
-                    <span>fixtures/v1.7.0/healthcare.ttl &middot; Governed Triplet Example</span>
+                    <span>fixtures/v1.8.0/healthcare.ttl &middot; Governed Triplet Example</span>
                     <span>196/196 Conformance Tests Passing</span>
                 </div>
-                <div class="code-body">
-<span class="cmt"># An authorized clinical agentic triplet in DIS 1.8</span>
-<span class="pred">:PharmacistPrescriptionReview</span> <span class="kw">a</span> <span class="pred">dis:AgenticTriplet</span> ;
-    <span class="pred">rdfs:label</span> <span class="lit">"Clinical Pharmacist Review of Schedule II Medication"</span> ;
-    <span class="pred">dis:hasRole</span> <span class="pred">:ClinicalPharmacist</span> ;
-    <span class="pred">dis:hasEntity</span> <span class="pred">:MedicationOrder</span> ;
-    <span class="pred">dis:hasMode</span> <span class="pred">dis:RESPOND</span> ;
-    <span class="pred">dis:hasCapabilityLease</span> [
-        <span class="kw">a</span> <span class="pred">dis:CapabilityLease</span> ;
-        <span class="pred">dis:validForDurationSeconds</span> <span class="lit">1800</span> ;
-        <span class="pred">dis:boundToSubstrate</span> <span class="pred">:EpicSystemsEHR</span>, <span class="pred">:CernerMillennium</span>, <span class="pred">:MeditechExpanse</span> ;
-        <span class="pred">dis:npiAttestationRequired</span> <span class="lit">true</span>
-    ] .
-                </div>
+                <div class="code-body"><span class="cmt"># healthcare.ttl, prefixes omitted: a bound triplet, the function it binds, and the endpoint that function calls</span>
+<span class="pred">h:t7-request-prescription-refill</span> <span class="kw">a</span> <span class="pred">dis:AgenticTriplet</span> ;
+    <span class="pred">dis:actingRole</span> <span class="pred">h:rcm-navigator-agent</span> ;
+    <span class="pred">dis:boundFunction</span> <span class="pred">h:fn-submit-refill</span> ;
+    <span class="pred">dis:stance</span> <span class="pred">dis:ACT</span> ;
+    <span class="pred">dis:mode</span> <span class="pred">dis:CREATE</span> ;
+    <span class="pred">dis:targetEntity</span> <span class="pred">h:medication-refill-request</span> ;
+    <span class="pred">dis:name</span> <span class="lit">"Submit refill request"</span> ;
+    <span class="pred">dis:description</span> <span class="lit">"Submits refill request through Surescripts network."</span> .
+
+<span class="pred">h:fn-submit-refill</span> <span class="kw">a</span> <span class="pred">dis:FunctionCatalogEntry</span> ;
+    <span class="pred">dis:name</span> <span class="lit">"Submit Refill Request"</span> ;
+    <span class="pred">dis:description</span> <span class="lit">"Submits medication refill to Surescripts network."</span> ;
+    <span class="pred">dis:callsEndpoint</span> <span class="pred">h:ep-surescripts-request-refill</span> ;
+    <span class="pred">dis:readsEntity</span> <span class="pred">h:prescription-medication</span> ;
+    <span class="pred">dis:writesEntity</span> <span class="pred">h:medication-refill-request</span> ;
+    <span class="pred">dis:inputFields</span> <span class="lit">"patient_mrn,prescription_number,ndc_code,pharmacy_ncpdp"</span> ;
+    <span class="pred">dis:outputFields</span> <span class="lit">"refill_request_id,status,transmission_receipt"</span> .
+
+<span class="pred">h:ep-surescripts-request-refill</span> <span class="kw">a</span> <span class="pred">dis:Endpoint</span> ;
+    <span class="pred">dis:name</span> <span class="lit">"Surescripts Submit Refill Request"</span> ;
+    <span class="pred">dis:description</span> <span class="lit">"Submits clinical renewal request to physician inbox via Surescripts electronic routing."</span> ;
+    <span class="pred">dis:hostedBy</span> <span class="pred">h:surescripts-network</span> ;
+    <span class="pred">dis:transport</span> <span class="pred">dis:TRANSPORT_HTTPS</span> ;
+    <span class="pred">dis:httpMethod</span> <span class="pred">dis:POST</span> ;
+    <span class="pred">dis:urlPath</span> <span class="lit">"/RefillRequest"</span> ;
+    <span class="pred">dis:mutates</span> <span class="lit">true</span> .</div>
             </div>
         </section>
 
@@ -913,42 +936,44 @@
 
     <!-- Interactive Engine JavaScript -->
     <script>
+        // Each entry is one real triplet from fixtures/v1.8.0, traced to the
+        // application and endpoint its bound function reaches.
         const industries = [
             {
                 name: "Clinical Healthcare",
                 activeChannel: "chan-voice",
-                role: "ClinicalPharmacist",
-                entity: "MedicationOrder",
-                mode: "RESPOND",
-                invariant: "✓ W3C SHACL Verified · DEA Schedule II Formulary · NPI Attested",
-                substrates: ["Epic Systems EHR", "Cerner Millennium", "MEDITECH Expanse"]
+                role: "rcm-navigator-agent",
+                entity: "medication-refill-request",
+                mode: "CREATE",
+                invariant: "✓ SHACL conformant · CREATE binds a mutating endpoint · DEA Schedule II-V refill prohibition",
+                systems: ["Surescripts E-Prescribing Gateway", "POST /RefillRequest"]
             },
             {
                 name: "Banking & Insurance",
                 activeChannel: "chan-chat",
-                role: "ClaimsAdjuster",
-                entity: "FirstNoticeOfLoss",
-                mode: "INITIATE",
-                invariant: "✓ Segregation of Duties · GLBA Compliance Ledger · Audit Receipt",
-                substrates: ["Guidewire ClaimCenter", "FIS Modern Banking", "Fiserv DNA"]
+                role: "bfsi-concierge-agent",
+                entity: "cardholder-debit-card",
+                mode: "UPDATE",
+                invariant: "✓ SHACL conformant · access gate scoped to fn-freeze-debit-card · authenticated-accountholder gate",
+                systems: ["Fiserv Signature & Card Services", "POST /cards/{id}/freeze"]
             },
             {
                 name: "ITSM & Cyber",
                 activeChannel: "chan-backoffice",
-                role: "SecOpsEngineer",
-                entity: "PrivilegedAccessGrant",
-                mode: "UPDATE",
-                invariant: "✓ Non-Escalation Varar Token · 4-Hour Temporal Lease · Zero Ambient Root",
-                substrates: ["ServiceNow ITSM", "SailPoint IdentityNow", "SAP HANA EAM"]
+                role: "backoffice-idm-orchestrator",
+                entity: "offboarding-order",
+                mode: "DELETE",
+                invariant: "✓ SHACL conformant · only the backoffice orchestrator is gated on offboarding-order · one scoped function",
+                systems: ["SailPoint IdentityNow & Entra ID Bridge", "POST /lifecycle/offboarding/revoke"]
             },
             {
                 name: "Human Capital",
                 activeChannel: "chan-chat",
-                role: "PeoplePartner",
-                entity: "CompensationBand",
+                role: "hr-virtual-assistant",
+                entity: "compensation-band",
                 mode: "READ",
-                invariant: "✓ Multi-Jurisdiction Filter · Masked PII · SOX Compliance Checked",
-                substrates: ["Workday HCM", "SAP SuccessFactors", "Oracle PeopleSoft"]
+                invariant: "✓ SHACL conformant · READ binds a non-mutating endpoint · function-scoped access gate",
+                systems: ["SAP SuccessFactors Employee Central", "GET /PerPersonalCompensation('{job_grade}')"]
             }
         ];
 
@@ -993,13 +1018,16 @@
             // Invariant banner
             document.getElementById('val-invariant').textContent = data.invariant;
 
-            // Substrates
+            // Systems reached
             const subContainer = document.getElementById('val-substrates');
             subContainer.innerHTML = '';
-            data.substrates.forEach(sub => {
+            data.systems.forEach(sys => {
                 const chip = document.createElement('div');
                 chip.className = 'chip';
-                chip.innerHTML = `<span class="chip-dot"></span>${sub}`;
+                const dot = document.createElement('span');
+                dot.className = 'chip-dot';
+                chip.appendChild(dot);
+                chip.appendChild(document.createTextNode(sys));
                 subContainer.appendChild(chip);
             });
         }

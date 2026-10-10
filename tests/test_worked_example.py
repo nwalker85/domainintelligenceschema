@@ -67,7 +67,7 @@ def test_every_reference_dossier_conforms(repo, validate, vocab, name):
     g = Graph()
     for t in vocab:
         g.add(t)
-    g.parse(str(repo / f"fixtures/v1.7.0/{name}.ttl"), format="turtle")
+    g.parse(str(repo / f"fixtures/v1.8.0/{name}.ttl"), format="turtle")
     report = validate(g, inference="none")
     assert report.conforms
 

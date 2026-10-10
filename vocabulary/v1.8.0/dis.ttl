@@ -1,4 +1,4 @@
-@prefix dis:  <https://schemas.domainintelligenceschema.org/dis/1.7.0/> .
+@prefix dis:  <https://schemas.domainintelligenceschema.org/dis/1.8.0/> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
@@ -7,7 +7,7 @@
 
 dis: a owl:Ontology ;
     dct:title "Domain Intelligence Schema" ;
-    owl:versionInfo "1.7.0" ;
+    owl:versionInfo "1.8.0" ;
     dct:license <https://www.apache.org/licenses/LICENSE-2.0> ;
     rdfs:comment """DIS models a business domain as reified, typed, closed-vocabulary
 statements. An AgenticTriplet is an RDF triple with three additional commitments:

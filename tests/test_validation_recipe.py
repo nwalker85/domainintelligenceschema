@@ -46,7 +46,7 @@ def test_recipe_c_no_vocab_produces_false_positives_on_retail(dossier, validate)
     from pathlib import Path
 
     g = Graph().parse(
-        str(Path(__file__).resolve().parent.parent / "fixtures/v1.7.0/retail.ttl"),
+        str(Path(__file__).resolve().parent.parent / "fixtures/v1.8.0/retail.ttl"),
         format="turtle",
     )
     report = validate(g, inference="none")
@@ -76,7 +76,7 @@ def test_deformed_report_every_property_shape_result_has_a_result_path(dossier, 
 @pytest.mark.parametrize("fixture", ["retail.ttl", "healthcare.ttl", "bfsi.ttl", "itsd-hr.ttl", "itsd.ttl", "hr.ttl", "dadjoke.ttl"])
 def test_validate_dossier_script_exits_0_on_reference_dossiers(repo, fixture):
     result = subprocess.run(
-        ["bash", str(repo / "scripts/validate-dossier.sh"), f"fixtures/v1.7.0/{fixture}"],
+        ["bash", str(repo / "scripts/validate-dossier.sh"), f"fixtures/v1.8.0/{fixture}"],
         cwd=repo,
         capture_output=True,
         text=True,
@@ -90,7 +90,7 @@ def test_validate_dossier_script_exits_0_on_reference_dossiers(repo, fixture):
 )
 def test_validate_dossier_script_exits_1_on_deformed(repo):
     result = subprocess.run(
-        ["bash", str(repo / "scripts/validate-dossier.sh"), "fixtures/v1.7.0/deformed.ttl"],
+        ["bash", str(repo / "scripts/validate-dossier.sh"), "fixtures/v1.8.0/deformed.ttl"],
         cwd=repo,
         capture_output=True,
         text=True,

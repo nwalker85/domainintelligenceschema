@@ -1,6 +1,6 @@
 # A VIEW IS A QUERY. Everything governed by a medical-class policy —
 # the policy, the triplet it binds, the role, the entity, the function.
-PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.7.0/>
+PREFIX dis: <https://schemas.domainintelligenceschema.org/dis/1.8.0/>
 CONSTRUCT {
   ?policy  ?pp ?po .    ?policy dis:__label ?pl .
   ?triplet ?tp ?to .    ?triplet dis:__label ?tl .
